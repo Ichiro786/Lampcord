@@ -14,7 +14,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitHorizontalTouchSlopOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -333,26 +335,44 @@ fun MessageItem(
             .pointerInput(message.id, gestureMode, swipeThresholdPx) {
                 if (!isPreview && gestureMode) {
                     // Direct manipulation: the row follows the finger 1:1 and snaps back on
-                    // release, replying when dragged past the trigger distance. Only leftward
-                    // drags move the row, matching Discord's swipe-to-reply.
-                    detectHorizontalDragGestures(
-                        onHorizontalDrag = { change, dragAmount ->
-                            val target = (offsetX.value + dragAmount).coerceIn(-swipeMaxPx, 0f)
-                            scope.launch { offsetX.snapTo(target) }
-                            change.consume()
-                        },
-                        onDragEnd = {
-                            scope.launch {
-                                if (offsetX.value <= -swipeThresholdPx) {
-                                    messageStore.replyingTo = message
-                                }
-                                offsetX.animateTo(0f, swipeBackSpec)
+                    // release, replying when dragged past the trigger distance. The gesture only
+                    // claims leftward drags so rightward swipes still fall through to the
+                    // channel/member panels, matching Discord's swipe-to-reply.
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        val dragStart = awaitHorizontalTouchSlopOrCancellation(down.id) { change, _ ->
+                            if (change.position.x < down.position.x) {
+                                change.consume()
+                                true
+                            } else {
+                                false
                             }
-                        },
-                        onDragCancel = {
-                            scope.launch { offsetX.animateTo(0f, swipeBackSpec) }
+                        } ?: return@awaitEachGesture
+
+                        var lastX = dragStart.position.x
+                        scope.launch {
+                            offsetX.snapTo((offsetX.value + lastX - down.position.x).coerceIn(-swipeMaxPx, 0f))
                         }
-                    )
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                            if (!change.pressed) break
+                            val dx = change.position.x - lastX
+                            lastX = change.position.x
+                            if (dx != 0f) {
+                                scope.launch {
+                                    offsetX.snapTo((offsetX.value + dx).coerceIn(-swipeMaxPx, 0f))
+                                }
+                            }
+                            change.consume()
+                        }
+
+                        val shouldReply = offsetX.value <= -swipeThresholdPx
+                        scope.launch {
+                            if (shouldReply) messageStore.replyingTo = message
+                            offsetX.animateTo(0f, swipeBackSpec)
+                        }
+                    }
                 }
             }
             .pointerInput(message.id, tapTapMode) {
