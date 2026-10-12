@@ -55,19 +55,24 @@ object DisplayNameCatalog {
     }
 
     fun getFontFamily(fontId: Int?): FontFamily? = when (fontId) {
-        Fonts.BANGERS -> FontFamily(loadFont("font/Bangers-Regular.ttf"))
-        Fonts.BIO_RHYME -> FontFamily(loadFont("font/BioRhyme-Regular.ttf"))
-        Fonts.CHERRY_BOMB -> FontFamily(loadFont("font/CherryBombOne-Regular.ttf"))
-        Fonts.CHICLE -> FontFamily(loadFont("font/Chicle-Regular.ttf"))
-        Fonts.COMPAGNON -> FontFamily(loadFont("font/Compagnon-Medium.otf"))
-        Fonts.MUSEO_MODERNO -> FontFamily(loadFont("font/MuseoModerno-Regular.ttf"))
-        Fonts.NEO_CASTEL -> FontFamily(loadFont("font/NeoCastel.otf"))
-        Fonts.PIXELIFY -> FontFamily(loadFont("font/PixelifySans-Regular.otf"))
-        Fonts.RIBES -> FontFamily(loadFont("font/Ribes-Black.otf"))
-        Fonts.SINISTRE -> FontFamily(loadFont("font/Sinistre-Bold.otf"))
-        Fonts.ZILLA_SLAB -> FontFamily(loadFont("font/ZillaSlab-SemiBold.ttf"))
+        Fonts.BANGERS -> loadFontFamily("font/Bangers-Regular.ttf")
+        Fonts.BIO_RHYME -> loadFontFamily("font/BioRhyme-Regular.ttf")
+        Fonts.CHERRY_BOMB -> loadFontFamily("font/CherryBombOne-Regular.ttf")
+        Fonts.CHICLE -> loadFontFamily("font/Chicle-Regular.ttf")
+        Fonts.COMPAGNON -> loadFontFamily("font/Compagnon-Medium.otf")
+        Fonts.MUSEO_MODERNO -> loadFontFamily("font/MuseoModerno-Regular.ttf")
+        Fonts.NEO_CASTEL -> loadFontFamily("font/NeoCastel.otf")
+        Fonts.PIXELIFY -> loadFontFamily("font/PixelifySans-Regular.otf")
+        Fonts.RIBES -> loadFontFamily("font/Ribes-Black.otf")
+        Fonts.SINISTRE -> loadFontFamily("font/Sinistre-Bold.otf")
+        Fonts.ZILLA_SLAB -> loadFontFamily("font/ZillaSlab-SemiBold.ttf")
         else -> null
     }
+
+    // A font that cannot be loaded (e.g. a platform without a bundled asset) must fall back to
+    // the default rather than abort during composition.
+    private fun loadFontFamily(path: String): FontFamily? =
+        runCatching { FontFamily(loadFont(path)) }.getOrNull()
 
     fun getLetterSpacing(fontId: Int?): TextUnit = when (fontId) {
         Fonts.CHERRY_BOMB -> 0.04.sp

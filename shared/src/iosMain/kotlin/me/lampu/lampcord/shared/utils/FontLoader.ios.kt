@@ -8,4 +8,11 @@ actual fun loadFont(
     path: String,
     weight: FontWeight,
     style: FontStyle
-): Font = error("iOS Font loading not implemented")
+): Font {
+    // Compose Multiplatform syncs source-set resources into the app bundle under
+    // "compose-resources", while ResourceLoader reads from the bundle root; check both.
+    val bytes = ResourceLoader.readBytes(path)
+        ?: ResourceLoader.readBytes("compose-resources/$path")
+        ?: error("Font resource is missing: $path")
+    return androidx.compose.ui.text.platform.Font(path, bytes, weight, style)
+}
