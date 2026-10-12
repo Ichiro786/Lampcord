@@ -99,7 +99,6 @@ jobs:
         # Skipped whenever a device IPA is being built. The Xcode build phase links the
         # Release device framework, so in that mode nothing consumes the debug simulator
         # framework and linking it here is ~10 minutes of work with no consumer.
-        # Metrolist-KMP has no equivalent step at all.
         if: ${{ !inputs.build-ipa }}
         shell: bash
         run: |

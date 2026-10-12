@@ -36,7 +36,7 @@ internal data class FrameInsets(
 )
 
 @Composable
-fun rememberFrameInsets(
+internal fun rememberFrameInsets(
     profile: UserProfile?,
     profileStore: ProfileStore,
     cardWidth: Dp,

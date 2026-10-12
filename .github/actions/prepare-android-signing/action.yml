@@ -50,8 +50,8 @@ runs:
           -srckeypass "$KEY_PASSWORD" \
           -destkeystore "$VALIDATION_STORE" \
           -deststoretype PKCS12 \
-          -deststorepass metrolist-ci-validation \
-          -destkeypass metrolist-ci-validation \
+          -deststorepass lampcord-ci-validation \
+          -destkeypass lampcord-ci-validation \
           -noprompt; then
           echo "::error::Unable to read the Android signing key. Verify KEYSTORE_PASSWORD, KEY_ALIAS, and KEY_PASSWORD."
           exit 1
