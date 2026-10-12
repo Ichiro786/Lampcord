@@ -17,34 +17,26 @@ optdepends=(
 provides=('lampcord')
 conflicts=('lampcord')
 options=('!strip' '!debug')
-source=(
-  "lampcord-desktop-linux-x64-${pkgver}.jar::https://github.com/l6t9/Lampcord/releases/download/v${pkgver}/lampcord-desktop-linux-x64-${pkgver}.jar"
-  "lampcord-launcher::https://raw.githubusercontent.com/l6t9/Lampcord/v${pkgver}/packaging/aur/lampcord-launcher"
-  "lampcord.desktop::https://raw.githubusercontent.com/l6t9/Lampcord/v${pkgver}/packaging/aur/lampcord.desktop"
-  "lampcord.png::https://raw.githubusercontent.com/l6t9/Lampcord/v${pkgver}/packaging/aur/lampcord.png"
-  "lampcord.svg::https://raw.githubusercontent.com/l6t9/Lampcord/v${pkgver}/packaging/aur/lampcord.svg"
-)
-# Checksums for the current release's sources. All sources are URLs, so regenerate these with
-# `updpkgsums` whenever pkgver is bumped. CI rewrites this block for the AUR tarball it packages
-# in .github/workflows/reusable-desktop-linux.yml, in source=() order.
-sha256sums=('5c6eec1bb4ab2316e7700cc8d4b119998b765460ca9603651c5d34b5b141571f'
-            '02ca07af46ca8aecf26279afe2920bc22261f7e0a7ca3fc80053adc4535457ad'
-            'aad7c190d678bfe5c5b9c91d7b6075f0b63ecdfebe08d3bfe542f867db04da31'
-            'b05f31ca9c0e6e1f091b6e848773703334a78ba19834b6dc6f1cebefbea6eb75'
-            '6bcf70575b978e59851145dfb16c94d3bf5ef0e3cc5f4b8b586b5d70759b8eec')
+source=("lampcord-desktop-linux-x64-${pkgver}.tar.gz::https://github.com/l6t9/Lampcord/releases/download/v${pkgver}/lampcord-desktop-linux-x64-${pkgver}.tar.gz")
+# One self-contained tarball carries the jar, launcher, desktop file and both icons, so the
+# sources stay pinned to a single release artifact instead of five separate URLs. The checksum
+# below matches the tarball published with this release; regenerate it with `updpkgsums` when a
+# new release uploads its own tarball. CI rewrites this for the AUR tarball it packages in
+# .github/workflows/reusable-desktop-linux.yml.
+sha256sums=('8588c732d246cab37ed53a3b64e71c40969a98c372f207da8f1f495698febab1')
 
 package() {
-  install -Dm644 "${srcdir}/lampcord-desktop-linux-x64-${pkgver}.jar" \
+  install -Dm644 "${srcdir}/lampcord/lampcord.jar" \
     "${pkgdir}/usr/lib/lampcord/lampcord.jar"
 
-  install -Dm755 "${srcdir}/lampcord-launcher" "${pkgdir}/usr/bin/lampcord"
+  install -Dm755 "${srcdir}/lampcord/lampcord-launcher" "${pkgdir}/usr/bin/lampcord"
 
-  install -Dm644 "${srcdir}/lampcord.desktop" \
+  install -Dm644 "${srcdir}/lampcord/lampcord.desktop" \
     "${pkgdir}/usr/share/applications/lampcord.desktop"
 
-  install -Dm644 "${srcdir}/lampcord.png" \
+  install -Dm644 "${srcdir}/lampcord/lampcord.png" \
     "${pkgdir}/usr/share/icons/hicolor/512x512/apps/lampcord.png"
 
-  install -Dm644 "${srcdir}/lampcord.svg" \
+  install -Dm644 "${srcdir}/lampcord/lampcord.svg" \
     "${pkgdir}/usr/share/icons/hicolor/scalable/apps/lampcord.svg"
 }
