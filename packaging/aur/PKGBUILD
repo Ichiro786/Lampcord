@@ -41,5 +41,5 @@ package() {
     "${pkgdir}/usr/share/applications/lampcord.desktop"
 
   install -Dm644 "${srcdir}/lampcord.png" \
-    "${pkgdir}/usr/share/icons/hicolor/1024x1024/apps/lampcord.png"
+    "${pkgdir}/usr/share/icons/hicolor/512x512/apps/lampcord.png"
 }
