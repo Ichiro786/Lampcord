@@ -31,8 +31,8 @@ on:
         type: boolean
       package-aur:
         description: >-
-          Build an AUR source tarball from packaging/aur with pkgver and the AppImage
-          checksum rewritten for this build.
+          Build an AUR source tarball from packaging/aur with pkgver and the source
+          checksums rewritten for this build.
         required: false
         default: false
         type: boolean
@@ -156,8 +156,10 @@ jobs:
           staging="$(mktemp -d)"
           workdir="$staging/lampcord-bin"
           mkdir -p "$workdir"
-          cp packaging/aur/PKGBUILD packaging/aur/lampcord-launcher packaging/aur/lampcord.desktop \
-            packaging/aur/lampcord.png "$workdir/"
+          # The PKGBUILD is self-contained: the launcher, desktop file and icon are URL
+          # sources, so only the PKGBUILD ships. That keeps the helper files pinned to the
+          # tagged URL instead of risking a stale local copy committed next to it.
+          cp packaging/aur/PKGBUILD "$workdir/"
 
           # AUR packages are named with a release version, not a tester build version, so an
           # alpha appVersion would produce a PKGBUILD that no user can ever match to a tag.
@@ -171,6 +173,7 @@ jobs:
             asset_tag="nightly"
           fi
           sed -i "s|releases/download/v\${pkgver}|releases/download/${asset_tag}|" "$workdir/PKGBUILD"
+          sed -i "s|raw.githubusercontent.com/l6t9/Lampcord/v\${pkgver}|raw.githubusercontent.com/l6t9/Lampcord/${asset_tag}|" "$workdir/PKGBUILD"
 
           # Source order must match the PKGBUILD's source=() array.
           jar_sha="$(sha256sum "$jar" | cut -d' ' -f1)"

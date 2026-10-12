@@ -237,6 +237,7 @@ jobs:
       version: ${{ needs.prepare.outputs.version }}
       staging-release-tag: ${{ needs.stage.outputs.tag }}
       package-native: true
+      package-aur: true
     secrets:
       GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 

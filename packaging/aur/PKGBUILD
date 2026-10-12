@@ -19,16 +19,18 @@ conflicts=('lampcord')
 options=('!strip' '!debug')
 source=(
   "lampcord-desktop-linux-x64-${pkgver}.jar::https://github.com/l6t9/Lampcord/releases/download/v${pkgver}/lampcord-desktop-linux-x64-${pkgver}.jar"
-  'lampcord-launcher'
-  'lampcord.desktop'
-  'lampcord.png'
+  "lampcord-launcher::https://raw.githubusercontent.com/l6t9/Lampcord/v${pkgver}/packaging/aur/lampcord-launcher"
+  "lampcord.desktop::https://raw.githubusercontent.com/l6t9/Lampcord/v${pkgver}/packaging/aur/lampcord.desktop"
+  "lampcord.png::https://raw.githubusercontent.com/l6t9/Lampcord/v${pkgver}/packaging/aur/lampcord.png"
 )
-# The four checksums below are substituted by the Build AUR source tarball step in
-# .github/workflows/reusable-desktop-linux.yml, which sha256sums the published jar, this
-# launcher, the desktop file and the icon, then rewrites this block in the order the
-# source=() array lists them. A non-hex sentinel is deliberate: makepkg rejects it outright
-# rather than reporting a checksum mismatch, so running this file directly fails loudly
-# instead of appearing to work.
+# All sources are URLs so the PKGBUILD is self-contained: `updpkgsums` and makepkg work from a
+# lone PKGBUILD without the helper files having to be committed next to it. The helper files are
+# served from the repo at the release tag (the tag is rewritten when a tarball is packaged by
+# the Build AUR source tarball step in .github/workflows/reusable-desktop-linux.yml).
+#
+# The four checksums below are substituted by that same step, in source=() order. A non-hex
+# sentinel is deliberate: makepkg rejects it outright rather than reporting a checksum mismatch,
+# so running this file unmodified fails loudly instead of appearing to work.
 sha256sums=('REPLACED_BY_CI'
             'REPLACED_BY_CI'
             'REPLACED_BY_CI'
