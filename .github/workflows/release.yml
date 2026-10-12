@@ -477,19 +477,43 @@ jobs:
             gh release delete "$tag" --yes --repo "$GITHUB_REPOSITORY"
           fi
 
-          # Prepare unversioned alias copies for /releases/latest/download/ direct links
-          cp "release-assets/lampcord-android-${APP_VERSION}.apk" "release-assets/lampcord-android.apk" 2>/dev/null || true
-          cp "release-assets/lampcord-desktop-linux-x64-${APP_VERSION}.AppImage" "release-assets/lampcord-desktop-linux-x64.AppImage" 2>/dev/null || true
-          cp "release-assets/lampcord-desktop-windows-x64-${APP_VERSION}.zip" "release-assets/lampcord-desktop-windows-x64.zip" 2>/dev/null || true
-          cp "release-assets/lampcord-desktop-macos-${APP_VERSION}.dmg" "release-assets/lampcord-desktop-macos.dmg" 2>/dev/null || true
-          cp "release-assets/lampcord-ios-${APP_VERSION}.ipa" "release-assets/lampcord-ios.ipa" 2>/dev/null || true
-
+          # The versioned release is the archive: only version-pinned artifacts plus the
+          # build metadata and checksums that describe them. The unversioned "stable"
+          # aliases live in a separate rolling release (next step) so each release page
+          # stays free of duplicate copies.
           gh release create "$tag" \
             release-assets/* \
             --target "$GITHUB_SHA" \
             --title "Lampcord $APP_VERSION" \
             --notes "See CHANGELOG.md attachment for details." \
             --repo "$GITHUB_REPOSITORY"
+
+      - name: Publish stable download aliases
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APP_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+          # A single rolling release holds the unversioned copies that the README badges
+          # link to, so those URLs are stable while versioned releases stay uncluttered.
+          tag="stable"
+          title="Lampcord (Stable)"
+          mkdir -p stable-assets
+
+          cp "release-assets/lampcord-android-${APP_VERSION}.apk" "stable-assets/lampcord-android.apk"
+          cp "release-assets/lampcord-desktop-linux-x64-${APP_VERSION}.AppImage" "stable-assets/lampcord-desktop-linux-x64.AppImage"
+          cp "release-assets/lampcord-desktop-windows-x64-${APP_VERSION}.zip" "stable-assets/lampcord-desktop-windows-x64.zip"
+          cp "release-assets/lampcord-desktop-macos-${APP_VERSION}.dmg" "stable-assets/lampcord-desktop-macos.dmg"
+          cp "release-assets/lampcord-ios-${APP_VERSION}.ipa" "stable-assets/lampcord-ios.ipa"
+
+          notes="Stable download links, currently pointing at Lampcord ${APP_VERSION}. See the v${APP_VERSION} release for build metadata and checksums."
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release edit "$tag" --target "$GITHUB_SHA" --title "$title" --notes "$notes" --latest=false --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$tag" --target "$GITHUB_SHA" --title "$title" --notes "$notes" --latest=false --repo "$GITHUB_REPOSITORY"
+          fi
+          gh release upload "$tag" stable-assets/* --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Notify on Discord
         shell: bash

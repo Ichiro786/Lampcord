@@ -74,7 +74,7 @@ Lampcord is a lightweight Discord client built with Compose Multiplatform for Mo
       <h2>Android</h2>
       <p>Android 9+</p>
       <p>
-        <a href="https://github.com/l6t9/Lampcord/releases/latest/download/lampcord-android.apk">
+        <a href="https://github.com/l6t9/Lampcord/releases/download/stable/lampcord-android.apk">
           <img alt="Download Stable APK" src="assets/badges/platform/android-stable.svg" />
         </a>
       </p>
@@ -88,7 +88,7 @@ Lampcord is a lightweight Discord client built with Compose Multiplatform for Mo
       <h2>Windows</h2>
       <p>Windows 10+ · x64</p>
       <p>
-        <a href="https://github.com/l6t9/Lampcord/releases/latest/download/lampcord-desktop-windows-x64.zip">
+        <a href="https://github.com/l6t9/Lampcord/releases/download/stable/lampcord-desktop-windows-x64.zip">
           <img alt="Download Stable ZIP" src="assets/badges/platform/windows-portable.svg" />
         </a>
       </p>
@@ -102,7 +102,7 @@ Lampcord is a lightweight Discord client built with Compose Multiplatform for Mo
       <h2>Linux</h2>
       <p>x86_64 · AppImage or packages</p>
       <p>
-        <a href="https://github.com/l6t9/Lampcord/releases/latest/download/lampcord-desktop-linux-x64.AppImage">
+        <a href="https://github.com/l6t9/Lampcord/releases/download/stable/lampcord-desktop-linux-x64.AppImage">
           <img alt="Download Stable AppImage" src="assets/badges/platform/linux-appimage.svg" />
         </a>
       </p>
@@ -118,7 +118,7 @@ Lampcord is a lightweight Discord client built with Compose Multiplatform for Mo
       <h2>macOS</h2>
       <p>macOS 12+ · x64 / ARM (unsigned)</p>
       <p>
-        <a href="https://github.com/l6t9/Lampcord/releases/latest/download/lampcord-desktop-macos.dmg">
+        <a href="https://github.com/l6t9/Lampcord/releases/download/stable/lampcord-desktop-macos.dmg">
           <img alt="Download Stable DMG" src="assets/badges/platform/macos-apple-silicon.svg" />
         </a>
       </p>
@@ -132,7 +132,7 @@ Lampcord is a lightweight Discord client built with Compose Multiplatform for Mo
       <h2>iOS</h2>
       <p>iPhone &amp; iPad · iOS 17+ (unsigned)</p>
       <p>
-        <a href="https://github.com/l6t9/Lampcord/releases/latest/download/lampcord-ios.ipa">
+        <a href="https://github.com/l6t9/Lampcord/releases/download/stable/lampcord-ios.ipa">
           <img alt="Download Stable IPA" src="assets/badges/platform/ios-ipa.svg" />
         </a>
       </p>
