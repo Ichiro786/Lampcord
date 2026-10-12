@@ -24,14 +24,24 @@ android {
             ?: System.getenv(environmentName)?.takeIf { it.isNotBlank() }
 
     defaultConfig {
-        applicationId = "me.lampu.lampcord"
         minSdk = 24
         targetSdk = 37
-        
+
         val appVersion = project.property("appVersion") as String
         val nightlyBuild = (project.findProperty("nightlyBuild") as String?)?.toIntOrNull() ?: 0
+        // Nightlies install as a separate app (.nightly) so the two channels never contend for
+        // one versionCode; each channel updates itself and they can even coexist on a device.
+        applicationId = if (nightlyBuild > 0) "me.lampu.lampcord.nightly" else "me.lampu.lampcord"
         versionName = if (nightlyBuild > 0) "$appVersion-nightly.$nightlyBuild" else appVersion
-        versionCode = if (nightlyBuild > 0) 1_000_000 + nightlyBuild else 1
+        // The installer rejects any update whose versionCode does not increase, so each channel
+        // gets a monotonic code: stable from its X.Y.Z, nightly from the CI build number.
+        val (versionMajor, versionMinor, versionPatch) =
+            appVersion.substringBefore('-').split('.').map { it.toIntOrNull() ?: 0 }
+        versionCode = if (nightlyBuild > 0) {
+            1_000_000 + (nightlyBuild % 1_000_000)
+        } else {
+            versionMajor * 1_000_000 + versionMinor * 1_000 + versionPatch
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // All four by default so the app installs on desktop emulators, whose system

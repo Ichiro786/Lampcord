@@ -11,9 +11,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -48,9 +45,9 @@ fun UpdatesContent(
 ) {
     val state by updateManager.state.collectAsState()
     val scope = rememberCoroutineScope()
-    var channel by remember {
-        mutableStateOf(if (NIGHTLY_BUILD > 0) UpdateChannel.NIGHTLY else UpdateChannel.STABLE)
-    }
+    // A build ships as exactly one application id, so it only ever updates from its own
+    // channel; there is no in-place channel switch to offer.
+    val channel = if (NIGHTLY_BUILD > 0) UpdateChannel.NIGHTLY else UpdateChannel.STABLE
     var showChangelog by remember { mutableStateOf(false) }
     var installNote by remember { mutableStateOf<String?>(null) }
 
@@ -95,17 +92,10 @@ fun UpdatesContent(
             ) { Text("View changelog") }
         }
 
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            UpdateChannel.entries.forEachIndexed { index, entry ->
-                SegmentedButton(
-                    selected = channel == entry,
-                    onClick = { channel = entry },
-                    shape = SegmentedButtonDefaults.itemShape(index, UpdateChannel.entries.size),
-                ) {
-                    Text(if (entry == UpdateChannel.STABLE) "Stable" else "Nightly")
-                }
-            }
-        }
+        Text(
+            if (channel == UpdateChannel.NIGHTLY) "Channel: Nightly" else "Channel: Stable",
+            style = MaterialTheme.typography.bodyMedium,
+        )
 
         if (channel == UpdateChannel.NIGHTLY) {
             Text(
