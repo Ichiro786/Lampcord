@@ -177,7 +177,7 @@ fun ChatSettingsContent(
                 ))
                 add(switchSettingsItem(
                     title = "Swipe to Reply",
-                    description = "Swipe a message right to reply to it.",
+                    description = "Swipe a message left to reply to it.",
                     checked = Settings.shared.swipeToReplyEnabled,
                     onCheckedChange = { Settings.shared.swipeToReplyEnabled = it }
                 ))

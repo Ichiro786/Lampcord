@@ -3,6 +3,9 @@
 package me.lampu.lampcord.shared.ui.components.chat
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.snap
@@ -11,8 +14,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,13 +48,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.positionChangeIgnoreConsumed
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -104,6 +104,9 @@ import kotlin.time.Duration.Companion.minutes
 import me.lampu.lampcord.shared.ui.kit.pointerClickable
 import me.lampu.lampcord.shared.ui.kit.clickableCursor
 import me.lampu.lampcord.shared.ui.kit.handCursor
+
+private const val SWIPE_REPLY_TRIGGER_FRACTION = 0.3f
+private const val SWIPE_REPLY_MAX_FRACTION = 0.4f
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -309,7 +312,11 @@ fun MessageItem(
     
     val tapTapMode = remember { me.lampu.lampcord.shared.settings.Settings.shared.tapTap }
     val gestureMode = remember { me.lampu.lampcord.shared.settings.Settings.shared.swipeToReplyEnabled }
-    var offsetX by remember { mutableFloatStateOf(0f) }
+    val offsetX = remember { Animatable(0f) }
+    var swipeWidthPx by remember { mutableFloatStateOf(0f) }
+    val swipeThresholdPx = (swipeWidthPx * SWIPE_REPLY_TRIGGER_FRACTION).coerceAtLeast(1f)
+    val swipeMaxPx = (swipeWidthPx * SWIPE_REPLY_MAX_FRACTION).coerceAtLeast(swipeThresholdPx)
+    val swipeBackSpec: AnimationSpec<Float> = if (reduceMotion) snap() else spring(stiffness = Spring.StiffnessMediumLow)
 
     LaunchedEffect(isHighlighted) {
         if (isHighlighted) {
@@ -321,48 +328,31 @@ fun MessageItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .onSizeChanged { swipeWidthPx = it.width.toFloat() }
             .zIndex(if (isHovered || showReactionPicker) 10f else 1f)
-            .offset { IntOffset(offsetX.roundToInt(), 0) }
-            .pointerInput(message.id, gestureMode) {
+            .pointerInput(message.id, gestureMode, swipeThresholdPx) {
                 if (!isPreview && gestureMode) {
-                    awaitEachGesture {
-                        val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Main)
-                        if (down.isConsumed) return@awaitEachGesture
-
-                        var pointer = down.id
-                        var travelled = 0f
-                        var locked = false
-
-                        while (true) {
-                            val event = awaitPointerEvent(PointerEventPass.Main)
-                            val change = event.changes.firstOrNull { it.id == pointer } ?: break
-                            if (!change.pressed) {
-                                if (locked && offsetX < -80f) {
+                    // Direct manipulation: the row follows the finger 1:1 and snaps back on
+                    // release, replying when dragged past the trigger distance. Only leftward
+                    // drags move the row, matching Discord's swipe-to-reply.
+                    detectHorizontalDragGestures(
+                        onHorizontalDrag = { change, dragAmount ->
+                            val target = (offsetX.value + dragAmount).coerceIn(-swipeMaxPx, 0f)
+                            scope.launch { offsetX.snapTo(target) }
+                            change.consume()
+                        },
+                        onDragEnd = {
+                            scope.launch {
+                                if (offsetX.value <= -swipeThresholdPx) {
                                     messageStore.replyingTo = message
                                 }
-                                offsetX = 0f
-                                break
+                                offsetX.animateTo(0f, swipeBackSpec)
                             }
-
-                            val delta = change.positionChangeIgnoreConsumed().x
-                            travelled += kotlin.math.abs(delta)
-
-                            if (!locked && travelled > viewConfiguration.touchSlop) {
-                                if (kotlin.math.abs(delta) <= kotlin.math.abs(change.positionChangeIgnoreConsumed().y)) {
-                                    break
-                                }
-                                if (delta >= 0f) {
-                                    break
-                                }
-                                locked = true
-                            }
-
-                            if (locked) {
-                                offsetX = (offsetX + delta).coerceIn(-150f, 0f)
-                                change.consume()
-                            }
+                        },
+                        onDragCancel = {
+                            scope.launch { offsetX.animateTo(0f, swipeBackSpec) }
                         }
-                    }
+                    )
                 }
             }
             .pointerInput(message.id, tapTapMode) {
@@ -405,9 +395,32 @@ fun MessageItem(
     ) {
         val guildId = message.guild_id ?: navigationStore.selectedGuild?.id
 
+        // Reply affordance revealed from the right edge as the row is dragged left, growing and
+        // turning accent-coloured once the swipe passes the trigger distance.
+        val swipeProgress = (-offsetX.value / swipeThresholdPx).coerceIn(0f, 1f)
+        if (swipeProgress > 0f) {
+            Icon(
+                imageVector = Icons.Rounded.Reply,
+                contentDescription = "Reply",
+                tint = if (swipeProgress >= 1f) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 20.dp)
+                    .size(24.dp)
+                    .graphicsLayer {
+                        val scale = 0.7f + 0.5f * swipeProgress
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = swipeProgress
+                    }
+            )
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .offset { IntOffset(offsetX.value.roundToInt(), 0) }
                 .background(
                     color = when {
                         isHighlighted -> MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
