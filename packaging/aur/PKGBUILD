@@ -22,6 +22,7 @@ source=(
   "lampcord-launcher::https://raw.githubusercontent.com/l6t9/Lampcord/v${pkgver}/packaging/aur/lampcord-launcher"
   "lampcord.desktop::https://raw.githubusercontent.com/l6t9/Lampcord/v${pkgver}/packaging/aur/lampcord.desktop"
   "lampcord.png::https://raw.githubusercontent.com/l6t9/Lampcord/v${pkgver}/packaging/aur/lampcord.png"
+  "lampcord.svg::https://raw.githubusercontent.com/l6t9/Lampcord/v${pkgver}/packaging/aur/lampcord.svg"
 )
 # Checksums for the current release's sources. All sources are URLs, so regenerate these with
 # `updpkgsums` whenever pkgver is bumped. CI rewrites this block for the AUR tarball it packages
@@ -29,7 +30,8 @@ source=(
 sha256sums=('5c6eec1bb4ab2316e7700cc8d4b119998b765460ca9603651c5d34b5b141571f'
             '02ca07af46ca8aecf26279afe2920bc22261f7e0a7ca3fc80053adc4535457ad'
             'aad7c190d678bfe5c5b9c91d7b6075f0b63ecdfebe08d3bfe542f867db04da31'
-            'b05f31ca9c0e6e1f091b6e848773703334a78ba19834b6dc6f1cebefbea6eb75')
+            'b05f31ca9c0e6e1f091b6e848773703334a78ba19834b6dc6f1cebefbea6eb75'
+            '6bcf70575b978e59851145dfb16c94d3bf5ef0e3cc5f4b8b586b5d70759b8eec')
 
 package() {
   install -Dm644 "${srcdir}/lampcord-desktop-linux-x64-${pkgver}.jar" \
@@ -42,4 +44,7 @@ package() {
 
   install -Dm644 "${srcdir}/lampcord.png" \
     "${pkgdir}/usr/share/icons/hicolor/512x512/apps/lampcord.png"
+
+  install -Dm644 "${srcdir}/lampcord.svg" \
+    "${pkgdir}/usr/share/icons/hicolor/scalable/apps/lampcord.svg"
 }

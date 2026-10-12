@@ -180,22 +180,23 @@ jobs:
           launcher_sha="$(sha256sum packaging/aur/lampcord-launcher | cut -d' ' -f1)"
           desktop_sha="$(sha256sum packaging/aur/lampcord.desktop | cut -d' ' -f1)"
           icon_sha="$(sha256sum packaging/aur/lampcord.png | cut -d' ' -f1)"
+          svg_sha="$(sha256sum packaging/aur/lampcord.svg | cut -d' ' -f1)"
 
           python3 - \
             "$workdir/PKGBUILD" "$release_version" "$jar_sha" "$launcher_sha" \
-            "$desktop_sha" "$icon_sha" <<'PY'
+            "$desktop_sha" "$icon_sha" "$svg_sha" <<'PY'
           import re
           import sys
 
-          path, pkgver, jar_sha, launcher_sha, desktop_sha, icon_sha = sys.argv[1:7]
+          path, pkgver, jar_sha, launcher_sha, desktop_sha, icon_sha, svg_sha = sys.argv[1:8]
           with open(path, encoding="utf-8") as handle:
               text = handle.read()
 
           text = re.sub(r"^pkgver=.*$", f"pkgver={pkgver}", text, count=1, flags=re.M)
           text = re.sub(
               r"^sha256sums=\(.*?\)$",
-              "sha256sums=('{}'\n            '{}'\n            '{}'\n            '{}')".format(
-                  jar_sha, launcher_sha, desktop_sha, icon_sha
+              "sha256sums=('{}'\n            '{}'\n            '{}'\n            '{}'\n            '{}')".format(
+                  jar_sha, launcher_sha, desktop_sha, icon_sha, svg_sha
               ),
               text,
               count=1,
@@ -215,7 +216,7 @@ jobs:
             echo "PKGBUILD jar checksum rewrite failed" >&2
             exit 1
           }
-          for sha in "$launcher_sha" "$desktop_sha" "$icon_sha"; do
+          for sha in "$launcher_sha" "$desktop_sha" "$icon_sha" "$svg_sha"; do
             grep -q "'${sha}'" "$workdir/PKGBUILD" || {
               echo "PKGBUILD is missing checksum ${sha}" >&2
               exit 1
