@@ -128,18 +128,8 @@ fun main() {
             object : Painter() {
                 override val intrinsicSize: Size = Size(256f, 256f)
                 override fun DrawScope.onDraw() {
-                    val cornerRadius = size.width * 0.25f
-                    drawRoundRect(
-                        color = seedColor,
-                        size = size,
-                        cornerRadius = CornerRadius(cornerRadius, cornerRadius)
-                    )
                     with(discordPainter) {
-                        val logoSize = size * 0.62f
-                        val offset = Offset((size.width - logoSize.width) / 2f, (size.height - logoSize.height) / 2f)
-                        translate(offset.x, offset.y) {
-                            draw(logoSize, colorFilter = ColorFilter.tint(Color.White))
-                        }
+                        draw(size, colorFilter = ColorFilter.tint(seedColor))
                     }
                 }
             }

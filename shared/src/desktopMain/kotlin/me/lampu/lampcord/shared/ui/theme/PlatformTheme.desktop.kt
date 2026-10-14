@@ -29,7 +29,11 @@ private fun findMatugenCandidateFiles(home: String): List<File> = listOf(
     File("$home/.local/state/matugen/colors.json"),
     File("$home/.cache/matugen/colors-json.json"),
     File("$home/.local/state/quickshell/user/generated/colors.json"),
-    File("$home/.local/state/quickshell/user/generated/color.txt")
+    File("$home/.local/state/quickshell/user/generated/color.txt"),
+    File("$home/.config/quickshell/lampshell/user/generated/colors.json"),
+    File("$home/.config/quickshell/lampshell/user/generated/color.txt"),
+    File("$home/.config/quickshell/user/generated/colors.json"),
+    File("$home/.config/quickshell/user/generated/color.txt")
 )
 
 private fun camelToSnake(key: String): String = buildString {
@@ -117,7 +121,7 @@ private suspend fun loadMatugenSeed(candidateFiles: List<File>): Color? =
             }
         }
         for (file in candidateFiles) {
-            if (file.isFile && file.extension.isEmpty()) {
+            if (file.isFile && (file.extension.isEmpty() || file.extension == "txt")) {
                 try {
                     val hex = file.readLines().firstOrNull()?.trim()
                     hex?.toThemeColor()?.let { return@withContext it }
