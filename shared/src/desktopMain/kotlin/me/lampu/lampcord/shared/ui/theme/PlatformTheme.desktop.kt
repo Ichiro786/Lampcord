@@ -22,19 +22,46 @@ import java.util.concurrent.TimeUnit
 
 private val THEME_JSON = Json { ignoreUnknownKeys = true }
 
-private fun findMatugenCandidateFiles(home: String): List<File> = listOf(
-    File("$home/.config/matugen/colors.json"),
-    File("$home/.config/matugen/generated/colors.json"),
-    File("$home/.config/matugen/templates/colors.json"),
-    File("$home/.local/state/matugen/colors.json"),
-    File("$home/.cache/matugen/colors-json.json"),
-    File("$home/.local/state/quickshell/user/generated/colors.json"),
-    File("$home/.local/state/quickshell/user/generated/color.txt"),
-    File("$home/.config/quickshell/lampshell/user/generated/colors.json"),
-    File("$home/.config/quickshell/lampshell/user/generated/color.txt"),
-    File("$home/.config/quickshell/user/generated/colors.json"),
-    File("$home/.config/quickshell/user/generated/color.txt")
-)
+private fun getXdgDir(envVar: String, defaultRelPath: String, home: String): File {
+    val env = System.getenv(envVar)
+    return if (!env.isNullOrBlank()) File(env) else File(home, defaultRelPath)
+}
+
+private fun findMatugenCandidateFiles(home: String): List<File> {
+    val configHome = getXdgDir("XDG_CONFIG_HOME", ".config", home)
+    val stateHome = getXdgDir("XDG_STATE_HOME", ".local/state", home)
+    val cacheHome = getXdgDir("XDG_CACHE_HOME", ".cache", home)
+
+    val searchRoots = listOf(
+        File(configHome, "matugen"),
+        File(stateHome, "matugen"),
+        File(cacheHome, "matugen"),
+        File(configHome, "quickshell"),
+        File(stateHome, "quickshell"),
+        File(cacheHome, "quickshell"),
+        File(configHome, "caelestia"),
+        File(stateHome, "caelestia"),
+        configHome,
+        stateHome,
+        cacheHome
+    )
+
+    val targetNames = setOf("colors.json", "color.txt", "colors-json.json", "scheme.json")
+    val found = mutableListOf<File>()
+
+    for (root in searchRoots) {
+        if (!root.isDirectory) continue
+        try {
+            root.walkTopDown()
+                .maxDepth(4)
+                .filter { it.isFile && it.name in targetNames }
+                .forEach { found.add(it) }
+        } catch (_: Exception) {
+        }
+    }
+
+    return found.distinct().sortedByDescending { it.lastModified() }
+}
 
 private fun camelToSnake(key: String): String = buildString {
     key.forEach { ch ->
