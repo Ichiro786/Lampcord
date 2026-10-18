@@ -175,12 +175,7 @@ fun UserProfileDialog(
     val cardWidth = if (isExpanded) 450.dp else 300.dp
     val frameInsets = rememberFrameInsets(profile, profileStore, cardWidth)
     val density = LocalDensity.current
-    val frameInsetPx = with(density) {
-        IntOffset(
-            x = frameInsets.horizontal.roundToPx(),
-            y = frameInsets.top.roundToPx()
-        )
-    }
+    val frameInsetXPx = with(density) { frameInsets.horizontal.roundToPx() }
 
     val anchor = popupPosition
     val isCentered = anchor == null || isExpanded
@@ -188,8 +183,8 @@ fun UserProfileDialog(
         IntOffset.Zero
     } else {
         IntOffset(
-            x = (if (anchor.x < 500) (anchor.x + 60).toInt() else (anchor.x - 320).toInt()) - frameInsetPx.x,
-            y = ((anchor.y.toInt() - 100) - frameInsetPx.y).coerceAtLeast(10)
+            x = (if (anchor.x < 500) (anchor.x + 60).toInt() else (anchor.x - 320).toInt()) - frameInsetXPx,
+            y = (anchor.y.toInt() - 100).coerceAtLeast(10)
         )
     }
 
@@ -224,7 +219,6 @@ fun UserProfileDialog(
                     modifier = Modifier
                         .padding(
                             start = frameInsets.horizontal,
-                            top = frameInsets.top,
                             end = frameInsets.horizontal,
                             bottom = frameInsets.bottom
                         )

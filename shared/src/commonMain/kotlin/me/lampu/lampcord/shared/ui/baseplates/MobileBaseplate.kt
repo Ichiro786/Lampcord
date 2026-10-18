@@ -48,7 +48,6 @@ import me.lampu.lampcord.shared.ui.components.profiles.ProfileBanner
 import me.lampu.lampcord.shared.model.ProfileCollectibles
 import me.lampu.lampcord.shared.model.ProfileFrameProduct
 import me.lampu.lampcord.shared.ui.components.profiles.ProfileFrameOverlay
-import me.lampu.lampcord.shared.ui.components.profiles.rememberFrameInsets
 import me.lampu.lampcord.shared.ui.components.profiles.profileBannerHeight
 import me.lampu.lampcord.shared.ui.components.profiles.ProfileCard
 import me.lampu.lampcord.shared.ui.components.profiles.ProfileCardSkeleton
@@ -810,30 +809,21 @@ fun MobileBaseplate(
         ) {
             if (profileStore.selectedProfile != null) {
                 val p = profileStore.selectedProfile!!
-                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                    // Reserve only the frame's top overhang, measured against the real sheet
-                    // width so the strip matches the overlay's own scale. The card stays
-                    // full-bleed like Discord instead of being pushed inwards on all sides, and
-                    // the ring's top band sits in the strip above it.
-                    val frameInsets = rememberFrameInsets(p, profileStore, maxWidth)
-                    ProfileCard(
-                        profile = p,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = frameInsets.top),
-                        showBorder = false,
-                        isExpanded = true,
-                        fillAvailableHeight = true,
-                        showBoardTab = true,
-                        showFrameOverlay = true,
-                        onExpand = null,
-                        onDismiss = {
-                            profileStore.selectedProfile = null
-                            profileStore.isProfileExpanded = false
-                            profileStore.isProfileLoading = false
-                        }
-                    )
-                }
+                ProfileCard(
+                    profile = p,
+                    modifier = Modifier.fillMaxSize(),
+                    showBorder = false,
+                    isExpanded = true,
+                    fillAvailableHeight = true,
+                    showBoardTab = true,
+                    showFrameOverlay = true,
+                    onExpand = null,
+                    onDismiss = {
+                        profileStore.selectedProfile = null
+                        profileStore.isProfileExpanded = false
+                        profileStore.isProfileLoading = false
+                    }
+                )
             } else {
                 ProfileCardSkeleton(
                     modifier = Modifier.fillMaxWidth(),

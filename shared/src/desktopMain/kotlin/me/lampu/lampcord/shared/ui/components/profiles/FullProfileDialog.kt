@@ -108,7 +108,6 @@ fun FullProfileDialog(
                 .align(Alignment.Center)
                 .padding(
                     start = frameInsets.horizontal,
-                    top = frameInsets.top,
                     end = frameInsets.horizontal,
                     bottom = frameInsets.bottom
                 )

@@ -31,7 +31,6 @@ internal const val FRAME_ART_SCALE = 1.0f
 
 internal data class FrameInsets(
     val horizontal: Dp = 0.dp,
-    val top: Dp = 0.dp,
     val bottom: Dp = 0.dp,
 )
 
@@ -50,7 +49,6 @@ internal fun rememberFrameInsets(
         val scale = cardWidth.value / (metrics?.innerWidth?.toFloat() ?: DEFAULT_INNER_WIDTH) * FRAME_ART_SCALE
         FrameInsets(
             horizontal = ((metrics?.overflowHorizontal ?: 0) * scale).dp + gap,
-            top = ((metrics?.overflowTop ?: 0) * scale).dp + gap,
             bottom = ((metrics?.overflowBottom ?: 0) * scale).dp + gap,
         )
     }
