@@ -1,6 +1,8 @@
 package me.lampu.lampcord.shared.gateway
 
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeoutConfig
+import io.ktor.client.plugins.timeout
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.client.request.header
@@ -97,7 +99,7 @@ class GatewayManager(
     @Volatile private var authenticated = false
 
     private var heartbeatJob: Job? = null
-    private var heartbeatAckReceived = true
+    @Volatile private var heartbeatAckReceived = true
     private var timeSpentJob: Job? = null
     private var helloTimeoutJob: Job? = null
     private var lastSequence: Int? = null
@@ -174,6 +176,12 @@ class GatewayManager(
                         header("Origin", "https://discord.com")
                         header("Accept-Language", "en-US,en;q=0.9")
                         header("Cache-Control", "no-cache")
+                        // The gateway is idle between heartbeats (every ~41s), so the HTTP
+                        // socket read timeout must not apply. Liveness is tracked by the
+                        // heartbeat ACK handler instead.
+                        timeout {
+                            socketTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS
+                        }
                     }
                 ) {
                     Logging.i("Gateway", "WebSocket connected.")

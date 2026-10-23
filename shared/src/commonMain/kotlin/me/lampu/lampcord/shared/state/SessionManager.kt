@@ -1,7 +1,9 @@
 package me.lampu.lampcord.shared.state
 
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import me.lampu.lampcord.shared.api.AuthApi
@@ -39,7 +41,17 @@ class SessionManager(
     val pushTokenRegistrar: PushTokenRegistrar? = null,
     private val notifier: MessageNotifier? = null
 ) {
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(
+        SupervisorJob() +
+            Dispatchers.Main +
+            CoroutineExceptionHandler { _, throwable ->
+                me.lampu.lampcord.shared.utils.Logging.e(
+                    tag = "SessionManager",
+                    message = "Uncaught exception in session scope",
+                    throwable = throwable
+                )
+            }
+    )
 
     init {
         scope.launch {

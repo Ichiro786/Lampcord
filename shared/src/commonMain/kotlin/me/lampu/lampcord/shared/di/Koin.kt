@@ -1,7 +1,9 @@
 package me.lampu.lampcord.shared.di
 
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
 import me.lampu.lampcord.shared.api.ApplicationApi
 import me.lampu.lampcord.shared.api.AuthApi
@@ -25,6 +27,7 @@ import me.lampu.lampcord.shared.notifications.PushTokenRegistrar
 import me.lampu.lampcord.shared.update.updateModule
 import me.lampu.lampcord.shared.state.*
 import me.lampu.lampcord.shared.state.handlers.*
+import me.lampu.lampcord.shared.utils.Logging
 import me.lampu.lampcord.shared.utils.getDatabaseBuilder
 import org.koin.dsl.module
 
@@ -39,7 +42,15 @@ val coreModule = module {
     }
     single { createHttpClient() }
     single { RestClient(get(), get()) }
-    single { CoroutineScope(Dispatchers.Main) }
+    single {
+        CoroutineScope(
+            SupervisorJob() +
+                Dispatchers.Main +
+                CoroutineExceptionHandler { _, throwable ->
+                    Logging.e("SharedScope", "Uncaught exception in shared coroutine scope", throwable)
+                }
+        )
+    }
     single(createdAtStart = true) { AppVisibilityStore.start(); AppVisibilityStore }
 }
 
