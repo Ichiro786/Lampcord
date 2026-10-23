@@ -244,6 +244,7 @@ fun MobileBaseplate(
         currentRoute == Screen.ProfilesSettings ||
         currentRoute == Screen.AppearanceSettings ||
         currentRoute == Screen.AccessibilitySettings ||
+        currentRoute == Screen.LanguageSettings ||
         currentRoute == Screen.PrivacySettings ||
         currentRoute == Screen.ConnectionsSettings ||
         currentRoute == Screen.DevicesSettings ||
@@ -341,6 +342,7 @@ fun MobileBaseplate(
                         onNavigateToDevices = { navigator.navigate(Screen.DevicesSettings) },
                         onNavigateToAppearance = { navigator.navigate(Screen.AppearanceSettings) },
                         onNavigateToAccessibility = { navigator.navigate(Screen.AccessibilitySettings) },
+                        onNavigateToLanguage = { navigator.navigate(Screen.LanguageSettings) },
                         onNavigateToChat = { navigator.navigate(Screen.ChatSettings) },
                         onNavigateToNotifications = { navigator.navigate(Screen.NotificationsSettings) },
                         onNavigateToAdvanced = { navigator.navigate(Screen.AdvancedSettings) },
@@ -366,6 +368,9 @@ fun MobileBaseplate(
             }
             entry<Screen.AccessibilitySettings> {
                 AccessibilitySettings(onBack = { navigator.goBack() })
+            }
+            entry<Screen.LanguageSettings> {
+                me.lampu.lampcord.shared.ui.settings.LanguageSettings(onBack = { navigator.goBack() })
             }
             entry<Screen.PrivacySettings> {
                 PrivacySettings(onBack = { navigator.goBack() })
@@ -771,17 +776,58 @@ fun MobileBaseplate(
             }
         }
 
+        PlatformBackHandler(enabled = navigationStore.isSettingsVisible) {
+            val currentStack = navigationState.backStacks[navigationState.topLevelRoute]
+            if (currentStack != null && currentStack.lastOrNull() != Screen.Settings) {
+                navigator.goBack()
+            } else {
+                navigationStore.isSettingsVisible = false
+            }
+        }
+
+        PlatformBackHandler(enabled = navigationStore.isServerSettingsVisible) {
+            val currentStack = navigationState.backStacks[navigationState.topLevelRoute]
+            if (currentStack != null && currentStack.lastOrNull() != Screen.ServerSettings) {
+                navigator.goBack()
+            } else {
+                navigationStore.isServerSettingsVisible = false
+            }
+        }
+
+        PlatformBackHandler(enabled = navigationStore.channelSettingsChannel != null) {
+            val currentStack = navigationState.backStacks[navigationState.topLevelRoute]
+            if (currentStack != null && currentStack.lastOrNull() != Screen.ChannelSettings) {
+                navigator.goBack()
+            } else {
+                navigationStore.closeChannelSettings()
+            }
+        }
+
+        PlatformBackHandler(enabled = navigationStore.isSearchVisible) {
+            navigationStore.isSearchVisible = false
+        }
+
+        PlatformBackHandler(enabled = navigationStore.isPinsVisible) {
+            navigationStore.isPinsVisible = false
+        }
+
+        PlatformBackHandler(enabled = navigationStore.isNotificationsSettingsVisible) {
+            navigationStore.isNotificationsSettingsVisible = false
+        }
+
         PlatformBackHandler(enabled = panelState.currentValue == DiscordPanelValue.End) {
             panelState.close()
         }
 
-        PlatformBackHandler(enabled = panelState.currentValue == DiscordPanelValue.Center && isChat) {
+        PlatformBackHandler(enabled = panelState.currentValue == DiscordPanelValue.Center && !navigationStore.isSettingsVisible && !navigationStore.isServerSettingsVisible && navigationStore.channelSettingsChannel == null && !navigationStore.isSearchVisible && !navigationStore.isPinsVisible) {
             if (navigationStore.selectedThread != null) {
                 navigationStore.selectedThread = null
             } else if (navigationStore.isChannelsAndRolesVisible) {
                 navigationStore.isChannelsAndRolesVisible = false
-            } else {
+            } else if (isChat) {
                 panelState.openStart()
+            } else if (navigationState.topLevelRoute != navigationState.startRoute) {
+                navigator.goBack()
             }
         }
     }

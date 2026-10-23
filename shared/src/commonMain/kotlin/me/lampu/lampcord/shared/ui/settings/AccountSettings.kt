@@ -16,6 +16,21 @@ import me.lampu.lampcord.shared.api.CdnUrls
 import me.lampu.lampcord.shared.ui.components.AsyncImage
 import me.lampu.lampcord.shared.ui.components.settings.*
 import me.lampu.lampcord.shared.ui.icons.Icons
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.account
+import me.lampu.lampcord.shared.generated.resources.change_password
+import me.lampu.lampcord.shared.generated.resources.edit
+import me.lampu.lampcord.shared.generated.resources.email
+import me.lampu.lampcord.shared.generated.resources.form_label_account_information
+import me.lampu.lampcord.shared.generated.resources.form_label_username
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_password_auth
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_two_fa_disabled
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_two_fa_enabled
+import me.lampu.lampcord.shared.generated.resources.not_set
+import me.lampu.lampcord.shared.generated.resources.two_fa
+import me.lampu.lampcord.shared.generated.resources.unknown_user
+import me.lampu.lampcord.shared.generated.resources.user_settings_avatar
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 @Composable
@@ -27,7 +42,7 @@ fun AccountSettings(
     val userVal = user ?: return
     
     SettingsSubScreen(
-        title = "Account",
+        title = stringResource(Res.string.account),
         onNavigateBack = onBack
     ) {
         AccountSettingsContent(userVal = userVal)
@@ -38,21 +53,21 @@ fun AccountSettings(
 fun AccountSettingsContent(userVal: me.lampu.lampcord.shared.model.User) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Material3SettingsGroup(
-            title = "Account Information",
+            title = stringResource(Res.string.form_label_account_information),
             items = listOf(
                 Material3SettingsItem(
                     leadingContent = {
                         AsyncImage(
                             model = CdnUrls.getUserAvatarUrl(userVal.id, userVal.avatar, 128),
-                            contentDescription = "Avatar",
+                            contentDescription = stringResource(Res.string.user_settings_avatar),
                             modifier = Modifier.size(60.dp).clip(CircleShape)
                         )
                     },
-                    title = { Text(userVal.global_name ?: userVal.username ?: "Unknown User", fontWeight = FontWeight.Bold) },
+                    title = { Text(userVal.global_name ?: userVal.username ?: stringResource(Res.string.unknown_user), fontWeight = FontWeight.Bold) },
                     description = { Text(userVal.username ?: "") },
                     trailingContent = {
                         Button(onClick = { /* TODO */ }) {
-                            Text("Edit")
+                            Text(stringResource(Res.string.edit))
                         }
                     }
                 )
@@ -62,28 +77,30 @@ fun AccountSettingsContent(userVal: me.lampu.lampcord.shared.model.User) {
         Material3SettingsGroup(
             items = listOf(
                 Material3SettingsItem(
-                    title = { Text("Username") },
-                    description = { Text(userVal.username ?: "Not set") }
+                    title = { Text(stringResource(Res.string.form_label_username)) },
+                    description = { Text(userVal.username ?: stringResource(Res.string.not_set)) }
                 ),
                 Material3SettingsItem(
-                    title = { Text("Email") },
-                    description = { Text(userVal.email ?: "Not set") }
+                    title = { Text(stringResource(Res.string.email)) },
+                    description = { Text(userVal.email ?: stringResource(Res.string.not_set)) }
                 )
             )
         )
 
         Material3SettingsGroup(
-            title = "Password and Authentication",
+            title = stringResource(Res.string.lampcord_settings_password_auth),
             items = listOf(
                 Material3SettingsItem(
-                    title = { Text("Change Password") },
+                    title = { Text(stringResource(Res.string.change_password)) },
                     onClick = { /* TODO */ }
                 ),
                 Material3SettingsItem(
-                    title = { Text("Two-Factor Authentication") },
+                    title = { Text(stringResource(Res.string.two_fa)) },
                     description = { 
                         Text(
-                            text = if (userVal.mfa_enabled == true) "Two-Factor Authentication: Enabled" else "Two-Factor Authentication: Disabled",
+                            text = stringResource(
+                                if (userVal.mfa_enabled == true) Res.string.lampcord_settings_two_fa_enabled else Res.string.lampcord_settings_two_fa_disabled
+                            ),
                             color = if (userVal.mfa_enabled == true) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },

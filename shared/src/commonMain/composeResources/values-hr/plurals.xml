@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="age_gate_underage_existing_body_deletion_with_days_days">
+        <item quantity="one">1 dan</item>
+        <item quantity="other">{days} dana</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_monthly_mobile_intervalCount">
+        <item quantity="one">{#} mjesec</item>
+        <item quantity="other">{#} mjeseci</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_yearly_mobile_intervalCount">
+        <item quantity="one">{#} godinu</item>
+        <item quantity="other">{#} godine</item>
+    </plurals>
+    <plurals name="autocomplete_emoji_upsell_count">
+        <item quantity="one">{#} takav emoji</item>
+        <item quantity="few">{#} takva emojija</item>
+        <item quantity="other">{#} takvih emojija</item>
+    </plurals>
+    <plurals name="blocked_messages_count">
+        <item quantity="one">{count} blokirana poruka</item>
+        <item quantity="few">{count} blokirane poruke</item>
+        <item quantity="other">{count} blokiranih poruka</item>
+    </plurals>
+    <plurals name="channel_slowmode_cooldown_seconds">
+        <item quantity="one">za sekundu</item>
+        <item quantity="few">za {seconds} sekunde</item>
+        <item quantity="other">za {seconds} sekundi</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_hours_hours">
+        <item quantity="one">{#} sat</item>
+        <item quantity="few">{#} sata</item>
+        <item quantity="other">{#} sati</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_minutes_minutes">
+        <item quantity="one">{#} minute</item>
+        <item quantity="few">{#} minute</item>
+        <item quantity="other">{#} minuta</item>
+    </plurals>
+    <plurals name="discovery_speaker_count_speakersCount">
+        <item quantity="one">+{count} govornik</item>
+        <item quantity="other">+{count} govornika</item>
+    </plurals>
+    <plurals name="dm_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} nepročitana poruka</item>
+        <item quantity="few">, {#} nepročitane poruke</item>
+        <item quantity="other">, {#} nepročitanih poruka</item>
+    </plurals>
+    <plurals name="duration_days_capitalize_days">
+        <item quantity="one">1 dan</item>
+        <item quantity="few">{days} dana</item>
+        <item quantity="other">{days} dana</item>
+    </plurals>
+    <plurals name="duration_days_days">
+        <item quantity="one">1 dan</item>
+        <item quantity="other">{days} dana</item>
+    </plurals>
+    <plurals name="duration_hours_capitalize_hours">
+        <item quantity="one">1 sat</item>
+        <item quantity="few">{hours} sata</item>
+        <item quantity="other">{hours} sati</item>
+    </plurals>
+    <plurals name="duration_hours_hours">
+        <item quantity="one">1 sat</item>
+        <item quantity="other">{hours} sata</item>
+    </plurals>
+    <plurals name="duration_mins_mins">
+        <item quantity="one">1 min.</item>
+        <item quantity="other">{mins} min.</item>
+    </plurals>
+    <plurals name="duration_minutes_capitalize_minutes">
+        <item quantity="one">1 minuta</item>
+        <item quantity="few">{minutes} minute</item>
+        <item quantity="other">{minutes} minuta</item>
+    </plurals>
+    <plurals name="duration_minutes_minutes">
+        <item quantity="one">1 minuta</item>
+        <item quantity="other">{minutes} minute</item>
+    </plurals>
+    <plurals name="duration_months_capitalize_months">
+        <item quantity="one">1 mjesec</item>
+        <item quantity="few">{months} mjeseca</item>
+        <item quantity="other">{months} mjeseci</item>
+    </plurals>
+    <plurals name="duration_seconds_capitalize_seconds">
+        <item quantity="one">1 sekunda</item>
+        <item quantity="few">{seconds} sekunde</item>
+        <item quantity="other">{seconds} sekundi</item>
+    </plurals>
+    <plurals name="duration_seconds_seconds">
+        <item quantity="one">1 sekunda</item>
+        <item quantity="other">{seconds} sekunde</item>
+    </plurals>
+    <plurals name="duration_weeks_capitalize_weeks">
+        <item quantity="one">1 tjedan</item>
+        <item quantity="few">{weeks} tjedna</item>
+        <item quantity="other">{weeks} tjedana</item>
+    </plurals>
+    <plurals name="duration_years_capitalize_years">
+        <item quantity="one">1 godina</item>
+        <item quantity="few">{years} godine</item>
+        <item quantity="other">{years} godina</item>
+    </plurals>
+    <plurals name="emoji_slots_available_count">
+        <item quantity="one">{count} slobodno mjesto</item>
+        <item quantity="few">{count} slobodna mjesta</item>
+        <item quantity="other">{count} slobodnih mjesta</item>
+    </plurals>
+    <plurals name="emojis_title_count">
+        <item quantity="one">{count} emoji</item>
+        <item quantity="other">{count} emojija</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_days">
+        <item quantity="one">1 dan</item>
+        <item quantity="other">{days} dana</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_members">
+        <item quantity="one">1 člana</item>
+        <item quantity="few">{members} člana</item>
+        <item quantity="other">{members} članova</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_months_time">
+        <item quantity="one">{#} mjesec</item>
+        <item quantity="few">{#} mjeseca</item>
+        <item quantity="other">{#} mjeseci</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_years_time">
+        <item quantity="one">{#} godinu</item>
+        <item quantity="few">{#} godine</item>
+        <item quantity="other">{#} godina</item>
+    </plurals>
+    <plurals name="gift_inventory_copies_copies">
+        <item quantity="one">{#} primjerak</item>
+        <item quantity="other">{#} primjerka</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_months_intervalCount">
+        <item quantity="one">{#} mjesec</item>
+        <item quantity="few">{#} mjeseca</item>
+        <item quantity="other">{#} mjeseci</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_years_intervalCount">
+        <item quantity="one">{#} godinu</item>
+        <item quantity="few">{#} godine</item>
+        <item quantity="other">{#} godina</item>
+    </plurals>
+    <plurals name="group_dm_invite_remaining_number">
+        <item quantity="one">Možeš dodati još jednog prijatelja.</item>
+        <item quantity="other">Možeš dodati još {number} prijatelja.</item>
+    </plurals>
+    <plurals name="group_dm_invite_unselect_users_number">
+        <item quantity="one">Moraš odznačiti jednog prijatelja.</item>
+        <item quantity="other">Moraš odznačiti {number} prijatelja.</item>
+    </plurals>
+    <plurals name="guild_event_interested_count_count">
+        <item quantity="one">{#} osoba je zainteresirana</item>
+        <item quantity="few">{#} osobe su zainteresirane</item>
+        <item quantity="other">{#} osoba je zainteresirano</item>
+    </plurals>
+    <plurals name="guild_events_plural_number">
+        <item quantity="one">{#} Događanje</item>
+        <item quantity="other">{#} Događanja</item>
+    </plurals>
+    <plurals name="guild_folder_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} nepročitano spominjanje</item>
+        <item quantity="few">, {#} nepročitana spominjanja</item>
+        <item quantity="other">, {#} nepročitanih spominjanja</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_denied_count">
+        <item quantity="one">dozvolu</item>
+        <item quantity="other">dozvole</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_granted_count">
+        <item quantity="one">dozvolu</item>
+        <item quantity="other">dozvole</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_reset_count">
+        <item quantity="one">dozvolu</item>
+        <item quantity="other">dozvola</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_rate_limit_per_user_change_newValue">
+        <item quantity="one">Postavi slowmode na **{#} sekundu**</item>
+        <item quantity="few">Postavi slowmode na **{#} sekunde**</item>
+        <item quantity="other">Postavi slowmode na **{#} sekundi**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_disconnect_count">
+        <item quantity="one">**korisnika**</item>
+        <item quantity="other">**!!{count}!! korisnika**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_move_count">
+        <item quantity="one">**korisnika**</item>
+        <item quantity="other">**!!{count}!! korisnika**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_count">
+        <item quantity="one">** člana**</item>
+        <item quantity="few">**!!{count}!! članova</item>
+        <item quantity="other">**!!{count}!! članova**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_delete_days_newValue">
+        <item quantity="one">dan</item>
+        <item quantity="other">{newValue} dana</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_add_count">
+        <item quantity="one">ulogu</item>
+        <item quantity="other">nekoliko uloga</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_remove_count">
+        <item quantity="one">ulogu</item>
+        <item quantity="other">nekoliko uloga</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_bulk_delete_count">
+        <item quantity="one">**poruku**</item>
+        <item quantity="other">**!!{count}!! poruka**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_delete_count">
+        <item quantity="one">**poruku</item>
+        <item quantity="few">**!!{count}!! poruka**</item>
+        <item quantity="other">**!!{count}!! poruka**</item>
+    </plurals>
+    <plurals name="guild_settings_overview_boost_unlock_boosts">
+        <item quantity="one">{#} boost</item>
+        <item quantity="few">{#} boosta</item>
+        <item quantity="other">{#} boostova</item>
+    </plurals>
+    <plurals name="guild_settings_premium_guild_tier_requirement_required">
+        <item quantity="one">/{#} Boost</item>
+        <item quantity="few">{#} Boosta</item>
+        <item quantity="other">{#} Boostova</item>
+    </plurals>
+    <plurals name="guild_settings_premium_upsell_body_perk_no_free_guild_subscriptions_numFreeGuildSubscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="few">{#} boosta</item>
+        <item quantity="other">{#} boostova</item>
+    </plurals>
+    <plurals name="guild_sidebar_announcement_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} spominjanje,</item>
+        <item quantity="other">{#} spominjanja</item>
+    </plurals>
+    <plurals name="guild_sidebar_default_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} spominjanje,</item>
+        <item quantity="other">{#} spominjanja</item>
+    </plurals>
+    <plurals name="guild_sidebar_voice_channel_a11y_label_with_users_userCount">
+        <item quantity="one">1 korisnik</item>
+        <item quantity="other">{#} korisnika</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_guildSubscriptionQuantity">
+        <item quantity="one">{#} puta</item>
+        <item quantity="other">{#} puta</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_no_application_guildSubscriptionQuantity">
+        <item quantity="one">{#} server boost</item>
+        <item quantity="few">{#} server boosta</item>
+        <item quantity="other">{#} server boostova</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_transferred_description_mobile2_guildSubscriptionQuantity">
+        <item quantity="one">{#} puta</item>
+        <item quantity="other">{#} puta</item>
+    </plurals>
+    <plurals name="guild_template_usages_usageCount">
+        <item quantity="one">**1** osoba je već upotrebila ovaj predložak</item>
+        <item quantity="few">**{usageCount}** osobe su već upotrebile ovaj predložak</item>
+        <item quantity="other">**{usageCount}** osoba je već upotrebilo ovaj predložak</item>
+    </plurals>
+    <plurals name="guild_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} spominjanje,</item>
+        <item quantity="other">{#} spominjanja,</item>
+    </plurals>
+    <plurals name="hub_email_connection_invite_header_count">
+        <item quantity="one">{count} drugom prijatelju</item>
+        <item quantity="few">{count} druga prijatelja</item>
+        <item quantity="other">{count} drugih prijatelja</item>
+    </plurals>
+    <plurals name="humanize_duration_days_time">
+        <item quantity="one">1 dan</item>
+        <item quantity="few">{#} dana</item>
+        <item quantity="other">{#} dana</item>
+    </plurals>
+    <plurals name="humanize_duration_hours_time">
+        <item quantity="one">1 sat</item>
+        <item quantity="few">{#} sata</item>
+        <item quantity="other">{#} sati</item>
+    </plurals>
+    <plurals name="humanize_duration_minutes_time">
+        <item quantity="one">1 minuta</item>
+        <item quantity="few">{#} minute</item>
+        <item quantity="other">{#} minuta</item>
+    </plurals>
+    <plurals name="humanize_duration_seconds_time">
+        <item quantity="one">1 sekunda</item>
+        <item quantity="few">{#} sekunde</item>
+        <item quantity="other">{#} sekundi</item>
+    </plurals>
+    <plurals name="instant_invite_guild_members_total_count">
+        <item quantity="one">1 član</item>
+        <item quantity="few">{count} člana</item>
+        <item quantity="other">{count} članova</item>
+    </plurals>
+    <plurals name="last_seen_days">
+        <item quantity="other">{days}</item>
+    </plurals>
+    <plurals name="max_uses_description_mobile_maxUses">
+        <item quantity="one">{maxUses} korištenje</item>
+        <item quantity="other">{maxUses} korištenja</item>
+    </plurals>
+    <plurals name="members_header_members">
+        <item quantity="one">{members} član</item>
+        <item quantity="few">{members} člana</item>
+        <item quantity="other">{members} članova</item>
+    </plurals>
+    <plurals name="n_days_days">
+        <item quantity="one">{days} dan</item>
+        <item quantity="other">{days} dana</item>
+    </plurals>
+    <plurals name="new_messages_count">
+        <item quantity="one">{count} nova poruka</item>
+        <item quantity="few">{count} nove poruke</item>
+        <item quantity="other">{count} novih poruka</item>
+    </plurals>
+    <plurals name="num_members_subscribers">
+        <item quantity="one">**1** član</item>
+        <item quantity="other">**{subscribers}** člana</item>
+    </plurals>
+    <plurals name="num_subscribers_subscribers">
+        <item quantity="one">**1** pretplatnik</item>
+        <item quantity="other">**{subscribers}** pretplatnika</item>
+    </plurals>
+    <plurals name="num_users_num">
+        <item quantity="one">{num} korisnik</item>
+        <item quantity="other">{num} korisnika</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_count">
+        <item quantity="one">ovu</item>
+        <item quantity="other">ove</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_countMessages">
+        <item quantity="one">poruku</item>
+        <item quantity="other">poruke</item>
+    </plurals>
+    <plurals name="partial_outage_count">
+        <item quantity="one">**1** drugi server je nedostupan zbog privremenog prekida.</item>
+        <item quantity="few">**{count}** druga servera je nedostupno zbog privremenog prekida.</item>
+        <item quantity="other">drugih servera je nedostupno zbog privremenog prekida.</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_header_subscription_count_subscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="few">{#} boosta</item>
+        <item quantity="other">{#} boostova</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_protip_mobile_numFreeGuildSubscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="few">{#} boosta</item>
+        <item quantity="other">{#} boostova</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_confirmation_slotCount">
+        <item quantity="one">Boost</item>
+        <item quantity="other">Boost {#} puta</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_days">
+        <item quantity="one">{#} dan</item>
+        <item quantity="other">{#} dana</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_slotCount">
+        <item quantity="one">tog boosta</item>
+        <item quantity="other">tih boostova</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_guildCount">
+        <item quantity="one">Sadašnji server</item>
+        <item quantity="other">Sadašnji serveri</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_slotCount">
+        <item quantity="one">ovaj server boost</item>
+        <item quantity="other">ove server boostove</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_from_guild_guildCount">
+        <item quantity="one">server</item>
+        <item quantity="other">servera</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_to_guild_slotCount">
+        <item quantity="one">boost</item>
+        <item quantity="few">boosta</item>
+        <item quantity="other">boostova</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_transfer_confirm_confirmation_slotCount">
+        <item quantity="one">boost</item>
+        <item quantity="other">boostove</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_available_numSubscriptions">
+        <item quantity="one">{#} Boost</item>
+        <item quantity="few">{#} boosta</item>
+        <item quantity="other">{#} boostova</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_guild_subsription_subtitle_numSubscriptions">
+        <item quantity="one">{#} puta</item>
+        <item quantity="other">{#} puta</item>
+    </plurals>
+    <plurals name="premium_guild_subscriptions_renewal_info_quantity">
+        <item quantity="one">Server Boost</item>
+        <item quantity="few">server boosta</item>
+        <item quantity="other">server boostova</item>
+    </plurals>
+    <plurals name="premium_subscription_credit_count_months_count">
+        <item quantity="one">{#} mjesec</item>
+        <item quantity="few">{#} mjeseca</item>
+        <item quantity="other">{#} mjeseci</item>
+    </plurals>
+    <plurals name="premium_upsell_feature_free_guild_subscription_numFreeGuildSubscriptions">
+        <item quantity="one">{#} server boost</item>
+        <item quantity="few">{#} server boosta</item>
+        <item quantity="other">{#} server boostova</item>
+    </plurals>
+    <plurals name="stage_audience_waiting_many_numOthers">
+        <item quantity="one">{#} drugi</item>
+        <item quantity="other">{#} drugih</item>
+    </plurals>
+    <plurals name="stage_blocked_users_body_number">
+        <item quantity="one">{#} račun koji je od tebe dobio blok je</item>
+        <item quantity="few">{#} računa koji su od tebe dobili blok su</item>
+        <item quantity="other">{#} računa koji su od tebe dobili blok je</item>
+    </plurals>
+    <plurals name="stage_blocked_users_title_plural_number">
+        <item quantity="one">Prisutan je blokirani račun</item>
+        <item quantity="other">Ima prisutnih računa koji su blokirani</item>
+    </plurals>
+    <plurals name="stage_is_speaking_hook_count">
+        <item quantity="one">i još](usernameHook) govore…</item>
+        <item quantity="other">i {count} ostali](usernameHook) govore…</item>
+    </plurals>
+    <plurals name="stage_speak_invite_blocked_users_number">
+        <item quantity="one">{#} blokirani korisnik</item>
+        <item quantity="other">{#} blokirani korisnici</item>
+    </plurals>
+    <plurals name="sticker_pack_sticker_count_numStickers">
+        <item quantity="one">{#} naljepnice</item>
+        <item quantity="other">{#} naljepnica</item>
+    </plurals>
+    <plurals name="total_results_count">
+        <item quantity="one">{count} rezultat</item>
+        <item quantity="other">{count} rezultata</item>
+    </plurals>
+    <plurals name="uploading_files_count">
+        <item quantity="one">Prijenos 1 datoteke</item>
+        <item quantity="other">Prijenos {count} datoteka</item>
+    </plurals>
+    <plurals name="uploading_files_failed_count">
+        <item quantity="one">1 prijenos nije uspio</item>
+        <item quantity="other">{count} prijenosa nije uspjelo</item>
+    </plurals>
+    <plurals name="user_profile_mutual_friends_count">
+        <item quantity="one">1 zajednički prijatelj</item>
+        <item quantity="few">{count} zajednička prijatelja</item>
+        <item quantity="other">{count} zajedničkih prijatelja</item>
+    </plurals>
+    <plurals name="user_profile_mutual_guilds_count">
+        <item quantity="one">1 zajednički server</item>
+        <item quantity="few">{count} zajednička servera</item>
+        <item quantity="other">{count} zajedničkih servera</item>
+    </plurals>
+    <plurals name="user_summary_with_others_count">
+        <item quantity="one">1 druga osoba</item>
+        <item quantity="few">{count} druge osobe</item>
+        <item quantity="other">{count} drugih osoba</item>
+    </plurals>
+    <plurals name="vanity_url_header_uses_uses">
+        <item quantity="one">1 upotreba</item>
+        <item quantity="few">{uses} upotrebe</item>
+        <item quantity="other">{uses} upotreba</item>
+    </plurals>
+</resources>

@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="age_gate_underage_existing_body_deletion_with_days_days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{days} dagar</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_monthly_mobile_intervalCount">
+        <item quantity="one">{#} månad</item>
+        <item quantity="other">{#} månader</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_yearly_mobile_intervalCount">
+        <item quantity="one">{#} år</item>
+        <item quantity="other">{#} år</item>
+    </plurals>
+    <plurals name="autocomplete_emoji_upsell_count">
+        <item quantity="one">{#} matchande emoji till</item>
+        <item quantity="other">{#} matchande emojier till</item>
+    </plurals>
+    <plurals name="blocked_messages_count">
+        <item quantity="one">1 blockerat meddelande</item>
+        <item quantity="other">{count} blockerade meddelanden</item>
+    </plurals>
+    <plurals name="channel_slowmode_cooldown_seconds">
+        <item quantity="one">1 sekund</item>
+        <item quantity="other">{seconds} sekunder</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_hours_hours">
+        <item quantity="one">{#} timme</item>
+        <item quantity="other">{#} timmar</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_minutes_minutes">
+        <item quantity="one">{#} minut</item>
+        <item quantity="other">{#} minuter</item>
+    </plurals>
+    <plurals name="discovery_speaker_count_speakersCount">
+        <item quantity="one">+{count} talare</item>
+        <item quantity="other">+{count} talare</item>
+    </plurals>
+    <plurals name="dm_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} oläst meddelande</item>
+        <item quantity="other">, {#} olästa meddelanden</item>
+    </plurals>
+    <plurals name="duration_days_capitalize_days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{days} dagar</item>
+    </plurals>
+    <plurals name="duration_days_days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{days} dagar</item>
+    </plurals>
+    <plurals name="duration_hours_capitalize_hours">
+        <item quantity="one">1 timme</item>
+        <item quantity="other">{hours} timmar</item>
+    </plurals>
+    <plurals name="duration_hours_hours">
+        <item quantity="one">1 timme</item>
+        <item quantity="other">{hours} timmar</item>
+    </plurals>
+    <plurals name="duration_mins_mins">
+        <item quantity="one">1 min.</item>
+        <item quantity="other">{mins} min.</item>
+    </plurals>
+    <plurals name="duration_minutes_capitalize_minutes">
+        <item quantity="one">1 minut</item>
+        <item quantity="other">{minutes} minuter</item>
+    </plurals>
+    <plurals name="duration_minutes_minutes">
+        <item quantity="one">1 minut</item>
+        <item quantity="other">{minutes} minuter</item>
+    </plurals>
+    <plurals name="duration_months_capitalize_months">
+        <item quantity="one">1 månad</item>
+        <item quantity="other">{months} månader</item>
+    </plurals>
+    <plurals name="duration_seconds_capitalize_seconds">
+        <item quantity="one">1 sekund</item>
+        <item quantity="other">{seconds} sekunder</item>
+    </plurals>
+    <plurals name="duration_seconds_seconds">
+        <item quantity="one">1 sekund</item>
+        <item quantity="other">{seconds} sekunder</item>
+    </plurals>
+    <plurals name="duration_weeks_capitalize_weeks">
+        <item quantity="one">1 vecka</item>
+        <item quantity="other">{weeks} veckor</item>
+    </plurals>
+    <plurals name="duration_years_capitalize_years">
+        <item quantity="one">1 år</item>
+        <item quantity="other">{years} år</item>
+    </plurals>
+    <plurals name="emoji_slots_available_count">
+        <item quantity="one">{count} plats tillgänglig</item>
+        <item quantity="other">{count} platser tillgängliga</item>
+    </plurals>
+    <plurals name="emojis_title_count">
+        <item quantity="one">{count} emoji</item>
+        <item quantity="other">{count} emojier</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{days} dagar</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_members">
+        <item quantity="one">1 medlem</item>
+        <item quantity="other">{members} medlemmar</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_months_time">
+        <item quantity="one">{#} månad</item>
+        <item quantity="other">{#} månader</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_years_time">
+        <item quantity="one">{#} år</item>
+        <item quantity="other">{#} år</item>
+    </plurals>
+    <plurals name="gift_inventory_copies_copies">
+        <item quantity="one">{#} kopia</item>
+        <item quantity="other">{#} kopior</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_months_intervalCount">
+        <item quantity="one">{#} månad</item>
+        <item quantity="other">{#} månader</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_years_intervalCount">
+        <item quantity="one">{#} år</item>
+        <item quantity="other">{#} år</item>
+    </plurals>
+    <plurals name="group_dm_invite_remaining_number">
+        <item quantity="one">Du kan lägga till ytterligare 1 vän.</item>
+        <item quantity="other">Du kan lägga till ytterligare {number} vänner.</item>
+    </plurals>
+    <plurals name="group_dm_invite_unselect_users_number">
+        <item quantity="one">Du måste avmarkera 1 vän.</item>
+        <item quantity="other">Du måste avmarkera {number} vänner.</item>
+    </plurals>
+    <plurals name="guild_event_interested_count_count">
+        <item quantity="one">{#} person är</item>
+        <item quantity="other">{#} personer är</item>
+    </plurals>
+    <plurals name="guild_events_plural_number">
+        <item quantity="one">{#} event</item>
+        <item quantity="other">{#} event</item>
+    </plurals>
+    <plurals name="guild_folder_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} oläst omnämning</item>
+        <item quantity="other">, {#} olästa omnämningar</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_denied_count">
+        <item quantity="one">en behörighet</item>
+        <item quantity="other">behörigheter</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_granted_count">
+        <item quantity="one">en behörighet</item>
+        <item quantity="other">behörigheter</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_reset_count">
+        <item quantity="one">en behörighet</item>
+        <item quantity="other">behörigheter</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_rate_limit_per_user_change_newValue">
+        <item quantity="one">Ändrade slowmode till **{#} sekund**</item>
+        <item quantity="other">Ändrade slowmode till **{#} sekunder**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_disconnect_count">
+        <item quantity="one">**en användare**</item>
+        <item quantity="other">**!!{count}!! användare**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_move_count">
+        <item quantity="one">**en användare**</item>
+        <item quantity="other">**!!{count}!! användare**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_count">
+        <item quantity="one">**en medlem**</item>
+        <item quantity="other">**!!{count}!! medlemmar**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_delete_days_newValue">
+        <item quantity="one">en dags</item>
+        <item quantity="other">{newValue} dagars</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_add_count">
+        <item quantity="one">en roll</item>
+        <item quantity="other">flera roller</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_remove_count">
+        <item quantity="one">en roll</item>
+        <item quantity="other">flera roller</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_bulk_delete_count">
+        <item quantity="one">**ett meddelande**</item>
+        <item quantity="other">**!!{count}!! meddelanden**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_delete_count">
+        <item quantity="one">**ett meddelande**</item>
+        <item quantity="other">**!!{count}!! meddelanden**</item>
+    </plurals>
+    <plurals name="guild_settings_overview_boost_unlock_boosts">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} boostar</item>
+    </plurals>
+    <plurals name="guild_settings_premium_guild_tier_requirement_required">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} boostar</item>
+    </plurals>
+    <plurals name="guild_settings_premium_upsell_body_perk_no_free_guild_subscriptions_numFreeGuildSubscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} boostar</item>
+    </plurals>
+    <plurals name="guild_sidebar_announcement_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} omnämning</item>
+        <item quantity="other">{#} omnämningar</item>
+    </plurals>
+    <plurals name="guild_sidebar_default_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} omnämning</item>
+        <item quantity="other">{#} omnämningar</item>
+    </plurals>
+    <plurals name="guild_sidebar_voice_channel_a11y_label_with_users_userCount">
+        <item quantity="one">1 användare</item>
+        <item quantity="other">{#} användare</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_guildSubscriptionQuantity">
+        <item quantity="one">{#} gång</item>
+        <item quantity="other">{#} gånger</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_no_application_guildSubscriptionQuantity">
+        <item quantity="one">{#} serverboost</item>
+        <item quantity="other">{#} serverboostar</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_transferred_description_mobile2_guildSubscriptionQuantity">
+        <item quantity="one">{#} gång</item>
+        <item quantity="other">{#} gånger</item>
+    </plurals>
+    <plurals name="guild_template_usages_usageCount">
+        <item quantity="one">**1** person har använt den här mallen</item>
+        <item quantity="other">**{usageCount}** personer har använt den här mallen</item>
+    </plurals>
+    <plurals name="guild_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} omnämning,</item>
+        <item quantity="other">{#} omnämningar,</item>
+    </plurals>
+    <plurals name="hub_email_connection_invite_header_count">
+        <item quantity="one">{count} annan vän</item>
+        <item quantity="other">{count} andra vänner</item>
+    </plurals>
+    <plurals name="humanize_duration_days_time">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{#} dagar</item>
+    </plurals>
+    <plurals name="humanize_duration_hours_time">
+        <item quantity="one">1 timme</item>
+        <item quantity="other">{#} timmar</item>
+    </plurals>
+    <plurals name="humanize_duration_minutes_time">
+        <item quantity="one">1 minut</item>
+        <item quantity="other">{#} minuter</item>
+    </plurals>
+    <plurals name="humanize_duration_seconds_time">
+        <item quantity="one">1 sekund</item>
+        <item quantity="other">{#} sekunder</item>
+    </plurals>
+    <plurals name="instant_invite_guild_members_total_count">
+        <item quantity="one">1 medlem</item>
+        <item quantity="other">{count} medlemmar</item>
+    </plurals>
+    <plurals name="last_seen_days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{days} dagar</item>
+    </plurals>
+    <plurals name="max_uses_description_mobile_maxUses">
+        <item quantity="one">1 användning</item>
+        <item quantity="other">{maxUses} användningar</item>
+    </plurals>
+    <plurals name="members_header_members">
+        <item quantity="one">1 medlem</item>
+        <item quantity="other">{members} medlemmar</item>
+    </plurals>
+    <plurals name="n_days_days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{days} dagar</item>
+    </plurals>
+    <plurals name="new_messages_count">
+        <item quantity="one">1 nytt meddelande</item>
+        <item quantity="other">{count} nya meddelanden</item>
+    </plurals>
+    <plurals name="num_members_subscribers">
+        <item quantity="one">**1** medlem</item>
+        <item quantity="other">**{subscribers}** medlemmar</item>
+    </plurals>
+    <plurals name="num_subscribers_subscribers">
+        <item quantity="one">**1** prenumerant</item>
+        <item quantity="other">**{subscribers}** prenumeranter</item>
+    </plurals>
+    <plurals name="num_users_num">
+        <item quantity="one">1 användare</item>
+        <item quantity="other">{num} användare</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_count">
+        <item quantity="one">detta</item>
+        <item quantity="other">dessa</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_countMessages">
+        <item quantity="one">detta meddelande</item>
+        <item quantity="other">dessa meddelanden</item>
+    </plurals>
+    <plurals name="partial_outage_count">
+        <item quantity="one">**1** till server är otillgänglig på grund av ett tillfälligt avbrott.</item>
+        <item quantity="other">**{count}** andra servrar är otillgängliga på grund av ett tillfälligt avbrott.</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_header_subscription_count_subscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} boostar</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_protip_mobile_numFreeGuildSubscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} boostar</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_confirmation_slotCount">
+        <item quantity="one">boost</item>
+        <item quantity="other">boostar {#} gånger</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_days">
+        <item quantity="one">{#} dag</item>
+        <item quantity="other">{#} dagar</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_slotCount">
+        <item quantity="one">denna boost</item>
+        <item quantity="other">dessa boostar</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_guildCount">
+        <item quantity="one">Den aktuella serverns</item>
+        <item quantity="other">servarnas</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_slotCount">
+        <item quantity="one">den här serverboosten</item>
+        <item quantity="other">de här serverboostarna</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_from_guild_guildCount">
+        <item quantity="one">server</item>
+        <item quantity="other">servrar</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_to_guild_slotCount">
+        <item quantity="one">boost</item>
+        <item quantity="other">boostar</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_transfer_confirm_confirmation_slotCount">
+        <item quantity="one">boost</item>
+        <item quantity="other">boostar</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_available_numSubscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} boostar</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_guild_subsription_subtitle_numSubscriptions">
+        <item quantity="one">{#} gång</item>
+        <item quantity="other">{#} gånger</item>
+    </plurals>
+    <plurals name="premium_guild_subscriptions_renewal_info_quantity">
+        <item quantity="one">serverboost</item>
+        <item quantity="other">serverboostar</item>
+    </plurals>
+    <plurals name="premium_subscription_credit_count_months_count">
+        <item quantity="one">{#} månad</item>
+        <item quantity="other">{#} månader</item>
+    </plurals>
+    <plurals name="premium_upsell_feature_free_guild_subscription_numFreeGuildSubscriptions">
+        <item quantity="one">{#} serverboost</item>
+        <item quantity="other">{#} serverboostar</item>
+    </plurals>
+    <plurals name="stage_audience_waiting_many_numOthers">
+        <item quantity="one">{#} annan</item>
+        <item quantity="other">{#} andra</item>
+    </plurals>
+    <plurals name="stage_blocked_users_body_number">
+        <item quantity="one">{#} konto som du har blockerat</item>
+        <item quantity="other">{#} konton som du har blockerat</item>
+    </plurals>
+    <plurals name="stage_blocked_users_title_plural_number">
+        <item quantity="one">konto</item>
+        <item quantity="other">konton</item>
+    </plurals>
+    <plurals name="stage_is_speaking_hook_count">
+        <item quantity="one">och en till](usernameHook) talar …</item>
+        <item quantity="other">och {count} andra](usernameHook) talar …</item>
+    </plurals>
+    <plurals name="stage_speak_invite_blocked_users_number">
+        <item quantity="one">{#} blockerad användare</item>
+        <item quantity="other">{#} blockerade användare</item>
+    </plurals>
+    <plurals name="sticker_pack_sticker_count_numStickers">
+        <item quantity="one">{#} dekal</item>
+        <item quantity="other">{#} dekaler</item>
+    </plurals>
+    <plurals name="total_results_count">
+        <item quantity="one">{count} träff</item>
+        <item quantity="other">{count} träffar</item>
+    </plurals>
+    <plurals name="uploading_files_count">
+        <item quantity="one">Laddar upp 1 fil</item>
+        <item quantity="other">Laddar upp {count} filer</item>
+    </plurals>
+    <plurals name="uploading_files_failed_count">
+        <item quantity="one">1 filuppladdning misslyckades</item>
+        <item quantity="other">{count} filuppladdningar misslyckades</item>
+    </plurals>
+    <plurals name="user_profile_mutual_friends_count">
+        <item quantity="one">1 gemensam vän</item>
+        <item quantity="other">{count} gemensamma vänner</item>
+    </plurals>
+    <plurals name="user_profile_mutual_guilds_count">
+        <item quantity="one">1 gemensam server</item>
+        <item quantity="other">{count} gemensamma servrar</item>
+    </plurals>
+    <plurals name="user_summary_with_others_count">
+        <item quantity="one">1 annan</item>
+        <item quantity="other">{count} andra</item>
+    </plurals>
+    <plurals name="vanity_url_header_uses_uses">
+        <item quantity="one">1 användning</item>
+        <item quantity="other">{uses} användningar</item>
+    </plurals>
+</resources>

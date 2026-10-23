@@ -38,6 +38,9 @@ fun App() {
 
     val pureBlack = settingsStore.pureBlack && useDarkTheme
 
+    val languageTag = settingsStore.language
+        .takeUnless { it == me.lampu.lampcord.shared.i18n.LANGUAGE_SYSTEM }
+
     val seedColor = remember(settingsStore.accentColor) {
         try {
             Color(settingsStore.accentColor.removePrefix("#").toLong(16) or 0xFF000000)
@@ -60,9 +63,11 @@ fun App() {
         fontScale = settingsStore.fontScale,
         customFontPath = settingsStore.customFontPath,
     ) {
-        ProvideClipboard()
-        MainScreen()
-        UpdatePrompt()
+        me.lampu.lampcord.shared.i18n.ProvideAppLocale(languageTag) {
+            ProvideClipboard()
+            MainScreen()
+            UpdatePrompt()
+        }
     }
 }
 

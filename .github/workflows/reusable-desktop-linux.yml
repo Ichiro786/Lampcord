@@ -114,14 +114,19 @@ jobs:
           done < gradle.properties
           [[ -n "$VERSION_OVERRIDE" ]] && version="$VERSION_OVERRIDE"
 
-          ./gradlew :desktopApp:packageUberJarForCurrentOS \
+          ./gradlew :desktopApp:packageUberJarForCurrentOS :desktopApp:createLinuxRuntimeImage \
             --no-daemon --no-build-cache --no-configuration-cache
 
           jar=$(find desktopApp/build/compose/jars -maxdepth 1 -name '*.jar' -type f | head -n 1)
           [[ -n "$jar" ]] || { echo "No uber jar was produced" >&2; exit 1; }
 
+          # The jlink image is what keeps the packages off the host JRE: the jar alone would
+          # depend on java-runtime and fail on distros shipping a JRE older than the classes.
+          runtime="$(pwd)/desktopApp/build/runtime-image"
+          [[ -x "$runtime/bin/java" ]] || { echo "No runtime image was produced" >&2; exit 1; }
+
           mkdir -p dist/native
-          ./scripts/package_linux.sh --version "$version" --jar "$jar" --out dist/native
+          ./scripts/package_linux.sh --version "$version" --jar "$jar" --runtime "$runtime" --out dist/native
 
           # Publish the bare jar as well: it is the exact byte set the AUR source tarball
           # bundles, and a handy artifact in its own right. The upload step below globs
@@ -152,6 +157,18 @@ jobs:
           fi
           test -f "$jar" || { echo "No uber jar was produced" >&2; exit 1; }
 
+          # The AUR package used to pull a jre-openjdk dependency, which only hangs together
+          # while the distro JRE is newer than our classes. Bundle the same jlink image the
+          # deb and rpm carry, so the package installs and runs anywhere.
+          if [[ ! -x desktopApp/build/runtime-image/bin/java ]]; then
+            ./gradlew :desktopApp:createLinuxRuntimeImage \
+              --no-daemon --no-build-cache --no-configuration-cache
+          fi
+          test -x desktopApp/build/runtime-image/bin/java || {
+            echo "No runtime image was produced" >&2
+            exit 1
+          }
+
           staging="$(mktemp -d)"
           # Build the single self-contained source the PKGBUILD references: the jar plus the
           # launcher, desktop file and both icons. Deterministic (sorted entries, zeroed mtime
@@ -159,6 +176,7 @@ jobs:
           # committed copy reproduces the same bytes where the jar does.
           mkdir -p "$staging/lampcord"
           cp "$jar" "$staging/lampcord/lampcord.jar"
+          cp -a desktopApp/build/runtime-image "$staging/lampcord/runtime"
           cp packaging/aur/lampcord-launcher packaging/aur/lampcord.desktop \
             packaging/aur/lampcord.png packaging/aur/lampcord.svg "$staging/lampcord/"
           tar --sort=name --mtime='@0' --owner=0 --group=0 --numeric-owner \

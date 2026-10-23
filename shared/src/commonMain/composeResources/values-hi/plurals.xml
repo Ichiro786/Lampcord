@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="age_gate_underage_existing_body_deletion_with_days_days">
+        <item quantity="one">1 दिन</item>
+        <item quantity="other">{days} दिन</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_monthly_mobile_intervalCount">
+        <item quantity="one">{#} महीना</item>
+        <item quantity="other">{#} महीने</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_yearly_mobile_intervalCount">
+        <item quantity="one">{#} साल</item>
+        <item quantity="other">{#} साल</item>
+    </plurals>
+    <plurals name="autocomplete_emoji_upsell_count">
+        <item quantity="one">{#} से ज़्यादा मिलती-जुलती इमोजी</item>
+        <item quantity="other">{#} से ज़्यादा मिलती-जुलती इमोजी</item>
+    </plurals>
+    <plurals name="blocked_messages_count">
+        <item quantity="one">1 ब्लॉक किया गया मैसेज</item>
+        <item quantity="other">{count} ब्लॉक किए गए मैसेज</item>
+    </plurals>
+    <plurals name="channel_slowmode_cooldown_seconds">
+        <item quantity="one">1 सेकंड</item>
+        <item quantity="other">{seconds} सेकंड</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_hours_hours">
+        <item quantity="one">{#} घंटा</item>
+        <item quantity="other">{#} घंटे</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_minutes_minutes">
+        <item quantity="one">{#} मिनट</item>
+        <item quantity="other">{#} मिनट</item>
+    </plurals>
+    <plurals name="discovery_speaker_count_speakersCount">
+        <item quantity="one">+{count} स्पीकर</item>
+        <item quantity="other">+{count} स्पीकर्स</item>
+    </plurals>
+    <plurals name="dm_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} बिना पढ़े हुए मैसेज</item>
+        <item quantity="other">, {#} बिना पढ़े हुए मैसेज</item>
+    </plurals>
+    <plurals name="duration_days_capitalize_days">
+        <item quantity="one">1 दिन</item>
+        <item quantity="other">{days} दिन</item>
+    </plurals>
+    <plurals name="duration_days_days">
+        <item quantity="one">1 दिन</item>
+        <item quantity="other">{days} दिन</item>
+    </plurals>
+    <plurals name="duration_hours_capitalize_hours">
+        <item quantity="one">1 घंटा</item>
+        <item quantity="other">{hours} घंटे</item>
+    </plurals>
+    <plurals name="duration_hours_hours">
+        <item quantity="one">1 घंटा</item>
+        <item quantity="other">{hours} घंटे</item>
+    </plurals>
+    <plurals name="duration_mins_mins">
+        <item quantity="one">1 मिनट</item>
+        <item quantity="other">{mins} मिनट</item>
+    </plurals>
+    <plurals name="duration_minutes_capitalize_minutes">
+        <item quantity="one">1 मिनट</item>
+        <item quantity="other">{minutes} मिनट्स</item>
+    </plurals>
+    <plurals name="duration_minutes_minutes">
+        <item quantity="one">1 मिनट</item>
+        <item quantity="other">{minutes} मिनट</item>
+    </plurals>
+    <plurals name="duration_months_capitalize_months">
+        <item quantity="one">1 महीना</item>
+        <item quantity="other">{months} महीने</item>
+    </plurals>
+    <plurals name="duration_seconds_capitalize_seconds">
+        <item quantity="one">1 सेकंड</item>
+        <item quantity="other">{seconds} सेकंड्स</item>
+    </plurals>
+    <plurals name="duration_seconds_seconds">
+        <item quantity="one">1 सेकंड</item>
+        <item quantity="other">{seconds}सेकंड</item>
+    </plurals>
+    <plurals name="duration_weeks_capitalize_weeks">
+        <item quantity="one">1 हफ़्ता</item>
+        <item quantity="other">{weeks} हफ़्ते</item>
+    </plurals>
+    <plurals name="duration_years_capitalize_years">
+        <item quantity="one">1 साल</item>
+        <item quantity="other">{years} कई साल</item>
+    </plurals>
+    <plurals name="emoji_slots_available_count">
+        <item quantity="one">{count} स्लॉट</item>
+        <item quantity="other">{count} स्लॉट</item>
+    </plurals>
+    <plurals name="emojis_title_count">
+        <item quantity="one">{count} इमोजी</item>
+        <item quantity="other">{count} इमोजी</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_days">
+        <item quantity="one">1 दिन</item>
+        <item quantity="other">{days} दिनों</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_members">
+        <item quantity="one">1 मेम्बर</item>
+        <item quantity="other">{members} मेम्बर्स</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_months_time">
+        <item quantity="one">{#} महीना</item>
+        <item quantity="other">{#} महीने</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_years_time">
+        <item quantity="one">{#} साल</item>
+        <item quantity="other">{#} साल</item>
+    </plurals>
+    <plurals name="gift_inventory_copies_copies">
+        <item quantity="one">{#} कॉपी</item>
+        <item quantity="other">{#} कॉपियां</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_months_intervalCount">
+        <item quantity="one">{#} महीना</item>
+        <item quantity="other">{#} महीने</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_years_intervalCount">
+        <item quantity="one">{#} साल</item>
+        <item quantity="other">{#} साल</item>
+    </plurals>
+    <plurals name="group_dm_invite_remaining_number">
+        <item quantity="one">आप 1 और फ्रेंड को ऐड कर सकते है.</item>
+        <item quantity="other">आप {number} और फ्रेंड्स को ऐ़ड कर सकते हैं.</item>
+    </plurals>
+    <plurals name="group_dm_invite_unselect_users_number">
+        <item quantity="one">आपको 1 फ्रेंड से सलेक्ट हटाना होगा.</item>
+        <item quantity="other">आपको फ्रेंड से{number} सलेक्ट हटाना होगा.</item>
+    </plurals>
+    <plurals name="guild_event_interested_count_count">
+        <item quantity="one">{#} व्यक्ति</item>
+        <item quantity="other">{#} लोग</item>
+    </plurals>
+    <plurals name="guild_events_plural_number">
+        <item quantity="one">{#} इवेंट</item>
+        <item quantity="other">{#} इवेंट्स</item>
+    </plurals>
+    <plurals name="guild_folder_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} बिना पढ़े हुए मेंशन</item>
+        <item quantity="other">, {#} बिना पढ़े हुए मेंशन</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_denied_count">
+        <item quantity="one">परमिशन</item>
+        <item quantity="other">परमिशन</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_granted_count">
+        <item quantity="one">एक परमिशन</item>
+        <item quantity="other">कई परमिशन</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_reset_count">
+        <item quantity="one">परमिशन</item>
+        <item quantity="other">परमिशन</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_rate_limit_per_user_change_newValue">
+        <item quantity="one">स्लोमोड को **{#} सेकंड पर सेट करें**</item>
+        <item quantity="other">स्लोमोड को **{#} सेकंड**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_disconnect_count">
+        <item quantity="one">**यूज़र**</item>
+        <item quantity="other">**!!{count}!! यूज़र**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_move_count">
+        <item quantity="one">**यूज़र**</item>
+        <item quantity="other">**!!{count}!! यूज़र**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_count">
+        <item quantity="one">**मेम्बर **</item>
+        <item quantity="other">**!!{count}!! मेम्बर**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_delete_days_newValue">
+        <item quantity="one">एक दिन</item>
+        <item quantity="other">{newValue} दिनों</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_add_count">
+        <item quantity="one">रोल</item>
+        <item quantity="other">कुछ रोल</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_remove_count">
+        <item quantity="one">रोल</item>
+        <item quantity="other">कुछ रोल</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_bulk_delete_count">
+        <item quantity="one">**मैसेज**</item>
+        <item quantity="other">**!!{count}!! मैसेज**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_delete_count">
+        <item quantity="one">**मैसेज**</item>
+        <item quantity="other">**!!{count}!! मैसेज**</item>
+    </plurals>
+    <plurals name="guild_settings_overview_boost_unlock_boosts">
+        <item quantity="one">{#} बूस्ट</item>
+        <item quantity="other">{#} बूस्ट्स</item>
+    </plurals>
+    <plurals name="guild_settings_premium_guild_tier_requirement_required">
+        <item quantity="one">{#} बूस्ट</item>
+        <item quantity="other">{#} बूस्ट</item>
+    </plurals>
+    <plurals name="guild_settings_premium_upsell_body_perk_no_free_guild_subscriptions_numFreeGuildSubscriptions">
+        <item quantity="one">{#} बूस्ट</item>
+        <item quantity="other">{#} बूस्ट</item>
+    </plurals>
+    <plurals name="guild_sidebar_announcement_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} मेंशन</item>
+        <item quantity="other">{#} मेंशन</item>
+    </plurals>
+    <plurals name="guild_sidebar_default_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} मेंशन</item>
+        <item quantity="other">{#} मेंशन</item>
+    </plurals>
+    <plurals name="guild_sidebar_voice_channel_a11y_label_with_users_userCount">
+        <item quantity="one">1 यूज़र</item>
+        <item quantity="other">{#} यूज़र</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_guildSubscriptionQuantity">
+        <item quantity="one">{#} बार</item>
+        <item quantity="other">{#} बार</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_no_application_guildSubscriptionQuantity">
+        <item quantity="one">{#} सर्वर बूस्ट</item>
+        <item quantity="other">{#} सर्वर बूस्ट</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_transferred_description_mobile2_guildSubscriptionQuantity">
+        <item quantity="one">{#} टाइम</item>
+        <item quantity="other">{#}टाइम्स</item>
+    </plurals>
+    <plurals name="guild_template_usages_usageCount">
+        <item quantity="one">**1** पर्सन ने इस टेम्पलेट का इस्तेमाल किया है</item>
+        <item quantity="other">**{usageCount}** लोगों ने इस टेम्पलेट का इस्तेमाल किया है</item>
+    </plurals>
+    <plurals name="guild_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} मेंशन</item>
+        <item quantity="other">{#} मेंशन</item>
+    </plurals>
+    <plurals name="hub_email_connection_invite_header_count">
+        <item quantity="one">{count} दूसरा फ्रेंड</item>
+        <item quantity="other">{count} दूसरे फ्रेंड्स</item>
+    </plurals>
+    <plurals name="humanize_duration_days_time">
+        <item quantity="one">1 दिन</item>
+        <item quantity="other">{#} दिन</item>
+    </plurals>
+    <plurals name="humanize_duration_hours_time">
+        <item quantity="one">1 घंटा</item>
+        <item quantity="other">{#} घंटे</item>
+    </plurals>
+    <plurals name="humanize_duration_minutes_time">
+        <item quantity="one">1 मिनट</item>
+        <item quantity="other">{#} मिनट</item>
+    </plurals>
+    <plurals name="humanize_duration_seconds_time">
+        <item quantity="one">1 सेकंड</item>
+        <item quantity="other">{#}सेकंड</item>
+    </plurals>
+    <plurals name="instant_invite_guild_members_total_count">
+        <item quantity="one">1 मेम्बर</item>
+        <item quantity="other">{count} मेम्बर</item>
+    </plurals>
+    <plurals name="last_seen_days">
+        <item quantity="one">1 दिन या</item>
+        <item quantity="other">{days} दिनों</item>
+    </plurals>
+    <plurals name="max_uses_description_mobile_maxUses">
+        <item quantity="one">1 इस्तेमाल</item>
+        <item quantity="other">{maxUses} इस्तेमाल होता है</item>
+    </plurals>
+    <plurals name="members_header_members">
+        <item quantity="one">1 मेम्बर</item>
+        <item quantity="other">{members} मेम्बर</item>
+    </plurals>
+    <plurals name="n_days_days">
+        <item quantity="one">1 दिन</item>
+        <item quantity="other">{days} दिन</item>
+    </plurals>
+    <plurals name="new_messages_count">
+        <item quantity="one">1 नया मैसेज</item>
+        <item quantity="other">{count} नए मैसेज</item>
+    </plurals>
+    <plurals name="num_members_subscribers">
+        <item quantity="one">**1** मेम्बर</item>
+        <item quantity="other">**{subscribers}** मेम्बर</item>
+    </plurals>
+    <plurals name="num_subscribers_subscribers">
+        <item quantity="one">**1** सब्सक्राइबर</item>
+        <item quantity="other">**{subscribers}** सब्सक्राइबर</item>
+    </plurals>
+    <plurals name="num_users_num">
+        <item quantity="one">1 यूज़र</item>
+        <item quantity="other">{num} यूज़र</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_count">
+        <item quantity="one">यह</item>
+        <item quantity="other">ये</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_countMessages">
+        <item quantity="one">मैसेज</item>
+        <item quantity="other">मैसेज</item>
+    </plurals>
+    <plurals name="partial_outage_count">
+        <item quantity="one">**1** टेम्परेरी आउटेज की वजह से दूसरा सर्वर उपलब्ध नहीं है.</item>
+        <item quantity="other">**{count}** दूसरे सर्वर टेम्परेरी आउटेज की वजह से उपलब्ध नहीं हैं.</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_header_subscription_count_subscriptions">
+        <item quantity="one">{#} बूस्ट</item>
+        <item quantity="other">{#} बूस्ट्स</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_protip_mobile_numFreeGuildSubscriptions">
+        <item quantity="one">{#} बूस्ट</item>
+        <item quantity="other">{#} बूस्ट</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_confirmation_slotCount">
+        <item quantity="one">बूस्ट</item>
+        <item quantity="other">बूस्ट {#} टाइम्स</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_days">
+        <item quantity="one">{#}दिन</item>
+        <item quantity="other">{#}दिन</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_slotCount">
+        <item quantity="one">इस बूस्ट</item>
+        <item quantity="other">इन बूस्ट</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_guildCount">
+        <item quantity="one">मौजूदा सर्वर</item>
+        <item quantity="other">मौजूदा सर्वर</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_slotCount">
+        <item quantity="one">इस सर्वर बूस्ट</item>
+        <item quantity="other">इन सर्वर बूस्ट</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_from_guild_guildCount">
+        <item quantity="one">सर्वर</item>
+        <item quantity="other">सर्वर</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_to_guild_slotCount">
+        <item quantity="one">बूस्ट</item>
+        <item quantity="other">बूस्ट</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_transfer_confirm_confirmation_slotCount">
+        <item quantity="one">बूस्ट</item>
+        <item quantity="other">बूस्ट</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_available_numSubscriptions">
+        <item quantity="one">{#} बूस्ट</item>
+        <item quantity="other">{#} बूस्ट्स</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_guild_subsription_subtitle_numSubscriptions">
+        <item quantity="one">{#} बार</item>
+        <item quantity="other">{#} बार</item>
+    </plurals>
+    <plurals name="premium_guild_subscriptions_renewal_info_quantity">
+        <item quantity="one">सर्वर बूस्ट</item>
+        <item quantity="other">सर्वर बूस्ट</item>
+    </plurals>
+    <plurals name="premium_subscription_credit_count_months_count">
+        <item quantity="one">{#} महीना</item>
+        <item quantity="other">{#} महीने</item>
+    </plurals>
+    <plurals name="premium_upsell_feature_free_guild_subscription_numFreeGuildSubscriptions">
+        <item quantity="one">{#} सर्वर बूस्ट</item>
+        <item quantity="other">{#} सर्वर बूस्ट</item>
+    </plurals>
+    <plurals name="stage_audience_waiting_many_numOthers">
+        <item quantity="one">{#} दूसरे</item>
+        <item quantity="other">{#} दूसरे</item>
+    </plurals>
+    <plurals name="stage_blocked_users_body_number">
+        <item quantity="one">{#} अकाउंट है जिसे आपने ब्लॉक किया है</item>
+        <item quantity="other">{#} अकाउंट्स हैं जिसे आपने ब्लॉक किया है</item>
+    </plurals>
+    <plurals name="stage_blocked_users_title_plural_number">
+        <item quantity="one">अकाउंट</item>
+        <item quantity="other">अकाउंट्स</item>
+    </plurals>
+    <plurals name="stage_is_speaking_hook_count">
+        <item quantity="one">और एक और](usernameHook) बोल रहे हैं…</item>
+        <item quantity="other">और {count} दूसरे](usernameHook) बोल रहा हैं…</item>
+    </plurals>
+    <plurals name="stage_speak_invite_blocked_users_number">
+        <item quantity="one">{#} ब्लॉक किया गया यूज़र</item>
+        <item quantity="other">{#} ब्लॉक किए गए यूज़र</item>
+    </plurals>
+    <plurals name="sticker_pack_sticker_count_numStickers">
+        <item quantity="one">{#} स्टीकर</item>
+        <item quantity="other">{#} स्टीकर</item>
+    </plurals>
+    <plurals name="total_results_count">
+        <item quantity="one">{count} नतीजा</item>
+        <item quantity="other">{count} नतीजे</item>
+    </plurals>
+    <plurals name="uploading_files_count">
+        <item quantity="one">1 फ़ाइल अपलोड हो रही है</item>
+        <item quantity="other">फ़ाइलें {count} अपलोड हो रही हैं</item>
+    </plurals>
+    <plurals name="uploading_files_failed_count">
+        <item quantity="one">1 फ़ाइल अपलोड नहीं हो पाई</item>
+        <item quantity="other">{count} फ़ाइल अपलोड नहीं हो पाई</item>
+    </plurals>
+    <plurals name="user_profile_mutual_friends_count">
+        <item quantity="one">1 म्युचुअल फ्रेंड्</item>
+        <item quantity="other">{count} म्युचुअल फ्रेंड्स</item>
+    </plurals>
+    <plurals name="user_profile_mutual_guilds_count">
+        <item quantity="one">1 म्युचुअल सर्वर</item>
+        <item quantity="other">{count} म्युचुअल सर्वर</item>
+    </plurals>
+    <plurals name="user_summary_with_others_count">
+        <item quantity="one">1 और</item>
+        <item quantity="other">{count} और</item>
+    </plurals>
+    <plurals name="vanity_url_header_uses_uses">
+        <item quantity="one">1 इस्तेमाल</item>
+        <item quantity="other">{uses} इस्तेमाल</item>
+    </plurals>
+</resources>

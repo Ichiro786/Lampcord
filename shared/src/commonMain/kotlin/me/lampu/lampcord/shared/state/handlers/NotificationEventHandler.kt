@@ -69,16 +69,7 @@ class NotificationEventHandler(
         val isDirectMention = messageStore.isMessageMentioningMe(message, currentUser, currentMember)
 
         if (isDm) {
-            val meSettings = userGuildSettingsStore.userGuildSettings.value["@me"]
-            val dmOverride = meSettings?.channel_overrides?.find { it.channel_id == message.channel_id }
-            if (dmOverride?.muted == true) {
-                val muteEndTime = dmOverride.mute_config?.end_time
-                val isMuteActive = if (muteEndTime != null) {
-                    try { kotlin.time.Instant.parse(muteEndTime) > kotlin.time.Clock.System.now() } catch (_: Exception) { true }
-                } else true
-                if (isMuteActive) return
-            }
-
+            if (userGuildSettingsStore.isChannelMuted(null, message.channel_id)) return
             dispatchNotification(message, author, isDm = true, isMention = isDirectMention)
             return
         }
@@ -105,7 +96,8 @@ class NotificationEventHandler(
         }
 
         val isEveryoneMentionAllowed = message.mention_everyone == true && guildSettings?.suppress_everyone != true
-        val isRoleMentionAllowed = message.mention_roles.isNotEmpty() && guildSettings?.suppress_roles != true
+        val isRoleMention = currentMember != null && message.mention_roles.any { it in currentMember.roles }
+        val isRoleMentionAllowed = isRoleMention && guildSettings?.suppress_roles != true
 
         val shouldNotify = when {
             isDirectMention -> true

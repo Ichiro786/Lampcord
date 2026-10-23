@@ -63,6 +63,9 @@ sealed class Screen : NavKey {
     data object AccessibilitySettings : Screen()
 
     @Serializable
+    data object LanguageSettings : Screen()
+
+    @Serializable
     data object PrivacySettings : Screen()
 
     @Serializable

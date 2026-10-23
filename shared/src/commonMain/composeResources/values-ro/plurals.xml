@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="age_gate_underage_existing_body_deletion_with_days_days">
+        <item quantity="one">1 zi</item>
+        <item quantity="other">{days} zile</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_monthly_mobile_intervalCount">
+        <item quantity="one">{#} lună</item>
+        <item quantity="other">{#} luni</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_yearly_mobile_intervalCount">
+        <item quantity="one">{#} an</item>
+        <item quantity="other">{#} ani</item>
+    </plurals>
+    <plurals name="autocomplete_emoji_upsell_count">
+        <item quantity="one">{#} emoji corespunzător</item>
+        <item quantity="other">{#} emoji-uri corespunzătoare</item>
+    </plurals>
+    <plurals name="blocked_messages_count">
+        <item quantity="one">1 mesaj blocat</item>
+        <item quantity="other">{count} mesaje blocate</item>
+    </plurals>
+    <plurals name="channel_slowmode_cooldown_seconds">
+        <item quantity="one">1 secundă</item>
+        <item quantity="other">{seconds} secunde</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_hours_hours">
+        <item quantity="one">{#} oră</item>
+        <item quantity="other">{#} ore</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_minutes_minutes">
+        <item quantity="one">{#} minut</item>
+        <item quantity="other">{#} minute</item>
+    </plurals>
+    <plurals name="discovery_speaker_count_speakersCount">
+        <item quantity="one">+{count} vorbitor</item>
+        <item quantity="other">+{count} vorbitori</item>
+    </plurals>
+    <plurals name="dm_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} mesaj necitit</item>
+        <item quantity="other">, {#} mesaje necitite</item>
+    </plurals>
+    <plurals name="duration_days_capitalize_days">
+        <item quantity="one">1 zi</item>
+        <item quantity="other">{days} zile</item>
+    </plurals>
+    <plurals name="duration_days_days">
+        <item quantity="one">1 zi</item>
+        <item quantity="other">{days} zile</item>
+    </plurals>
+    <plurals name="duration_hours_capitalize_hours">
+        <item quantity="one">1 oră</item>
+        <item quantity="other">{hours} ore</item>
+    </plurals>
+    <plurals name="duration_hours_hours">
+        <item quantity="one">1 oră</item>
+        <item quantity="other">{hours} ore</item>
+    </plurals>
+    <plurals name="duration_mins_mins">
+        <item quantity="one">1 minut</item>
+        <item quantity="other">{mins} minute</item>
+    </plurals>
+    <plurals name="duration_minutes_capitalize_minutes">
+        <item quantity="one">1 minut</item>
+        <item quantity="other">{minutes} minute</item>
+    </plurals>
+    <plurals name="duration_minutes_minutes">
+        <item quantity="one">1 minut</item>
+        <item quantity="other">{minutes} minute</item>
+    </plurals>
+    <plurals name="duration_months_capitalize_months">
+        <item quantity="one">1 lună</item>
+        <item quantity="other">{months} luni</item>
+    </plurals>
+    <plurals name="duration_seconds_capitalize_seconds">
+        <item quantity="one">1 secundă</item>
+        <item quantity="other">{seconds} secunde</item>
+    </plurals>
+    <plurals name="duration_seconds_seconds">
+        <item quantity="one">1 secundă</item>
+        <item quantity="other">{seconds} secunde</item>
+    </plurals>
+    <plurals name="duration_weeks_capitalize_weeks">
+        <item quantity="one">1 săptămână</item>
+        <item quantity="other">{weeks} săptămâni</item>
+    </plurals>
+    <plurals name="duration_years_capitalize_years">
+        <item quantity="one">1 an</item>
+        <item quantity="other">{years} ani</item>
+    </plurals>
+    <plurals name="emoji_slots_available_count">
+        <item quantity="one">{count} loc</item>
+        <item quantity="other">{count} locuri</item>
+    </plurals>
+    <plurals name="emojis_title_count">
+        <item quantity="one">{count} emoji</item>
+        <item quantity="other">{count} emoji-uri</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_days">
+        <item quantity="one">1 zi</item>
+        <item quantity="other">{days} zile</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_members">
+        <item quantity="one">1 membru</item>
+        <item quantity="other">{members} membri</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_months_time">
+        <item quantity="one">{#} lună</item>
+        <item quantity="other">{#} luni</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_years_time">
+        <item quantity="one">{#} an</item>
+        <item quantity="other">{#} ani</item>
+    </plurals>
+    <plurals name="gift_inventory_copies_copies">
+        <item quantity="one">{#} copie</item>
+        <item quantity="other">{#} copii</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_months_intervalCount">
+        <item quantity="one">{#} lună</item>
+        <item quantity="other">{#} luni</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_years_intervalCount">
+        <item quantity="one">{#} an</item>
+        <item quantity="other">{#} ani</item>
+    </plurals>
+    <plurals name="group_dm_invite_remaining_number">
+        <item quantity="one">Poți adăuga încă 1 prieten.</item>
+        <item quantity="other">Poți adăuga încă {number} prieteni.</item>
+    </plurals>
+    <plurals name="group_dm_invite_unselect_users_number">
+        <item quantity="one">Trebuie să deselectezi 1 prieten.</item>
+        <item quantity="other">Trebuie să deselectezi {number} prieteni.</item>
+    </plurals>
+    <plurals name="guild_event_interested_count_count">
+        <item quantity="one">{#} persoană este interesată</item>
+        <item quantity="other">{#} persoane sunt interesate</item>
+    </plurals>
+    <plurals name="guild_events_plural_number">
+        <item quantity="one">{#} eveniment</item>
+        <item quantity="other">{#} evenimente</item>
+    </plurals>
+    <plurals name="guild_folder_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} mențiune necitită</item>
+        <item quantity="other">, {#} mențiuni necitite</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_denied_count">
+        <item quantity="one">o permisiune</item>
+        <item quantity="other">unele permisiuni</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_granted_count">
+        <item quantity="one">o permisiune</item>
+        <item quantity="other">unele permisiuni</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_reset_count">
+        <item quantity="one">o permisiune</item>
+        <item quantity="other">permisiuni</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_rate_limit_per_user_change_newValue">
+        <item quantity="one">A setat regimul lent la **{#} secundă**</item>
+        <item quantity="other">A setat regimul lent la **{#} secunde**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_disconnect_count">
+        <item quantity="one">**un utilizator**</item>
+        <item quantity="other">**!!{count}!! utilizatori**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_move_count">
+        <item quantity="one">**un utilizator**</item>
+        <item quantity="other">**!!{count}!! utilizatori**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_count">
+        <item quantity="one">**un membru**</item>
+        <item quantity="other">**!!{count}!! membri**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_delete_days_newValue">
+        <item quantity="one">o zi</item>
+        <item quantity="other">{newValue} zile</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_add_count">
+        <item quantity="one">un rol</item>
+        <item quantity="other">câteva roluri</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_remove_count">
+        <item quantity="one">un rol</item>
+        <item quantity="other">câteva roluri</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_bulk_delete_count">
+        <item quantity="one">**un mesaj**</item>
+        <item quantity="other">**!!{count}!! mesaje**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_delete_count">
+        <item quantity="one">**un mesaj**</item>
+        <item quantity="other">**!!{count}!! mesaje**</item>
+    </plurals>
+    <plurals name="guild_settings_overview_boost_unlock_boosts">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} boost-uri</item>
+    </plurals>
+    <plurals name="guild_settings_premium_guild_tier_requirement_required">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} boost-uri</item>
+    </plurals>
+    <plurals name="guild_settings_premium_upsell_body_perk_no_free_guild_subscriptions_numFreeGuildSubscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} boost-uri</item>
+    </plurals>
+    <plurals name="guild_sidebar_announcement_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} mențiune</item>
+        <item quantity="other">{#} mențiuni</item>
+    </plurals>
+    <plurals name="guild_sidebar_default_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} mențiune</item>
+        <item quantity="other">{#} mențiuni</item>
+    </plurals>
+    <plurals name="guild_sidebar_voice_channel_a11y_label_with_users_userCount">
+        <item quantity="one">1 utilizator</item>
+        <item quantity="other">{#} utilizatori</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_guildSubscriptionQuantity">
+        <item quantity="one">{#} dată</item>
+        <item quantity="other">de {#} ori</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_no_application_guildSubscriptionQuantity">
+        <item quantity="one">{#} boost pentru server</item>
+        <item quantity="other">{#} boost-uri pentru server</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_transferred_description_mobile2_guildSubscriptionQuantity">
+        <item quantity="one">{#} dată</item>
+        <item quantity="other">de {#} ori</item>
+    </plurals>
+    <plurals name="guild_template_usages_usageCount">
+        <item quantity="one">**1** persoană a folosit acest șablon</item>
+        <item quantity="other">**{usageCount}** persoane au folosit acest șablon</item>
+    </plurals>
+    <plurals name="guild_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} mențiune</item>
+        <item quantity="other">{#} mențiuni</item>
+    </plurals>
+    <plurals name="hub_email_connection_invite_header_count">
+        <item quantity="one">{count} alt prieten</item>
+        <item quantity="other">{count} alți prieteni</item>
+    </plurals>
+    <plurals name="humanize_duration_days_time">
+        <item quantity="one">1 zi</item>
+        <item quantity="other">{#} zile</item>
+    </plurals>
+    <plurals name="humanize_duration_hours_time">
+        <item quantity="one">1 oră</item>
+        <item quantity="other">{#} ore</item>
+    </plurals>
+    <plurals name="humanize_duration_minutes_time">
+        <item quantity="one">1 minut</item>
+        <item quantity="other">{#} minute</item>
+    </plurals>
+    <plurals name="humanize_duration_seconds_time">
+        <item quantity="one">1 secundă</item>
+        <item quantity="other">{#} secunde</item>
+    </plurals>
+    <plurals name="instant_invite_guild_members_total_count">
+        <item quantity="one">1 membru</item>
+        <item quantity="other">{count} membri</item>
+    </plurals>
+    <plurals name="last_seen_days">
+        <item quantity="one">1 zi</item>
+        <item quantity="other">{days} zile</item>
+    </plurals>
+    <plurals name="max_uses_description_mobile_maxUses">
+        <item quantity="one">1 folosire</item>
+        <item quantity="other">{maxUses} folosiri</item>
+    </plurals>
+    <plurals name="members_header_members">
+        <item quantity="one">1 membru</item>
+        <item quantity="other">{members} membri</item>
+    </plurals>
+    <plurals name="n_days_days">
+        <item quantity="one">1 zi</item>
+        <item quantity="other">{days} zile</item>
+    </plurals>
+    <plurals name="new_messages_count">
+        <item quantity="one">1 mesaj nou</item>
+        <item quantity="other">{count} mesaje noi</item>
+    </plurals>
+    <plurals name="num_members_subscribers">
+        <item quantity="one">**1** membru</item>
+        <item quantity="other">**{subscribers}** membri</item>
+    </plurals>
+    <plurals name="num_subscribers_subscribers">
+        <item quantity="one">**1** abonat</item>
+        <item quantity="other">**{subscribers}** abonați</item>
+    </plurals>
+    <plurals name="num_users_num">
+        <item quantity="one">1 utilizator</item>
+        <item quantity="other">{num} utilizatori</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_count">
+        <item quantity="one">acest mesaj</item>
+        <item quantity="other">aceste mesaje</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_countMessages">
+        <item quantity="one">-l</item>
+        <item quantity="other">-le</item>
+    </plurals>
+    <plurals name="partial_outage_count">
+        <item quantity="one">**1** alt server este indisponibil din cauza unei întreruperi temporare.</item>
+        <item quantity="other">**{count}** servere sunt indisponibile din cauza unei întreruperi temporare.</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_header_subscription_count_subscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#}boost-uri</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_protip_mobile_numFreeGuildSubscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} boost-uri</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_confirmation_slotCount">
+        <item quantity="one">Stimulează</item>
+        <item quantity="other">Stimulează de {#} ori</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_days">
+        <item quantity="one">{#} zi</item>
+        <item quantity="other">{#} zile</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_slotCount">
+        <item quantity="one">acestui boost</item>
+        <item quantity="other">acestor boost-uri</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_guildCount">
+        <item quantity="one">serverul actual își va</item>
+        <item quantity="other">serverele actuale își vor</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_slotCount">
+        <item quantity="one">acest boost pentru server</item>
+        <item quantity="other">aceste boost-uri pentru server</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_from_guild_guildCount">
+        <item quantity="one">Server curent</item>
+        <item quantity="other">Servere curente</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_to_guild_slotCount">
+        <item quantity="one">boost</item>
+        <item quantity="other">boost-uri</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_transfer_confirm_confirmation_slotCount">
+        <item quantity="one">boost-ul</item>
+        <item quantity="other">boost-urile</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_available_numSubscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} boost-uri</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_guild_subsription_subtitle_numSubscriptions">
+        <item quantity="one">{#} dată</item>
+        <item quantity="other">{#} ori</item>
+    </plurals>
+    <plurals name="premium_guild_subscriptions_renewal_info_quantity">
+        <item quantity="one">boost pentru server</item>
+        <item quantity="other">boost-uri pentru server</item>
+    </plurals>
+    <plurals name="premium_subscription_credit_count_months_count">
+        <item quantity="one">lună</item>
+        <item quantity="other">{#} luni</item>
+    </plurals>
+    <plurals name="premium_upsell_feature_free_guild_subscription_numFreeGuildSubscriptions">
+        <item quantity="one">{#} boost pentru server</item>
+        <item quantity="other">{#} boost-uri pentru server</item>
+    </plurals>
+    <plurals name="stage_audience_waiting_many_numOthers">
+        <item quantity="one">încă {#}</item>
+        <item quantity="other">încă {#}</item>
+    </plurals>
+    <plurals name="stage_blocked_users_body_number">
+        <item quantity="one">{#} cont pe care l-ai blocat</item>
+        <item quantity="other">{#} conturi pe care le-ai blocat</item>
+    </plurals>
+    <plurals name="stage_blocked_users_title_plural_number">
+        <item quantity="one">E prezent un cont blocat</item>
+        <item quantity="other">Sunt prezente conturi blocate</item>
+    </plurals>
+    <plurals name="stage_is_speaking_hook_count">
+        <item quantity="one">și încă o persoană](usernameHook) vorbesc…</item>
+        <item quantity="other">și încă {count} persoane](usernameHook) vorbesc…</item>
+    </plurals>
+    <plurals name="stage_speak_invite_blocked_users_number">
+        <item quantity="one">{#} utilizator blocat</item>
+        <item quantity="other">{#} utilizatori blocați</item>
+    </plurals>
+    <plurals name="sticker_pack_sticker_count_numStickers">
+        <item quantity="one">{#} sticker</item>
+        <item quantity="other">{#} stickere</item>
+    </plurals>
+    <plurals name="total_results_count">
+        <item quantity="one">{count} rezultat</item>
+        <item quantity="other">{count} rezultate</item>
+    </plurals>
+    <plurals name="uploading_files_count">
+        <item quantity="one">Se încarcă 1 fișier</item>
+        <item quantity="other">Se încarcă {count} fișiere</item>
+    </plurals>
+    <plurals name="uploading_files_failed_count">
+        <item quantity="one">1 încărcare fișier eșuată</item>
+        <item quantity="other">{count} încărcări fișiere eșuate</item>
+    </plurals>
+    <plurals name="user_profile_mutual_friends_count">
+        <item quantity="one">1 prieten comun</item>
+        <item quantity="other">{count} prieteni comuni</item>
+    </plurals>
+    <plurals name="user_profile_mutual_guilds_count">
+        <item quantity="one">1 server comun</item>
+        <item quantity="other">{count} servere comune</item>
+    </plurals>
+    <plurals name="user_summary_with_others_count">
+        <item quantity="one">încă 1</item>
+        <item quantity="other">încă {count}</item>
+    </plurals>
+    <plurals name="vanity_url_header_uses_uses">
+        <item quantity="one">1 utilizare</item>
+        <item quantity="other">{uses} utilizări</item>
+    </plurals>
+</resources>

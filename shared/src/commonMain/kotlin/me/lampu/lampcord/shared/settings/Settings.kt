@@ -10,6 +10,7 @@ class Settings(private val settings: KmpSettings) {
 
     var discordToken by preference("discord_token", "")
     var savedAccountsJson by preference("saved_accounts", "[]")
+    var language by preference("language", me.lampu.lampcord.shared.i18n.LANGUAGE_SYSTEM)
     var pureBlack by preferenceBoolean("pure_black", false)
     var themeMode by preferenceEnum("theme_mode", ThemeMode.AUTO)
     var themePaletteStyle by preferenceEnum("theme_palette_style", ThemePaletteStyle.TONAL_SPOT)
@@ -115,6 +116,7 @@ class Settings(private val settings: KmpSettings) {
     var textReplaceJson by preference("text_replace_v1", "[]")
 
     var noiseCancellation by preferenceBoolean("noise_cancellation", true)
+    var httpProxyUrl by preference("http_proxy_url", "")
 
     init {
         if (!settings.hasKey("swipe_to_reply_enabled")) {

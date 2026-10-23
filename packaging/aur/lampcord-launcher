@@ -1,7 +1,17 @@
 #!/bin/sh
 
 LIBDIR=/usr/lib/lampcord
-exec java \
+
+# The package bundles the jlink runtime that createLinuxRuntimeImage links, so the launcher
+# never depends on the host JRE. Falling back to the path keeps a hand-unpacked install
+# working.
+if [ -x "$LIBDIR/runtime/bin/java" ]; then
+  JAVA="$LIBDIR/runtime/bin/java"
+else
+  JAVA=java
+fi
+
+exec "$JAVA" \
   -Dsun.java2d.uiScale.enabled=true \
   -Djava.locale.providers=COMPAT,SPI \
   -Dwebkit.disable.dmabuf.renderer=1 \

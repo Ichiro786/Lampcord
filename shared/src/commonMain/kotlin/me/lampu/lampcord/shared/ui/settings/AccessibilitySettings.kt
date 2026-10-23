@@ -10,6 +10,17 @@ import me.lampu.lampcord.shared.ui.components.settings.*
 import me.lampu.lampcord.shared.model.UserSettings
 import me.lampu.lampcord.shared.settings.Settings
 import androidx.compose.ui.text.font.FontWeight
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.accessibility
+import me.lampu.lampcord.shared.generated.resources.accessibility_prefers_reduced_motion
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_allow_accessibility_detection
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_allow_accessibility_detection_desc
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_detection
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_motion
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_reduced_motion_desc
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_saturation
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_visual
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 @Composable
@@ -18,7 +29,7 @@ fun AccessibilitySettings(
     settingsStore: SettingsStore = koinInject()
 ) {
     SettingsSubScreen(
-        title = "Accessibility",
+        title = stringResource(Res.string.accessibility),
         onNavigateBack = onBack
     ) {
         AccessibilitySettingsContent(settingsStore = settingsStore)
@@ -30,10 +41,10 @@ fun AccessibilitySettingsContent(settingsStore: SettingsStore = koinInject()) {
     val userSettings = settingsStore.userSettings
     Column(modifier = Modifier.fillMaxWidth()) {
         Material3SettingsGroup(
-            title = "Visual",
+            title = stringResource(Res.string.lampcord_settings_visual),
             items = listOf(
                 Material3SettingsItem(
-                    title = { Text("Saturation") },
+                    title = { Text(stringResource(Res.string.lampcord_settings_saturation)) },
                     description = {
                         var saturation by remember { mutableStateOf(1f) }
                         Column(modifier = Modifier.padding(top = 8.dp)) {
@@ -51,11 +62,11 @@ fun AccessibilitySettingsContent(settingsStore: SettingsStore = koinInject()) {
         )
 
         Material3SettingsGroup(
-            title = "Motion",
+            title = stringResource(Res.string.lampcord_settings_motion),
             items = listOf(
                 switchSettingsItem(
-                    title = "Reduced Motion",
-                    description = "Reduces interface motion and prevents GIFs, animated emojis, stickers, and avatars from playing automatically.",
+                    title = stringResource(Res.string.accessibility_prefers_reduced_motion),
+                    description = stringResource(Res.string.lampcord_settings_reduced_motion_desc),
                     checked = Settings.shared.reduceMotion,
                     onCheckedChange = { Settings.shared.reduceMotion = it }
                 )
@@ -63,11 +74,11 @@ fun AccessibilitySettingsContent(settingsStore: SettingsStore = koinInject()) {
         )
 
         Material3SettingsGroup(
-            title = "Detection",
+            title = stringResource(Res.string.lampcord_settings_detection),
             items = listOf(
                 switchSettingsItem(
-                    title = "Allow Accessibility Detection",
-                    description = "Allow Discord to detect if you are using accessibility tools.",
+                    title = stringResource(Res.string.lampcord_settings_allow_accessibility_detection),
+                    description = stringResource(Res.string.lampcord_settings_allow_accessibility_detection_desc),
                     checked = userSettings?.allow_accessibility_detection ?: false,
                     onCheckedChange = { 
                         settingsStore.updateUserSettings(UserSettings.Partial(allow_accessibility_detection = it))

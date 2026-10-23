@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.statusBarsPadding
 import me.lampu.lampcord.shared.settings.Settings
 import me.lampu.lampcord.shared.state.ChannelNavigator
 import me.lampu.lampcord.shared.state.NotificationStore
@@ -46,6 +47,7 @@ fun InAppNotificationHost(
 
     Column(
         modifier = modifier
+            .statusBarsPadding()
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
             .padding(top = 8.dp),

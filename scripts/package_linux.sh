@@ -6,6 +6,7 @@ version=""
 jar=""
 out=""
 epoch="1"
+runtime=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -13,15 +14,17 @@ while [[ $# -gt 0 ]]; do
     --jar) jar="$2"; shift 2 ;;
     --out) out="$2"; shift 2 ;;
     --epoch) epoch="$2"; shift 2 ;;
+    --runtime) runtime="$2"; shift 2 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
 
 [[ -n "$version" && -n "$jar" && -n "$out" ]] || {
-  echo "usage: $0 --version X.Y.Z --jar <path> --out <dir> [--epoch N]" >&2
+  echo "usage: $0 --version X.Y.Z --jar <path> --out <dir> [--epoch N] [--runtime <dir>]" >&2
   exit 2
 }
 [[ -f "$jar" ]] || { echo "jar not found: $jar" >&2; exit 1; }
+[[ -z "$runtime" || -d "$runtime" ]] || { echo "runtime dir not found: $runtime" >&2; exit 1; }
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 maintainer_name="Lampu"
@@ -31,14 +34,21 @@ summary="Lampcord Discord client"
 description="A Kotlin Multiplatform Material 3 Discord client."
 license="GPL-3.0-or-later"
 
-deb_requires=(
-  java-runtime libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils
-  libatspi2.0-0 libuuid1 libsecret-1-0
-)
+deb_requires=(libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libuuid1 libsecret-1-0)
 deb_recommends=(libappindicator3-1 libwebkit2gtk-4.1-0)
-rpm_requires=(java-runtime gtk3 libnotify nss libXScrnSaver libXtst xdg-utils at-spi2-core libuuid libsecret)
-pac_depends=(java-runtime gtk3 libnotify nss libxss libxtst xdg-utils at-spi2-core util-linux-libs libsecret)
+rpm_requires=(gtk3 libnotify nss libXScrnSaver libXtst xdg-utils at-spi2-core libuuid libsecret)
+pac_depends=(gtk3 libnotify nss libxss libxtst xdg-utils at-spi2-core util-linux-libs libsecret)
 pac_optdepends=("libappindicator-gtk3" "webkit2gtk-4.1: embedded web content")
+
+# Without a jlink runtime the jar runs on whatever the distro ships, which only holds while
+# that JRE is new enough for our classes: our Java 21 bytecode is rejected by the Java 17
+# runtime Debian bookworm still ships. Keep the dependency as the fallback for the no-runtime
+# invocation, otherwise the package is self-contained.
+if [[ -z "$runtime" ]]; then
+  deb_requires=(java-runtime "${deb_requires[@]}")
+  rpm_requires=(java-runtime "${rpm_requires[@]}")
+  pac_depends=(java-runtime "${pac_depends[@]}")
+fi
 
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
@@ -74,6 +84,12 @@ mkdir -p "$out" \
   "$stage/usr/share/icons/hicolor/512x512/apps"
 
 install -m 644 "$jar" "$stage/usr/lib/lampcord/lampcord.jar"
+# The linked runtime keeps the same layout as every other install target, so lampcord-launcher
+# just sees $LIBDIR/runtime/bin/java. du/pacman sizes pick it up because it lands inside
+# /usr/lib/lampcord alongside the jar.
+if [[ -n "$runtime" ]]; then
+  cp -a "$runtime" "$stage/usr/lib/lampcord/runtime"
+fi
 install -m 644 "$repo_root/packaging/aur/lampcord.desktop" "$stage/usr/share/applications/lampcord.desktop"
 install -m 644 "$repo_root/packaging/aur/lampcord.png" \
   "$stage/usr/share/icons/hicolor/512x512/apps/lampcord.png"
@@ -155,11 +171,12 @@ mkdir -p "$work/rpmbuild"/{SPECS,SOURCES,BUILD,RPMS,SRPMS,BUILDROOT}
   echo "%postun"
   echo "%{_bindir}/update-desktop-database -q %{_datadir}/applications 2>/dev/null || :"
   echo ""
+  # rpm has no recursive glob, and the jlink runtime is thousands of files, so list every
+  # directory as %dir and every file straight from the staged tree. Sorted to keep the spec
+  # byte-identical between runs.
   echo "%files"
-  echo "%{_bindir}/lampcord"
-  echo "%{_datadir}/applications/lampcord.desktop"
-  echo "%{_datadir}/icons/hicolor/512x512/apps/lampcord.png"
-  echo "/usr/lib/lampcord/lampcord.jar"
+  find "$rpm_stage" -mindepth 1 -type d -printf "%%dir /%P\n" | LC_ALL=C sort
+  find "$rpm_stage" -mindepth 1 ! -type d -printf "/%P\n" | LC_ALL=C sort
 } > "$work/rpmbuild/SPECS/lampcord.spec"
 
 rpmbuild --define "_topdir $work/rpmbuild" --define "_sourcedir $work" -bb \

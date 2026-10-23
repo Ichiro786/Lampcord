@@ -9,6 +9,7 @@ plugins {
 
 compose.resources {
     publicResClass = true
+    packageOfResClass = "me.lampu.lampcord.shared.generated.resources"
 }
 
 val unpackTwemoji = tasks.register<Sync>("unpackTwemoji") {

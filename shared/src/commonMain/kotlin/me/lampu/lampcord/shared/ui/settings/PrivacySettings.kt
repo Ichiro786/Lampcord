@@ -10,6 +10,27 @@ import me.lampu.lampcord.shared.model.UserSettings
 import me.lampu.lampcord.shared.ui.components.settings.*
 import me.lampu.lampcord.shared.settings.Settings
 import me.lampu.lampcord.shared.ui.icons.Icons
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.friend_permitted_source_all
+import me.lampu.lampcord.shared.generated.resources.friend_permitted_source_mutual_friends
+import me.lampu.lampcord.shared.generated.resources.friend_permitted_source_mutual_guilds
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_content_controls
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_content_filter
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_content_filter_edge
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_content_filter_off_help
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_dm_server_members_desc
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_friend_requests
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_hide_blocked_messages
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_hide_blocked_messages_desc
+import me.lampu.lampcord.shared.generated.resources.new_guilds_dm_allowed
+import me.lampu.lampcord.shared.generated.resources.privacy_and_safety
+import me.lampu.lampcord.shared.generated.resources.user_dm_settings
+import me.lampu.lampcord.shared.generated.resources.user_explicit_content_filter
+import me.lampu.lampcord.shared.generated.resources.user_explicit_content_filter_friends_and_non_friends
+import me.lampu.lampcord.shared.generated.resources.user_explicit_content_filter_friends_and_non_friends_help
+import me.lampu.lampcord.shared.generated.resources.user_explicit_content_filter_non_friends
+import me.lampu.lampcord.shared.generated.resources.user_explicit_content_filter_non_friends_help
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 @Composable
@@ -18,7 +39,7 @@ fun PrivacySettings(
     settingsStore: SettingsStore = koinInject()
 ) {
     SettingsSubScreen(
-        title = "Privacy & Safety",
+        title = stringResource(Res.string.privacy_and_safety),
         onNavigateBack = onBack
     ) {
         PrivacySettingsContent(settingsStore = settingsStore)
@@ -28,12 +49,18 @@ fun PrivacySettings(
 @Composable
 fun PrivacySettingsContent(settingsStore: SettingsStore = koinInject()) {
     val userSettings = settingsStore.userSettings
+    val labelKeepMeSafe = stringResource(Res.string.user_explicit_content_filter_friends_and_non_friends)
+    val labelMyFriendsAreNice = stringResource(Res.string.user_explicit_content_filter_non_friends)
+    val labelLiveOnTheEdge = stringResource(Res.string.lampcord_settings_content_filter_edge)
+    val labelEveryone = stringResource(Res.string.friend_permitted_source_all)
+    val labelMutualFriends = stringResource(Res.string.friend_permitted_source_mutual_friends)
+    val labelMutualGuilds = stringResource(Res.string.friend_permitted_source_mutual_guilds)
     Column(modifier = Modifier.fillMaxWidth()) {
         Material3SettingsGroup(
-            title = "Safe Direct Messaging",
+            title = stringResource(Res.string.user_explicit_content_filter),
             items = listOf(
                 Material3SettingsItem(
-                    title = { Text("Content Filter") },
+                    title = { Text(stringResource(Res.string.lampcord_settings_content_filter)) },
                     description = {
                         Column(modifier = Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             SettingsButtonGroup(
@@ -49,18 +76,20 @@ fun PrivacySettingsContent(settingsStore: SettingsStore = koinInject()) {
                                 },
                                 labelProvider = {
                                     when (it) {
-                                        2 -> "Keep me safe"
-                                        1 -> "My friends are nice"
-                                        else -> "I live on the edge"
+                                        2 -> labelKeepMeSafe
+                                        1 -> labelMyFriendsAreNice
+                                        else -> labelLiveOnTheEdge
                                     }
                                 }
                             )
                             Text(
-                                text = when (userSettings?.explicit_content_filter) {
-                                    2 -> "Scan direct messages from everyone."
-                                    1 -> "Scan direct messages from everyone unless they are a friend."
-                                    else -> "Don't scan any direct messages."
-                                },
+                                text = stringResource(
+                                    when (userSettings?.explicit_content_filter) {
+                                        2 -> Res.string.user_explicit_content_filter_friends_and_non_friends_help
+                                        1 -> Res.string.user_explicit_content_filter_non_friends_help
+                                        else -> Res.string.lampcord_settings_content_filter_off_help
+                                    }
+                                ),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -71,11 +100,11 @@ fun PrivacySettingsContent(settingsStore: SettingsStore = koinInject()) {
         )
 
         Material3SettingsGroup(
-            title = "Server Privacy Defaults",
+            title = stringResource(Res.string.user_dm_settings),
             items = listOf(
                 switchSettingsItem(
-                    title = "Allow direct messages from server members",
-                    description = "This setting is applied when you join a new server.",
+                    title = stringResource(Res.string.new_guilds_dm_allowed),
+                    description = stringResource(Res.string.lampcord_settings_dm_server_members_desc),
                     checked = userSettings?.default_guilds_restricted == false,
                     onCheckedChange = { 
                         settingsStore.updateUserSettings(UserSettings.Partial(default_guilds_restricted = !it))
@@ -85,26 +114,26 @@ fun PrivacySettingsContent(settingsStore: SettingsStore = koinInject()) {
         )
 
         Material3SettingsGroup(
-            title = "Friend Requests",
+            title = stringResource(Res.string.lampcord_settings_friend_requests),
             items = buildList {
                 val flags = userSettings?.friend_source_flags
                 
                 add(switchSettingsItem(
-                    title = "Everyone",
+                    title = labelEveryone,
                     checked = flags?.all == true,
                     onCheckedChange = {
                         settingsStore.updateUserSettings(UserSettings.Partial(friend_source_flags = me.lampu.lampcord.shared.model.FriendSourceFlags(all = it)))
                     }
                 ))
                 add(switchSettingsItem(
-                    title = "Friends of Friends",
+                    title = labelMutualFriends,
                     checked = flags?.mutual_friends == true,
                     onCheckedChange = {
                         settingsStore.updateUserSettings(UserSettings.Partial(friend_source_flags = me.lampu.lampcord.shared.model.FriendSourceFlags(mutual_friends = it)))
                     }
                 ))
                 add(switchSettingsItem(
-                    title = "Server Members",
+                    title = labelMutualGuilds,
                     checked = flags?.mutual_guilds == true,
                     onCheckedChange = {
                         settingsStore.updateUserSettings(UserSettings.Partial(friend_source_flags = me.lampu.lampcord.shared.model.FriendSourceFlags(mutual_guilds = it)))
@@ -114,11 +143,11 @@ fun PrivacySettingsContent(settingsStore: SettingsStore = koinInject()) {
         )
 
         Material3SettingsGroup(
-            title = "Content Controls",
+            title = stringResource(Res.string.lampcord_settings_content_controls),
             items = listOf(
                 switchSettingsItem(
-                    title = "Hide Blocked Messages",
-                    description = "Completely remove messages from blocked users.",
+                    title = stringResource(Res.string.lampcord_settings_hide_blocked_messages),
+                    description = stringResource(Res.string.lampcord_settings_hide_blocked_messages_desc),
                     checked = Settings.shared.hideBlockedMessages,
                     onCheckedChange = { Settings.shared.hideBlockedMessages = it }
                 )

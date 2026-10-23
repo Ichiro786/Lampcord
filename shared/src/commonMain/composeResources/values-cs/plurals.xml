@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="age_gate_underage_existing_body_deletion_with_days_days">
+        <item quantity="one">1 den</item>
+        <item quantity="few">{days} dny</item>
+        <item quantity="other">{days} dní</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_monthly_mobile_intervalCount">
+        <item quantity="one">{#} měsíc</item>
+        <item quantity="few">{#}měsíce</item>
+        <item quantity="other">{#} měsíců</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_yearly_mobile_intervalCount">
+        <item quantity="one">{#} rok</item>
+        <item quantity="few">{#} roky</item>
+        <item quantity="other">{#} let</item>
+    </plurals>
+    <plurals name="autocomplete_emoji_upsell_count">
+        <item quantity="one">{#} další smajlík do sbírky</item>
+        <item quantity="few">{#} další smajlíky do sbírky</item>
+        <item quantity="other">{#} dalších smajlíků do sbírky</item>
+    </plurals>
+    <plurals name="blocked_messages_count">
+        <item quantity="one">1 Blokovaná zpráva</item>
+        <item quantity="few">{count} Blokované zprávy</item>
+        <item quantity="other">{count} Blokovaných zpráv</item>
+    </plurals>
+    <plurals name="channel_slowmode_cooldown_seconds">
+        <item quantity="one">1 vteřinu</item>
+        <item quantity="few">{seconds} vteřiny</item>
+        <item quantity="other">{seconds} vteřin</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_hours_hours">
+        <item quantity="one">{#} hodinu</item>
+        <item quantity="few">{#} hodiny</item>
+        <item quantity="other">{#} hodin</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_minutes_minutes">
+        <item quantity="one">{#} minutu</item>
+        <item quantity="few">{#} minuty</item>
+        <item quantity="other">{#} minut</item>
+    </plurals>
+    <plurals name="discovery_speaker_count_speakersCount">
+        <item quantity="one">+{count} řečník</item>
+        <item quantity="few">+{count} řečníci</item>
+        <item quantity="other">+{count} řečníků</item>
+    </plurals>
+    <plurals name="dm_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} nepřečtená zpráva</item>
+        <item quantity="few">, {#} nepřečtené zprávy</item>
+        <item quantity="other">, {#} nepřečtených zpráv</item>
+    </plurals>
+    <plurals name="duration_days_capitalize_days">
+        <item quantity="one">1 den</item>
+        <item quantity="few">{days} dny</item>
+        <item quantity="other">{days} dnů</item>
+    </plurals>
+    <plurals name="duration_days_days">
+        <item quantity="one">1 den</item>
+        <item quantity="few">{days} dny</item>
+        <item quantity="other">{days} dní</item>
+    </plurals>
+    <plurals name="duration_hours_capitalize_hours">
+        <item quantity="one">1 hodina</item>
+        <item quantity="few">{hours} hodiny</item>
+        <item quantity="other">{hours} hodin</item>
+    </plurals>
+    <plurals name="duration_hours_hours">
+        <item quantity="one">1 hodina</item>
+        <item quantity="few">{hours} hodiny</item>
+        <item quantity="other">{hours} hodin</item>
+    </plurals>
+    <plurals name="duration_mins_mins">
+        <item quantity="one">1 min</item>
+        <item quantity="other">{mins} min</item>
+    </plurals>
+    <plurals name="duration_minutes_capitalize_minutes">
+        <item quantity="one">1 minuta</item>
+        <item quantity="few">{minutes} minuty</item>
+        <item quantity="other">{minutes} minut</item>
+    </plurals>
+    <plurals name="duration_minutes_minutes">
+        <item quantity="one">1 minuta</item>
+        <item quantity="few">{minutes} minuty</item>
+        <item quantity="other">{minutes} minut</item>
+    </plurals>
+    <plurals name="duration_months_capitalize_months">
+        <item quantity="one">1 měsíc</item>
+        <item quantity="few">{months} měsíce</item>
+        <item quantity="other">{months} měsíců</item>
+    </plurals>
+    <plurals name="duration_seconds_capitalize_seconds">
+        <item quantity="one">1 sekunda</item>
+        <item quantity="few">{seconds} sekundy</item>
+        <item quantity="other">{seconds} sekund</item>
+    </plurals>
+    <plurals name="duration_seconds_seconds">
+        <item quantity="one">1 vteřina</item>
+        <item quantity="few">{seconds} vteřiny</item>
+        <item quantity="other">{seconds} vteřin</item>
+    </plurals>
+    <plurals name="duration_weeks_capitalize_weeks">
+        <item quantity="one">1 týden</item>
+        <item quantity="few">{weeks} týdny</item>
+        <item quantity="other">{weeks} týdnů</item>
+    </plurals>
+    <plurals name="duration_years_capitalize_years">
+        <item quantity="one">1 rok</item>
+        <item quantity="few">{years} roky</item>
+        <item quantity="other">{years} let</item>
+    </plurals>
+    <plurals name="emoji_slots_available_count">
+        <item quantity="one">{count} pozice</item>
+        <item quantity="other">{count} pozic</item>
+    </plurals>
+    <plurals name="emojis_title_count">
+        <item quantity="one">{count} smajlík</item>
+        <item quantity="few">{count} smajlíci</item>
+        <item quantity="other">{count} smajlíků</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_days">
+        <item quantity="one">1 den</item>
+        <item quantity="few">{days} dny</item>
+        <item quantity="other">{days} dnů</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_members">
+        <item quantity="one">1 člena</item>
+        <item quantity="few">{members} členy</item>
+        <item quantity="other">{members} členů</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_months_time">
+        <item quantity="one">{#} měsíc</item>
+        <item quantity="few">{#} měsíce</item>
+        <item quantity="other">{#} měsíců</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_years_time">
+        <item quantity="one">{#} rok</item>
+        <item quantity="few">{#} roky</item>
+        <item quantity="other">{#} let</item>
+    </plurals>
+    <plurals name="gift_inventory_copies_copies">
+        <item quantity="one">{#} kopie</item>
+        <item quantity="few">{#} kopie</item>
+        <item quantity="other">{#} kopií</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_months_intervalCount">
+        <item quantity="one">{#} měsíc</item>
+        <item quantity="few">{#} měsíce</item>
+        <item quantity="other">{#} měsíců</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_years_intervalCount">
+        <item quantity="one">{#} rok</item>
+        <item quantity="few">{#} roky</item>
+        <item quantity="other">{#} roků</item>
+    </plurals>
+    <plurals name="group_dm_invite_remaining_number">
+        <item quantity="one">Můžeš přidat ještě 1 přítele.</item>
+        <item quantity="few">Můžeš přidat ještě {number} přátele.</item>
+        <item quantity="other">Můžeš přidat ještě {number} přátel.</item>
+    </plurals>
+    <plurals name="group_dm_invite_unselect_users_number">
+        <item quantity="one">Musíš odznačit 1 přítele.</item>
+        <item quantity="few">Musíš odznačit {number} přátele.</item>
+        <item quantity="other">Musíš odznačit {number} přátel.</item>
+    </plurals>
+    <plurals name="guild_event_interested_count_count">
+        <item quantity="one">{#} člověk</item>
+        <item quantity="few">{#} lidé</item>
+        <item quantity="other">{#} lidí</item>
+    </plurals>
+    <plurals name="guild_events_plural_number">
+        <item quantity="one">{#} akce</item>
+        <item quantity="few">{#} akce</item>
+        <item quantity="other">{#} akcí</item>
+    </plurals>
+    <plurals name="guild_folder_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} nepřečtená zmínka</item>
+        <item quantity="few">, {#} nepřečtené zmínky</item>
+        <item quantity="other">, {#} nepřečtených zmínek</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_denied_count">
+        <item quantity="one">oprávnění</item>
+        <item quantity="other">oprávnění</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_granted_count">
+        <item quantity="one">oprávnění</item>
+        <item quantity="other">oprávnění</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_reset_count">
+        <item quantity="one">oprávnění</item>
+        <item quantity="other">oprávnění</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_rate_limit_per_user_change_newValue">
+        <item quantity="one">Pomalý režim je nastaven na **{#} sekundu**</item>
+        <item quantity="few">Pomalý režim je nastaven na **{#} sekundy**</item>
+        <item quantity="other">Pomalý režim je nastaven na **{#} sekund**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_disconnect_count">
+        <item quantity="one">**jednoho uživatele**</item>
+        <item quantity="few">**!!{count}!! uživatele**</item>
+        <item quantity="other">**!!{count}!! uživatelů**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_move_count">
+        <item quantity="one">**jednoho uživatele**</item>
+        <item quantity="few">**!!{count}!! uživatele**</item>
+        <item quantity="other">**!!{count}!! uživatelů**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_count">
+        <item quantity="one">**neaktivního člena**</item>
+        <item quantity="other">**!!{count}!! neaktivních členů**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_delete_days_newValue">
+        <item quantity="one">dni</item>
+        <item quantity="other">{newValue} dnech</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_add_count">
+        <item quantity="one">role</item>
+        <item quantity="other">Nějaké role</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_remove_count">
+        <item quantity="one">role</item>
+        <item quantity="other">Nějaké role</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_bulk_delete_count">
+        <item quantity="one">**zprávu**</item>
+        <item quantity="few">**!!{count}!! zprávy**</item>
+        <item quantity="other">**!!{count}!! zpráv**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_delete_count">
+        <item quantity="one">**zprávu**</item>
+        <item quantity="few">**!!{count}!! zprávy**</item>
+        <item quantity="other">**!!{count}!! zpráv**</item>
+    </plurals>
+    <plurals name="guild_settings_overview_boost_unlock_boosts">
+        <item quantity="one">{#} vylepšení</item>
+        <item quantity="other">{#} vylepšení</item>
+    </plurals>
+    <plurals name="guild_settings_premium_guild_tier_requirement_required">
+        <item quantity="one">{#} vylepšení</item>
+        <item quantity="other">{#} vylepšení</item>
+    </plurals>
+    <plurals name="guild_settings_premium_upsell_body_perk_no_free_guild_subscriptions_numFreeGuildSubscriptions">
+        <item quantity="one">{#} vylepšení</item>
+        <item quantity="other">{#} vylepšení</item>
+    </plurals>
+    <plurals name="guild_sidebar_announcement_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} zmínka</item>
+        <item quantity="few">{#} zmínky</item>
+        <item quantity="other">{#} zmínek</item>
+    </plurals>
+    <plurals name="guild_sidebar_default_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} zmínka</item>
+        <item quantity="few">{#} zmínky</item>
+        <item quantity="other">{#} zmínek</item>
+    </plurals>
+    <plurals name="guild_sidebar_voice_channel_a11y_label_with_users_userCount">
+        <item quantity="one">1 uživatel</item>
+        <item quantity="few">{#} uživatelé</item>
+        <item quantity="other">{#} uživatelů</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_guildSubscriptionQuantity">
+        <item quantity="one">{#}krát</item>
+        <item quantity="other">{#}krát</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_no_application_guildSubscriptionQuantity">
+        <item quantity="one">{#} vylepšení serveru</item>
+        <item quantity="other">{#} vylepšení serveru</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_transferred_description_mobile2_guildSubscriptionQuantity">
+        <item quantity="one">{#}krát</item>
+        <item quantity="other">{#}krát</item>
+    </plurals>
+    <plurals name="guild_template_usages_usageCount">
+        <item quantity="one">**1** člověk použil tuto šablonu</item>
+        <item quantity="few">**{usageCount}** lidé použili tuto šablonu</item>
+        <item quantity="other">**{usageCount}** lidí použilo tuto šablonu</item>
+    </plurals>
+    <plurals name="guild_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} zmínka,</item>
+        <item quantity="few">{#} zmínky,</item>
+        <item quantity="other">{#} zmínek,</item>
+    </plurals>
+    <plurals name="hub_email_connection_invite_header_count">
+        <item quantity="one">{count} other příteli</item>
+        <item quantity="other">{count} other přátelům</item>
+    </plurals>
+    <plurals name="humanize_duration_days_time">
+        <item quantity="one">1 den</item>
+        <item quantity="few">{#} dny</item>
+        <item quantity="other">{#} dnů</item>
+    </plurals>
+    <plurals name="humanize_duration_hours_time">
+        <item quantity="one">1 hodina</item>
+        <item quantity="few">{#} hodiny</item>
+        <item quantity="other">{#} hodin</item>
+    </plurals>
+    <plurals name="humanize_duration_minutes_time">
+        <item quantity="one">1 minuta</item>
+        <item quantity="few">{#} minuty</item>
+        <item quantity="other">{#} minut</item>
+    </plurals>
+    <plurals name="humanize_duration_seconds_time">
+        <item quantity="one">1 sekunda</item>
+        <item quantity="few">{#} sekundy</item>
+        <item quantity="other">{#} sekund</item>
+    </plurals>
+    <plurals name="instant_invite_guild_members_total_count">
+        <item quantity="one">1 člen</item>
+        <item quantity="few">{count} členové</item>
+        <item quantity="other">{count} členů</item>
+    </plurals>
+    <plurals name="last_seen_days">
+        <item quantity="one">1 dnem</item>
+        <item quantity="other">{days} dny</item>
+    </plurals>
+    <plurals name="max_uses_description_mobile_maxUses">
+        <item quantity="one">1 použití</item>
+        <item quantity="other">{maxUses} použití</item>
+    </plurals>
+    <plurals name="members_header_members">
+        <item quantity="one">1 uživatel</item>
+        <item quantity="other">{members} uživatelů</item>
+    </plurals>
+    <plurals name="n_days_days">
+        <item quantity="one">1 den</item>
+        <item quantity="other">{days} dny</item>
+    </plurals>
+    <plurals name="new_messages_count">
+        <item quantity="one">1 nová zpráva</item>
+        <item quantity="other">{count} nové zprávy</item>
+    </plurals>
+    <plurals name="num_members_subscribers">
+        <item quantity="one">**1** člen</item>
+        <item quantity="few">{subscribers} členové</item>
+        <item quantity="other">**{subscribers}** členů</item>
+    </plurals>
+    <plurals name="num_subscribers_subscribers">
+        <item quantity="one">**1** odběratel</item>
+        <item quantity="few">**{subscribers}**odběratelé</item>
+        <item quantity="other">**{subscribers}** odběratelů</item>
+    </plurals>
+    <plurals name="num_users_num">
+        <item quantity="one">1 uživatel</item>
+        <item quantity="other">{num} uživatelů</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_count">
+        <item quantity="one">tuto</item>
+        <item quantity="other">tyto</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_countMessages">
+        <item quantity="one">zprávu</item>
+        <item quantity="other">zprávy</item>
+    </plurals>
+    <plurals name="partial_outage_count">
+        <item quantity="one">**1** další server je nedostupný z důvodu dočasného výpadku.</item>
+        <item quantity="few">**{count}** další servery jsou nedostupné z důvodu dočasného výpadku.</item>
+        <item quantity="other">**{count}** dalších serverů je nedostupných z důvodu dočasného výpadku.</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_header_subscription_count_subscriptions">
+        <item quantity="one">{#} vylepšení</item>
+        <item quantity="other">{#} vylepšení</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_protip_mobile_numFreeGuildSubscriptions">
+        <item quantity="one">{#} vylepšení</item>
+        <item quantity="other">{#} vylepšení</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_confirmation_slotCount">
+        <item quantity="one">vylepšení</item>
+        <item quantity="other">vylepšení {#}krát</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_days">
+        <item quantity="one">{#} den</item>
+        <item quantity="few">{#} dny</item>
+        <item quantity="other">{#} dní</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_slotCount">
+        <item quantity="one">toto vylepšení</item>
+        <item quantity="other">tato vylepšení</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_guildCount">
+        <item quantity="one">stávající server</item>
+        <item quantity="other">stávající servery</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_slotCount">
+        <item quantity="one">toto vylepšení serveru</item>
+        <item quantity="other">tato vylepšení serveru</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_from_guild_guildCount">
+        <item quantity="one">server</item>
+        <item quantity="few">servery</item>
+        <item quantity="other">serverů</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_to_guild_slotCount">
+        <item quantity="one">vylepšení</item>
+        <item quantity="other">vylepšení</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_transfer_confirm_confirmation_slotCount">
+        <item quantity="one">vylepšení</item>
+        <item quantity="other">vylepšení</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_available_numSubscriptions">
+        <item quantity="one">{#} vylepšení</item>
+        <item quantity="other">{#} vylepšení</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_guild_subsription_subtitle_numSubscriptions">
+        <item quantity="one">{#}krát</item>
+        <item quantity="other">{#}krát</item>
+    </plurals>
+    <plurals name="premium_guild_subscriptions_renewal_info_quantity">
+        <item quantity="one">vylepšení serveru</item>
+        <item quantity="other">vylepšení serveru</item>
+    </plurals>
+    <plurals name="premium_subscription_credit_count_months_count">
+        <item quantity="one">{#} měsíc</item>
+        <item quantity="few">{#} měsíce</item>
+        <item quantity="other">{#} měsíců</item>
+    </plurals>
+    <plurals name="premium_upsell_feature_free_guild_subscription_numFreeGuildSubscriptions">
+        <item quantity="one">{#} Vylepšení serveru</item>
+        <item quantity="other">{#} Vylepšení serveru</item>
+    </plurals>
+    <plurals name="stage_audience_waiting_many_numOthers">
+        <item quantity="one">{#} další</item>
+        <item quantity="few">{#} další</item>
+        <item quantity="other">{#} dalších</item>
+    </plurals>
+    <plurals name="stage_blocked_users_body_number">
+        <item quantity="one">je {#} účet, který</item>
+        <item quantity="few">jsou {#} účty, které</item>
+        <item quantity="other">je {#} účtů, které</item>
+    </plurals>
+    <plurals name="stage_blocked_users_title_plural_number">
+        <item quantity="one">zablokovaný účet</item>
+        <item quantity="other">zablokované účty</item>
+    </plurals>
+    <plurals name="stage_is_speaking_hook_count">
+        <item quantity="one">a jeden další](usernameHook) právě mluví…</item>
+        <item quantity="few">a {count} další](usernameHook) právě mluví…</item>
+        <item quantity="other">a {count} dalších](usernameHook) právě mluví…</item>
+    </plurals>
+    <plurals name="stage_speak_invite_blocked_users_number">
+        <item quantity="one">{#} zablokovaný uživatel</item>
+        <item quantity="few">{#} zablokovaní uživatelé</item>
+        <item quantity="other">{#} zablokovaných uživatelů</item>
+    </plurals>
+    <plurals name="sticker_pack_sticker_count_numStickers">
+        <item quantity="one">{#} samolepka</item>
+        <item quantity="few">{#} samolepky</item>
+        <item quantity="other">{#} samolepek</item>
+    </plurals>
+    <plurals name="total_results_count">
+        <item quantity="one">{count} výsledek</item>
+        <item quantity="few">{count} výsledky</item>
+        <item quantity="other">{count} výsledků</item>
+    </plurals>
+    <plurals name="uploading_files_count">
+        <item quantity="one">Nahrávání 1 souboru</item>
+        <item quantity="other">Nahrávání {count} souborů</item>
+    </plurals>
+    <plurals name="uploading_files_failed_count">
+        <item quantity="one">nahrání 1 souboru se nepodařilo</item>
+        <item quantity="other">nahrání {count} souborů se nepodařilo</item>
+    </plurals>
+    <plurals name="user_profile_mutual_friends_count">
+        <item quantity="one">1 společný přítel</item>
+        <item quantity="few">{count} společní přátelé</item>
+        <item quantity="other">{count} společných přátel</item>
+    </plurals>
+    <plurals name="user_profile_mutual_guilds_count">
+        <item quantity="one">1 společný server</item>
+        <item quantity="few">{count} společné servery</item>
+        <item quantity="other">{count} společných serverů</item>
+    </plurals>
+    <plurals name="user_summary_with_others_count">
+        <item quantity="one">1 další</item>
+        <item quantity="few">{count} další</item>
+        <item quantity="other">{count} dalších</item>
+    </plurals>
+    <plurals name="vanity_url_header_uses_uses">
+        <item quantity="one">1 použití</item>
+        <item quantity="other">{uses} použití</item>
+    </plurals>
+</resources>

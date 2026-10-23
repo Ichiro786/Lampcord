@@ -81,6 +81,7 @@ import me.lampu.lampcord.shared.ui.settings.AppearanceSettingsContent
 import me.lampu.lampcord.shared.ui.settings.ChatSettingsContent
 import me.lampu.lampcord.shared.ui.settings.ConnectionsSettingsContent
 import me.lampu.lampcord.shared.ui.settings.DevicesSettingsContent
+import me.lampu.lampcord.shared.ui.settings.LanguageSettingsContent
 import me.lampu.lampcord.shared.ui.settings.NotificationsSettingsContent
 import me.lampu.lampcord.shared.ui.settings.PrivacySettingsContent
 import me.lampu.lampcord.shared.ui.settings.ProfileSettingsContent
@@ -88,6 +89,17 @@ import me.lampu.lampcord.shared.ui.settings.ThemeEditorScreen
 import me.lampu.lampcord.shared.ui.settings.ThemingSettingsContent
 import me.lampu.lampcord.shared.ui.settings.UpdatesContent
 import me.lampu.lampcord.shared.ui.settings.DebugLogScreen
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.app_settings
+import me.lampu.lampcord.shared.generated.resources.back
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.lampcord_language_description
+import me.lampu.lampcord.shared.generated.resources.logout
+import me.lampu.lampcord.shared.generated.resources.more_options
+import me.lampu.lampcord.shared.generated.resources.settings
+import me.lampu.lampcord.shared.generated.resources.user_settings
+import me.lampu.lampcord.shared.generated.resources.user_settings_confirm_logout
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 enum class SettingsSection(val title: String, val icon: ImageVector, val selectedIcon: ImageVector) {
@@ -98,6 +110,7 @@ enum class SettingsSection(val title: String, val icon: ImageVector, val selecte
     DEVICES("Devices", Icons.Rounded.Tv, Icons.Filled.Tv),
     APPEARANCE("Appearance", Icons.Rounded.Palette, Icons.Filled.Palette),
     ACCESSIBILITY("Accessibility", Icons.Rounded.Accessibility, Icons.Filled.Accessibility),
+    LANGUAGE("Language", Icons.Rounded.Language, Icons.Filled.Language),
     VOICE_VIDEO("Voice & Video", Icons.Rounded.Mic, Icons.Filled.Mic),
     CHAT("Chat", Icons.Rounded.Forum, Icons.Filled.Forum),
     NOTIFICATIONS("Notifications", Icons.Rounded.Notifications, Icons.Filled.Notifications),
@@ -118,6 +131,7 @@ fun SettingsScreen(
     onNavigateToDevices: () -> Unit = {},
     onNavigateToAppearance: () -> Unit = {},
     onNavigateToAccessibility: () -> Unit = {},
+    onNavigateToLanguage: () -> Unit = {},
     onNavigateToChat: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToAdvanced: () -> Unit = {},
@@ -170,7 +184,7 @@ fun SettingsScreen(
             },
             title = {
                 Text(
-                    text = "Log Out",
+                    text = stringResource(Res.string.logout),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -179,7 +193,7 @@ fun SettingsScreen(
             },
             text = {
                 Text(
-                    text = "Are you sure you want to log out of Lampcord?",
+                    text = stringResource(Res.string.user_settings_confirm_logout),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -200,7 +214,7 @@ fun SettingsScreen(
                     ),
                     shape = CircleShape
                 ) {
-                    Text("Log Out")
+                    Text(stringResource(Res.string.logout))
                 }
             },
             dismissButton = {
@@ -208,7 +222,7 @@ fun SettingsScreen(
                     onClick = { showLogoutConfirmation = false },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(Res.string.cancel))
                 }
             },
             shape = MaterialTheme.shapes.extraLarge,
@@ -235,6 +249,7 @@ fun SettingsScreen(
                         "DEVICES" -> onNavigateToDevices()
                         "APPEARANCE" -> onNavigateToAppearance()
                         "ACCESSIBILITY" -> onNavigateToAccessibility()
+                        "LANGUAGE" -> onNavigateToLanguage()
                         "CHAT" -> onNavigateToChat()
                         "NOTIFICATIONS" -> onNavigateToNotifications()
                         "ADVANCED" -> onNavigateToAdvanced()
@@ -308,10 +323,10 @@ fun SettingsScreen(
                         containerColor = MaterialTheme.colorScheme.surface,
                         topBar = {
                             LargeTopAppBar(
-                                title = { Text("Settings") },
+                                title = { Text(stringResource(Res.string.settings)) },
                                 navigationIcon = {
                                     IconButton(onClick = onDismiss) {
-                                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(Res.string.back))
                                     }
                                 },
                                 colors = TopAppBarDefaults.topAppBarColors(
@@ -321,7 +336,7 @@ fun SettingsScreen(
                                 actions = {
                                     Box {
                                         IconButton(onClick = { showOptionsMenu = true }) {
-                                            Icon(Icons.Rounded.MoreVert, contentDescription = "More options")
+                                            Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(Res.string.more_options))
                                         }
                                         androidx.compose.material3.DropdownMenu(
                                             expanded = showOptionsMenu,
@@ -344,7 +359,7 @@ fun SettingsScreen(
                                                 leadingIcon = { Icon(Icons.Rounded.Info, null) }
                                             )
                                             androidx.compose.material3.DropdownMenuItem(
-                                                text = { Text("Log Out") },
+                                                text = { Text(stringResource(Res.string.logout)) },
                                                 onClick = {
                                                     showOptionsMenu = false
                                                     showLogoutConfirmation = true
@@ -378,7 +393,7 @@ fun SettingsScreen(
 
                                 item {
                                     Material3SettingsGroup(
-                                        title = "User Settings",
+                                        title = stringResource(Res.string.user_settings),
                                         items = listOf(
                                             Material3SettingsItem(
                                                 if (useRounded) Icons.Rounded.AccountCircle else Icons.Filled.AccountCircle,
@@ -416,7 +431,7 @@ fun SettingsScreen(
 
                                 item {
                                     Material3SettingsGroup(
-                                        title = "App Settings",
+                                        title = stringResource(Res.string.app_settings),
                                         items = listOf(
                                             Material3SettingsItem(
                                                 if (useRounded) Icons.Rounded.Palette else Icons.Filled.Palette,
@@ -429,6 +444,12 @@ fun SettingsScreen(
                                                 title = { Text("Accessibility") },
                                                 description = { Text("Visual and interactive adjustments") },
                                                 onClick = onNavigateToAccessibility
+                                            ),
+                                            Material3SettingsItem(
+                                                if (useRounded) Icons.Rounded.Language else Icons.Filled.Language,
+                                                title = { Text("Language") },
+                                                description = { Text(stringResource(Res.string.lampcord_language_description)) },
+                                                onClick = onNavigateToLanguage
                                             ),
                                             Material3SettingsItem(
                                                 if (useRounded) Icons.Rounded.Mic else Icons.Filled.Mic,
@@ -488,7 +509,7 @@ fun SettingsScreen(
                                         items = listOf(
                                             Material3SettingsItem(
                                                 if (useRounded) Icons.AutoMirrored.Rounded.Logout else Icons.AutoMirrored.Filled.Logout,
-                                                title = { Text("Log Out", color = MaterialTheme.colorScheme.error) },
+                                                title = { Text(stringResource(Res.string.logout), color = MaterialTheme.colorScheme.error) },
                                                 iconTint = MaterialTheme.colorScheme.error,
                                                 onClick = {
                                                     showLogoutConfirmation = true
@@ -586,7 +607,7 @@ fun SettingsDesktopOverlay(
                         },
                         modifier = Modifier.align(Alignment.CenterStart)
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(Res.string.back), tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
                     }
                 }
 
@@ -595,7 +616,7 @@ fun SettingsDesktopOverlay(
                         editingThemeJson != null -> "Theme Editor"
                         showThemer -> "Themer"
                         showDebugLogs -> "Debug Logs"
-                        else -> "Settings"
+                        else -> stringResource(Res.string.settings)
                     },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
@@ -609,7 +630,7 @@ fun SettingsDesktopOverlay(
                 ) {
                     Box {
                         IconButton(onClick = { showOptionsMenu = true }) {
-                            Icon(Icons.Rounded.MoreVert, "More options", tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Rounded.MoreVert, stringResource(Res.string.more_options), tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
                         }
                         androidx.compose.material3.DropdownMenu(
                             expanded = showOptionsMenu,
@@ -632,7 +653,7 @@ fun SettingsDesktopOverlay(
                                 leadingIcon = { Icon(Icons.Rounded.Info, null) }
                             )
                             androidx.compose.material3.DropdownMenuItem(
-                                text = { Text("Log Out") },
+                                text = { Text(stringResource(Res.string.logout)) },
                                 onClick = {
                                     showOptionsMenu = false
                                     onLogoutConfirmationChanged(true)
@@ -691,6 +712,7 @@ fun SettingsDesktopOverlay(
                         SettingsSection.ACCOUNT,
                         SettingsSection.APPEARANCE,
                         SettingsSection.ACCESSIBILITY,
+                        SettingsSection.LANGUAGE,
                         SettingsSection.CHAT,
                         SettingsSection.NOTIFICATIONS,
                         SettingsSection.ADVANCED,
@@ -733,13 +755,13 @@ fun SettingsDesktopOverlay(
                         icon = {
                             Icon(
                                 Icons.AutoMirrored.Filled.Logout,
-                                contentDescription = "Log Out",
+                                contentDescription = stringResource(Res.string.logout),
                                 tint = MaterialTheme.colorScheme.error,
                             )
                         },
                         label = {
                             Text(
-                                "Log Out",
+                                stringResource(Res.string.logout),
                                 color = MaterialTheme.colorScheme.error,
                                 maxLines = 1
                             )
@@ -811,6 +833,7 @@ fun SettingsDesktopOverlay(
                                         onNavigateToNavigation = finalOnNavigateToNavigation
                                     )
                                     SettingsSection.ACCESSIBILITY -> AccessibilitySettingsContent()
+                                    SettingsSection.LANGUAGE -> LanguageSettingsContent()
                                     SettingsSection.VOICE_VIDEO -> { /* TODO */ }
                                     SettingsSection.CHAT -> ChatSettingsContent()
                                     SettingsSection.NOTIFICATIONS -> NotificationsSettingsContent()
@@ -847,6 +870,7 @@ fun rememberSettingsSearchEntries(): List<SettingsSearchEntry> {
         add(SettingsSearchEntry("root-devices", "Devices", "Manage your active sessions", "Devices", "User Settings", "login session security", getIcon(Icons.Rounded.Tv, Icons.Filled.Tv), "gold", SettingsSearchDestination.Devices))
         add(SettingsSearchEntry("root-appearance", "Appearance", "Theme, colors, and message display", "Appearance", "App Settings", "dark mode light amoled color nitro compact", getIcon(Icons.Rounded.Palette, Icons.Filled.Palette), "orange", SettingsSearchDestination.Appearance))
         add(SettingsSearchEntry("root-accessibility", "Accessibility", "Visual and interactive adjustments", "Accessibility", "App Settings", "font size saturation reduce motion", getIcon(Icons.Rounded.Accessibility, Icons.Filled.Accessibility), "green", SettingsSearchDestination.Accessibility))
+        add(SettingsSearchEntry("root-language", "Language", "Select your preferred language", "Language", "App Settings", "language locale translation region", getIcon(Icons.Rounded.Language, Icons.Filled.Language), "blue", SettingsSearchDestination.Language))
         add(SettingsSearchEntry("root-voice", "Voice & Video", "Input, output, and camera settings", "Voice & Video", "App Settings", "microphone camera noise suppression", getIcon(Icons.Rounded.Mic, Icons.Filled.Mic), "rose", SettingsSearchDestination.VoiceVideo))
         add(SettingsSearchEntry("root-chat", "Chat", "Control how you interact with chat and media", "Chat", "App Settings", "gestures tap swipe message display", getIcon(Icons.Rounded.Forum, Icons.Filled.Forum), "rose", SettingsSearchDestination.Advanced))
         add(SettingsSearchEntry("root-notifications", "Notifications", "Control how you're notified", "Notifications", "App Settings", "push mentions sounds", getIcon(Icons.Rounded.Notifications, Icons.Filled.Notifications), "rose", SettingsSearchDestination.Notifications))

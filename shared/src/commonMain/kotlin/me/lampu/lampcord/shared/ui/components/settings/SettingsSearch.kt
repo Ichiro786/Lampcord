@@ -22,6 +22,7 @@ enum class SettingsSearchDestination {
     Devices,
     Appearance,
     Accessibility,
+    Language,
     VoiceVideo,
     Notifications,
     Advanced,

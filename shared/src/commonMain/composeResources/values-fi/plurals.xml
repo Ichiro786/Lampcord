@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="age_gate_underage_existing_body_deletion_with_days_days">
+        <item quantity="one">1 päivä</item>
+        <item quantity="other">{days} päivää</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_monthly_mobile_intervalCount">
+        <item quantity="one">{#} kuukaudeksi</item>
+        <item quantity="other">{#} kuukaudeksi</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_yearly_mobile_intervalCount">
+        <item quantity="one">{#} vuodeksi</item>
+        <item quantity="other">{#} vuodeksi</item>
+    </plurals>
+    <plurals name="autocomplete_emoji_upsell_count">
+        <item quantity="one">{#} vastaavan emojin lisää</item>
+        <item quantity="other">{#} vastaavaa emojia lisää</item>
+    </plurals>
+    <plurals name="blocked_messages_count">
+        <item quantity="one">1 estetty viesti</item>
+        <item quantity="other">{count} estettyä viestiä</item>
+    </plurals>
+    <plurals name="channel_slowmode_cooldown_seconds">
+        <item quantity="one">1 sekunnin</item>
+        <item quantity="other">{seconds} sekunnin</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_hours_hours">
+        <item quantity="one">{#} tunnin</item>
+        <item quantity="other">{#} tunnin</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_minutes_minutes">
+        <item quantity="one">{#} minuutin</item>
+        <item quantity="other">{#} minuutin</item>
+    </plurals>
+    <plurals name="discovery_speaker_count_speakersCount">
+        <item quantity="one">+{count} puhuja</item>
+        <item quantity="other">+{count} puhujaa</item>
+    </plurals>
+    <plurals name="dm_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} lukematon viesti</item>
+        <item quantity="other">, {#} lukematonta viestiä</item>
+    </plurals>
+    <plurals name="duration_days_capitalize_days">
+        <item quantity="one">1 päivä</item>
+        <item quantity="other">{days} päivää</item>
+    </plurals>
+    <plurals name="duration_days_days">
+        <item quantity="one">1 päivä</item>
+        <item quantity="other">{days} päivää</item>
+    </plurals>
+    <plurals name="duration_hours_capitalize_hours">
+        <item quantity="one">1 tunti</item>
+        <item quantity="other">{hours} tuntia</item>
+    </plurals>
+    <plurals name="duration_hours_hours">
+        <item quantity="one">1 tunti</item>
+        <item quantity="other">{hours} tuntia</item>
+    </plurals>
+    <plurals name="duration_mins_mins">
+        <item quantity="one">1 minuutti</item>
+        <item quantity="other">{mins} minuuttia</item>
+    </plurals>
+    <plurals name="duration_minutes_capitalize_minutes">
+        <item quantity="one">1 minuutti</item>
+        <item quantity="other">{minutes} minuuttia</item>
+    </plurals>
+    <plurals name="duration_minutes_minutes">
+        <item quantity="one">1 minuutti</item>
+        <item quantity="other">{minutes} minuuttia</item>
+    </plurals>
+    <plurals name="duration_months_capitalize_months">
+        <item quantity="one">1 kuukausi</item>
+        <item quantity="other">{months} kuukautta</item>
+    </plurals>
+    <plurals name="duration_seconds_capitalize_seconds">
+        <item quantity="one">1 sekunti</item>
+        <item quantity="other">{seconds} sekuntia</item>
+    </plurals>
+    <plurals name="duration_seconds_seconds">
+        <item quantity="one">1 sekunti</item>
+        <item quantity="other">{seconds} sekuntia</item>
+    </plurals>
+    <plurals name="duration_weeks_capitalize_weeks">
+        <item quantity="one">1 viikko</item>
+        <item quantity="other">{weeks} viikkoa</item>
+    </plurals>
+    <plurals name="duration_years_capitalize_years">
+        <item quantity="one">1 vuosi</item>
+        <item quantity="other">{years} vuotta</item>
+    </plurals>
+    <plurals name="emoji_slots_available_count">
+        <item quantity="one">{count} paikka</item>
+        <item quantity="other">{count} paikkaa</item>
+    </plurals>
+    <plurals name="emojis_title_count">
+        <item quantity="one">{count} emoji</item>
+        <item quantity="other">{count} emojia</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_days">
+        <item quantity="one">1 päivään</item>
+        <item quantity="other">{days} päivään</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_members">
+        <item quantity="one">1 jäsenen</item>
+        <item quantity="other">{members} jäsentä</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_months_time">
+        <item quantity="one">{#} kuukausi</item>
+        <item quantity="other">{#} kuukautta</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_years_time">
+        <item quantity="one">{#} vuosi</item>
+        <item quantity="other">{#} vuotta</item>
+    </plurals>
+    <plurals name="gift_inventory_copies_copies">
+        <item quantity="one">{#} kopio</item>
+        <item quantity="other">{#} kopiota</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_months_intervalCount">
+        <item quantity="one">{#} kuukausi</item>
+        <item quantity="other">{#} kuukautta</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_years_intervalCount">
+        <item quantity="one">{#} vuosi</item>
+        <item quantity="other">{#} vuotta</item>
+    </plurals>
+    <plurals name="group_dm_invite_remaining_number">
+        <item quantity="one">Voit lisätä 1 kaverin lisää.</item>
+        <item quantity="other">Voit lisätä vielä {number} kaveria.</item>
+    </plurals>
+    <plurals name="group_dm_invite_unselect_users_number">
+        <item quantity="one">Sinun pitää poistaa 1 kaverin valinta.</item>
+        <item quantity="other">Sinun pitää poistaa {number} kaverin valinta.</item>
+    </plurals>
+    <plurals name="guild_event_interested_count_count">
+        <item quantity="one">{#} henkilö</item>
+        <item quantity="other">{#} henkilöä</item>
+    </plurals>
+    <plurals name="guild_events_plural_number">
+        <item quantity="one">{#} tapahtuma</item>
+        <item quantity="other">{#} tapahtumaa</item>
+    </plurals>
+    <plurals name="guild_folder_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} lukematon maininta</item>
+        <item quantity="other">, {#} lukematonta mainintaa</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_denied_count">
+        <item quantity="one">oikeuden</item>
+        <item quantity="other">oikeuksia</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_granted_count">
+        <item quantity="one">oikeuden</item>
+        <item quantity="other">oikeuksia</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_reset_count">
+        <item quantity="one">oikeuden</item>
+        <item quantity="other">oikeudet</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_rate_limit_per_user_change_newValue">
+        <item quantity="one">asetti etanatilan **{#} sekuntiin**</item>
+        <item quantity="other">asetti etanatilan **{#} sekuntiin**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_disconnect_count">
+        <item quantity="one">**käyttäjän**</item>
+        <item quantity="other">**!!{count}!! käyttäjän**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_move_count">
+        <item quantity="one">**käyttäjän**</item>
+        <item quantity="other">**!!{count}!! käyttäjää**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_count">
+        <item quantity="one">**yhden jäsenen**</item>
+        <item quantity="other">**!!{count}!! jäsentä**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_delete_days_newValue">
+        <item quantity="one">Päivän</item>
+        <item quantity="other">{newValue} päivän</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_add_count">
+        <item quantity="one">roolin</item>
+        <item quantity="other">rooleja</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_remove_count">
+        <item quantity="one">roolin</item>
+        <item quantity="other">rooleja</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_bulk_delete_count">
+        <item quantity="one">**viestin**</item>
+        <item quantity="other">**!!{count}!! viestiä**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_delete_count">
+        <item quantity="one">**viestin, jonka**</item>
+        <item quantity="other">**!!{count}!! viestiä, jotka**</item>
+    </plurals>
+    <plurals name="guild_settings_overview_boost_unlock_boosts">
+        <item quantity="one">{#} nostatus</item>
+        <item quantity="other">{#} nostatusta</item>
+    </plurals>
+    <plurals name="guild_settings_premium_guild_tier_requirement_required">
+        <item quantity="one">{#} nostatus</item>
+        <item quantity="other">{#} nostatusta</item>
+    </plurals>
+    <plurals name="guild_settings_premium_upsell_body_perk_no_free_guild_subscriptions_numFreeGuildSubscriptions">
+        <item quantity="one">{#} nostatusta</item>
+        <item quantity="other">{#} nostatusta</item>
+    </plurals>
+    <plurals name="guild_sidebar_announcement_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} maininta</item>
+        <item quantity="other">{#} mainintaa</item>
+    </plurals>
+    <plurals name="guild_sidebar_default_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} maininta</item>
+        <item quantity="other">{#} mainintaa</item>
+    </plurals>
+    <plurals name="guild_sidebar_voice_channel_a11y_label_with_users_userCount">
+        <item quantity="one">1 käyttäjä</item>
+        <item quantity="other">{#} käyttäjää</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_guildSubscriptionQuantity">
+        <item quantity="one">{#} kerran</item>
+        <item quantity="other">{#} kertaa</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_no_application_guildSubscriptionQuantity">
+        <item quantity="one">{#} palvelimen nostatus</item>
+        <item quantity="other">{#} palvelimen nostatusta</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_transferred_description_mobile2_guildSubscriptionQuantity">
+        <item quantity="one">{#} kerran</item>
+        <item quantity="other">{#} kertaa</item>
+    </plurals>
+    <plurals name="guild_template_usages_usageCount">
+        <item quantity="one">**1** henkilö on käyttänyt tätä mallia</item>
+        <item quantity="other">**{usageCount}** henkilöä on käyttänyt tätä mallia</item>
+    </plurals>
+    <plurals name="guild_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} maininta</item>
+        <item quantity="other">{#} mainintaa</item>
+    </plurals>
+    <plurals name="hub_email_connection_invite_header_count">
+        <item quantity="one">{count} muun kaverisi</item>
+        <item quantity="other">{count} muun kaverisi</item>
+    </plurals>
+    <plurals name="humanize_duration_days_time">
+        <item quantity="one">1 päivä</item>
+        <item quantity="other">{#} päivää</item>
+    </plurals>
+    <plurals name="humanize_duration_hours_time">
+        <item quantity="one">1 tunti</item>
+        <item quantity="other">{#} tuntia</item>
+    </plurals>
+    <plurals name="humanize_duration_minutes_time">
+        <item quantity="one">1 minuutti</item>
+        <item quantity="other">{#} minuuttia</item>
+    </plurals>
+    <plurals name="humanize_duration_seconds_time">
+        <item quantity="one">1 sekunti</item>
+        <item quantity="other">{#} sekuntia</item>
+    </plurals>
+    <plurals name="instant_invite_guild_members_total_count">
+        <item quantity="one">1 jäsen</item>
+        <item quantity="other">{count} jäsentä</item>
+    </plurals>
+    <plurals name="last_seen_days">
+        <item quantity="one">1 päivä</item>
+        <item quantity="other">{days} päivää</item>
+    </plurals>
+    <plurals name="max_uses_description_mobile_maxUses">
+        <item quantity="one">1 käyttökerta</item>
+        <item quantity="other">{maxUses} käyttökertaa</item>
+    </plurals>
+    <plurals name="members_header_members">
+        <item quantity="one">1 jäsen</item>
+        <item quantity="other">{members} jäsentä</item>
+    </plurals>
+    <plurals name="n_days_days">
+        <item quantity="one">1 päivä</item>
+        <item quantity="other">{days} päivää</item>
+    </plurals>
+    <plurals name="new_messages_count">
+        <item quantity="one">1 uusi viesti</item>
+        <item quantity="other">{count} uutta viestiä</item>
+    </plurals>
+    <plurals name="num_members_subscribers">
+        <item quantity="one">**1** jäsen</item>
+        <item quantity="other">**{subscribers}** jäsentä</item>
+    </plurals>
+    <plurals name="num_subscribers_subscribers">
+        <item quantity="one">**1** tilaaja</item>
+        <item quantity="other">**{subscribers}** tilaajaa</item>
+    </plurals>
+    <plurals name="num_users_num">
+        <item quantity="one">1 käyttäjä</item>
+        <item quantity="other">{num} käyttäjää</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_count">
+        <item quantity="one">tämän</item>
+        <item quantity="other">nämä</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_countMessages">
+        <item quantity="one">viesti</item>
+        <item quantity="other">viestit</item>
+    </plurals>
+    <plurals name="partial_outage_count">
+        <item quantity="one">**1** muu palvelin ei ole käytettävissä hetkellisen katkoksen takia.</item>
+        <item quantity="other">**{count}** muuta palvelinta ei ole käytettävissä hetkellisen katkoksen takia.</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_header_subscription_count_subscriptions">
+        <item quantity="one">{#} nostatus</item>
+        <item quantity="other">{#} nostatusta</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_protip_mobile_numFreeGuildSubscriptions">
+        <item quantity="one">{#} nostatuksen</item>
+        <item quantity="other">{#} nostatusta</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_confirmation_slotCount">
+        <item quantity="one">Nostata</item>
+        <item quantity="other">Nostata {#} kertaa</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_days">
+        <item quantity="one">{#} päivän</item>
+        <item quantity="other">{#} päivän</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_slotCount">
+        <item quantity="one">tämän nostatuksen</item>
+        <item quantity="other">näiden nostatusten</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_guildCount">
+        <item quantity="one">nykyisellä palvelimella</item>
+        <item quantity="other">nykyisillä palvelimilla</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_slotCount">
+        <item quantity="one">tämän palvelimen nostatuksen</item>
+        <item quantity="other">nämä palvelimen nostatukset</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_from_guild_guildCount">
+        <item quantity="one">Nykyinen palvelin</item>
+        <item quantity="other">Nykyiset palvelimet</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_to_guild_slotCount">
+        <item quantity="one">nostatus</item>
+        <item quantity="other">nostatuksia</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_transfer_confirm_confirmation_slotCount">
+        <item quantity="one">nostatus</item>
+        <item quantity="other">nostatukset</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_available_numSubscriptions">
+        <item quantity="one">{#} nostatus</item>
+        <item quantity="other">{#} nostatusta</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_guild_subsription_subtitle_numSubscriptions">
+        <item quantity="one">{#} kerran</item>
+        <item quantity="other">{#} kertaa</item>
+    </plurals>
+    <plurals name="premium_guild_subscriptions_renewal_info_quantity">
+        <item quantity="one">palvelimen nostatus</item>
+        <item quantity="other">palvelimen nostatusta</item>
+    </plurals>
+    <plurals name="premium_subscription_credit_count_months_count">
+        <item quantity="one">{#} kuukausi</item>
+        <item quantity="other">{#} kuukautta</item>
+    </plurals>
+    <plurals name="premium_upsell_feature_free_guild_subscription_numFreeGuildSubscriptions">
+        <item quantity="one">{#} palvelimen nostatuksella</item>
+        <item quantity="other">{#} palvelimen nostatuksella</item>
+    </plurals>
+    <plurals name="stage_audience_waiting_many_numOthers">
+        <item quantity="one">{#} muuta</item>
+        <item quantity="other">{#} muuta</item>
+    </plurals>
+    <plurals name="stage_blocked_users_body_number">
+        <item quantity="one">{#} käyttäjä, jonka</item>
+        <item quantity="other">{#} käyttäjää, jotka</item>
+    </plurals>
+    <plurals name="stage_blocked_users_title_plural_number">
+        <item quantity="one">Estetty tili</item>
+        <item quantity="other">Estettyjä tilejä</item>
+    </plurals>
+    <plurals name="stage_is_speaking_hook_count">
+        <item quantity="one">ja yksi muu](usernameHook) puhuu…</item>
+        <item quantity="other">ja {count} muuta](usernameHook) puhuu…</item>
+    </plurals>
+    <plurals name="stage_speak_invite_blocked_users_number">
+        <item quantity="one">{#} estetty käyttäjä</item>
+        <item quantity="other">{#} estettyä käyttäjää</item>
+    </plurals>
+    <plurals name="sticker_pack_sticker_count_numStickers">
+        <item quantity="one">{#} tarra</item>
+        <item quantity="other">{#} tarraa</item>
+    </plurals>
+    <plurals name="total_results_count">
+        <item quantity="one">{count} tulos</item>
+        <item quantity="other">{count} tulosta</item>
+    </plurals>
+    <plurals name="uploading_files_count">
+        <item quantity="one">Ladataan 1 tiedostoa</item>
+        <item quantity="other">Ladataan {count} tiedostoa</item>
+    </plurals>
+    <plurals name="uploading_files_failed_count">
+        <item quantity="one">1 tiedoston lataus epäonnistui</item>
+        <item quantity="other">{count} tiedoston lataus epäonnistui</item>
+    </plurals>
+    <plurals name="user_profile_mutual_friends_count">
+        <item quantity="one">1 yhteinen kaveri</item>
+        <item quantity="other">{count} yhteistä kaveria</item>
+    </plurals>
+    <plurals name="user_profile_mutual_guilds_count">
+        <item quantity="one">1 yhteinen palvelin</item>
+        <item quantity="other">{count} yhteistä palvelinta</item>
+    </plurals>
+    <plurals name="user_summary_with_others_count">
+        <item quantity="one">1 muu</item>
+        <item quantity="other">{count} muuta</item>
+    </plurals>
+    <plurals name="vanity_url_header_uses_uses">
+        <item quantity="one">1 käyttökerta</item>
+        <item quantity="other">{uses} käyttökertaa</item>
+    </plurals>
+</resources>

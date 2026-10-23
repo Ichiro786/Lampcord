@@ -9,6 +9,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.Properties
 import javax.imageio.ImageIO
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -200,8 +201,8 @@ nucleus.application {
             // macOS and Windows still go through electron-builder. The Linux packages do
             // not: scripts/package_linux.sh wraps the uber jar with dpkg-deb, rpmbuild and
             // bsdtar instead, which drops electron-builder's Node provisioning from every
-            // Linux run and lets the packages depend on java-runtime instead of bundling
-            // a jlink runtime inside an AppImage.
+            // Linux run and lets every launcher use the jlink image createLinuxRuntimeImage
+            // builds under /usr/lib/lampcord/runtime.
             TargetFormat.Dmg,
             TargetFormat.Nsis,
             TargetFormat.AppImage,
@@ -266,6 +267,51 @@ nucleus.application {
         imageName.set("lampcord")
         buildArgs.add("-O2")
     }
+}
+
+// A JDK image is ~180MB, but the application plugin only links the modules the app really
+// resolves (java.base, java.desktop, java.net.http, jdk.crypto.ec, ...), so the same set,
+// plus --strip-debug, zip-9 and the dropped header/man pages, lands at ~58MB. The packaging
+// scripts hand this image to package_linux.sh and it is installed as /usr/lib/lampcord/runtime,
+// which removes java-runtime from the deb, rpm and AUR dependency lists.
+val runtimeImageDir = layout.buildDirectory.dir("runtime-image")
+
+val createLinuxRuntimeImage by tasks.registering(Exec::class) {
+    group = "distribution"
+    description = "Links the trimmed JRE the Linux packages bundle next to the jar."
+
+    val launcher =
+        javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(21)) }
+    // Resolved while the task is configured: the JDK 21 toolchain carries jlink's jmods, so
+    // the image it links reports the same version as the classes the platform module compiles.
+    val jdkHome = launcher.get().executablePath.asFile.parentFile.parentFile.absolutePath
+    executable = File(jdkHome, "bin/java").absolutePath
+    // jlink refuses to write into an existing directory, and a run that dies halfway leaves
+    // one behind, so the leftover goes first.
+    doFirst { runtimeImageDir.get().asFile.deleteRecursively() }
+    args = listOf(
+        "-m",
+        "jdk.jlink/jdk.tools.jlink.internal.Main",
+        "--add-modules",
+        listOf(
+            "java.base",
+            "java.datatransfer",
+            "java.desktop",
+            "java.logging",
+            "java.net.http",
+            "java.prefs",
+            "java.xml",
+            "jdk.accessibility",
+            "jdk.crypto.ec",
+            "jdk.unsupported",
+        ).joinToString(","),
+        "--strip-debug",
+        "--no-header-files",
+        "--no-man-pages",
+        "--compress=zip-9",
+        "--output",
+        runtimeImageDir.get().asFile.absolutePath,
+    )
 }
 
 tasks.register("patchLinuxLauncher") {

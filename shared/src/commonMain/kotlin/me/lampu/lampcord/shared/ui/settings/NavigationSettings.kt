@@ -18,6 +18,18 @@ import me.lampu.lampcord.shared.state.SettingsStore
 import me.lampu.lampcord.shared.ui.components.settings.*
 import me.lampu.lampcord.shared.ui.icons.Icons
 import me.lampu.lampcord.shared.utils.getPlatformName
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.friends
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_hide_nav_labels
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_hide_nav_labels_desc
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_nav_home
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_nav_you
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_navigation
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_tab_order
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_tabs_visibility
+import me.lampu.lampcord.shared.generated.resources.mentions
+import me.lampu.lampcord.shared.generated.resources.search
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import kotlinx.serialization.json.*
 import kotlinx.serialization.encodeToString
@@ -28,7 +40,7 @@ fun NavigationSettings(
     settingsStore: SettingsStore = koinInject()
 ) {
     SettingsSubScreen(
-        title = "Navigation",
+        title = stringResource(Res.string.lampcord_settings_navigation),
         onNavigateBack = onBack,
         contentScrollable = true
     ) {
@@ -57,38 +69,44 @@ private fun NavigationSettingsContent(
         settingsStore.navTabsOrderJson = json.encodeToString(newList)
     }
 
+    val labelHome = stringResource(Res.string.lampcord_settings_nav_home)
+    val labelFriends = stringResource(Res.string.friends)
+    val labelSearch = stringResource(Res.string.search)
+    val labelMentions = stringResource(Res.string.mentions)
+    val labelYou = stringResource(Res.string.lampcord_settings_nav_you)
+
     Column(modifier = Modifier.fillMaxSize()) {
         Material3SettingsGroup(
-            title = "Tabs Visibility",
+            title = stringResource(Res.string.lampcord_settings_tabs_visibility),
             items = listOf(
                 switchSettingsItem(
-                    title = "Home",
+                    title = labelHome,
                     checked = settingsStore.showNavHome,
                     onCheckedChange = { settingsStore.showNavHome = it }
                 ),
                 switchSettingsItem(
-                    title = "Friends",
+                    title = labelFriends,
                     checked = settingsStore.showNavFriends,
                     onCheckedChange = { settingsStore.showNavFriends = it }
                 ),
                 switchSettingsItem(
-                    title = "Search",
+                    title = labelSearch,
                     checked = settingsStore.showNavSearch,
                     onCheckedChange = { settingsStore.showNavSearch = it }
                 ),
                 switchSettingsItem(
-                    title = "Mentions",
+                    title = labelMentions,
                     checked = settingsStore.showNavMentions,
                     onCheckedChange = { settingsStore.showNavMentions = it }
                 ),
                 switchSettingsItem(
-                    title = "You",
+                    title = labelYou,
                     checked = settingsStore.showNavSettings,
                     onCheckedChange = { settingsStore.showNavSettings = it }
                 ),
                 switchSettingsItem(
-                    title = "Hide Navigation Labels",
-                    description = "Only show icons in the navigation bar.",
+                    title = stringResource(Res.string.lampcord_settings_hide_nav_labels),
+                    description = stringResource(Res.string.lampcord_settings_hide_nav_labels_desc),
                     checked = settingsStore.hideNavLabels,
                     onCheckedChange = { settingsStore.hideNavLabels = it }
                 )
@@ -98,7 +116,7 @@ private fun NavigationSettingsContent(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            text = "Tab Order",
+            text = stringResource(Res.string.lampcord_settings_tab_order),
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium),
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -111,11 +129,11 @@ private fun NavigationSettingsContent(
         ) {
             items.forEachIndexed { index, item ->
                 val label = when (item) {
-                    "home" -> "Home"
-                    "friends" -> "Friends"
-                    "search" -> "Search"
-                    "mentions" -> "Mentions"
-                    "settings" -> "You"
+                    "home" -> labelHome
+                    "friends" -> labelFriends
+                    "search" -> labelSearch
+                    "mentions" -> labelMentions
+                    "settings" -> labelYou
                     else -> item
                 }
                 val icon = when (item) {

@@ -7,8 +7,9 @@ arch=('x86_64')
 url='https://cord.lamp.delivery'
 license=('GPL-3.0-or-later')
 # No fuse2: the jar is unpacked by the Nucleus runtime into ~/.cache/nucleus, so there is
-# no self-mounting AppImage involved.
-depends=('glibc' 'libx11' 'libxext' 'libxrender' 'libxtst' 'libxi' 'libxkbcommon' 'gtk3' 'libnotify' 'nss' 'libxss' 'at-spi2-core' 'util-linux-libs' 'libsecret' 'xdg-utils' 'jre-openjdk')
+# no self-mounting AppImage involved. The jlink runtime under /usr/lib/lampcord/runtime comes
+# with the source tarball, so there is no jre-openjdk dependency either.
+depends=('glibc' 'libx11' 'libxext' 'libxrender' 'libxtst' 'libxi' 'libxkbcommon' 'gtk3' 'libnotify' 'nss' 'libxss' 'at-spi2-core' 'util-linux-libs' 'libsecret' 'xdg-utils')
 optdepends=(
   'webkit2gtk-4.1: embedded web content'
   'pipewire: voice calls'
@@ -30,6 +31,8 @@ package() {
     "${pkgdir}/usr/lib/lampcord/lampcord.jar"
 
   install -Dm755 "${srcdir}/lampcord/lampcord-launcher" "${pkgdir}/usr/bin/lampcord"
+
+  cp -a "${srcdir}/lampcord/runtime" "${pkgdir}/usr/lib/lampcord/runtime"
 
   install -Dm644 "${srcdir}/lampcord/lampcord.desktop" \
     "${pkgdir}/usr/share/applications/lampcord.desktop"

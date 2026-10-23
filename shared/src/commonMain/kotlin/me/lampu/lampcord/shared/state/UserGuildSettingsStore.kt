@@ -17,13 +17,14 @@ class UserGuildSettingsStore {
     fun handleReady(ready: ReadyPayload) {
         val map = if (ready.user_guild_settings?.partial == false) mutableMapOf() else _userGuildSettings.value.toMutableMap()
         ready.user_guild_settings?.entries?.forEach { settings ->
-            map[settings.guild_id] = settings
+            val effectiveGuildId = if (settings.guild_id == "@me") null else settings.guild_id
+            map[effectiveGuildId] = settings.copy(guild_id = effectiveGuildId)
         }
         _userGuildSettings.value = map
     }
 
     fun handlePartialUpdate(partial: UserGuildSettings.Partial) {
-        val guildId = partial.guild_id ?: return
+        val guildId = if (partial.guild_id == "@me") null else partial.guild_id
         _userGuildSettings.update { current ->
             val existing = current[guildId] ?: UserGuildSettings(guild_id = guildId)
             current + (guildId to existing.applyPartial(partial))
@@ -46,7 +47,8 @@ class UserGuildSettingsStore {
     }
 
     fun isChannelMuted(guildId: String?, channelId: String): Boolean {
-        val guildSettings = _userGuildSettings.value[guildId] ?: return false
+        val effectiveGuildId = if (guildId == "@me") null else guildId
+        val guildSettings = _userGuildSettings.value[effectiveGuildId] ?: return false
         val channelOverride = guildSettings.channel_overrides.find { it.channel_id == channelId }
         if (channelOverride == null) return false
         
@@ -56,7 +58,8 @@ class UserGuildSettingsStore {
     }
     
     fun isGuildMuted(guildId: String?): Boolean {
-        val settings = _userGuildSettings.value[guildId] ?: return false
+        val effectiveGuildId = if (guildId == "@me") null else guildId
+        val settings = _userGuildSettings.value[effectiveGuildId] ?: return false
         return settings.muted && (settings.mute_config?.end_time?.let {
             try { Instant.parse(it) > Clock.System.now() } catch(_: Exception) { false }
         } ?: true)

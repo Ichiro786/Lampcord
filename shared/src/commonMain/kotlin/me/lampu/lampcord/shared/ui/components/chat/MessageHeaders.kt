@@ -283,20 +283,21 @@ fun ReplyBar(
 
         Spacer(modifier = Modifier.width(4.dp))
 
-        val roleColor = remember(referencedMessage, navigationStore.selectedGuild) {
-            val guild = navigationStore.selectedGuild ?: return@remember Color.White
-            val authorId = referencedMessage.author?.id ?: return@remember Color.White
-            val member = referencedMessage.member ?: userStore.getMember(guild.id, authorId) ?: return@remember Color.White
+        val defaultAuthorColor = MaterialTheme.colorScheme.onSurface
+        val roleColor = remember(referencedMessage, navigationStore.selectedGuild, defaultAuthorColor) {
+            val guild = navigationStore.selectedGuild ?: return@remember defaultAuthorColor
+            val authorId = referencedMessage.author?.id ?: return@remember defaultAuthorColor
+            val member = referencedMessage.member ?: userStore.getMember(guild.id, authorId) ?: return@remember defaultAuthorColor
             val memberRoles = member.roles.mapNotNull { roleId -> guild.roles.find { it.id == roleId } }
             val colorRole = memberRoles.filter { it.color != 0 }.maxByOrNull { it.position }
-            if (colorRole != null) Color(colorRole.color or 0xFF000000.toInt()) else Color.White
+            if (colorRole != null) Color(colorRole.color or 0xFF000000.toInt()) else defaultAuthorColor
         }
 
         Text(
             text = referencedMessage.author?.global_name ?: referencedMessage.author?.username ?: "Unknown User",
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
-            color = if (isHovered) Color.White else roleColor.copy(alpha = 0.8f), // Whiter on hover
+            color = if (isHovered) MaterialTheme.colorScheme.onSurface else roleColor.copy(alpha = 0.8f),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f, fill = false)
@@ -322,7 +323,7 @@ fun ReplyBar(
         DiscordMarkdownText(
             content = replyContent,
             style = MaterialTheme.typography.labelSmall,
-            color = if (isHovered) Color.White.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+            color = if (isHovered) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
             modifier = Modifier.weight(1f, fill = false),
             maxLines = 1
         )

@@ -20,6 +20,14 @@ class SettingsStore(
 ) {
     var userSettings by mutableStateOf<UserSettings?>(null)
 
+    private var _language by mutableStateOf(me.lampu.lampcord.shared.settings.Settings.shared.language)
+    var language: String
+        get() = _language
+        set(value) {
+            _language = value
+            me.lampu.lampcord.shared.settings.Settings.shared.language = value
+        }
+
     private val json = Json { ignoreUnknownKeys = true }
 
     var textReplaceRules by mutableStateOf(
@@ -466,6 +474,14 @@ class SettingsStore(
         set(value) {
             _noiseCancellation = value
             me.lampu.lampcord.shared.settings.Settings.shared.noiseCancellation = value
+        }
+
+    private var _httpProxyUrl by mutableStateOf(me.lampu.lampcord.shared.settings.Settings.shared.httpProxyUrl)
+    var httpProxyUrl: String
+        get() = _httpProxyUrl
+        set(value) {
+            _httpProxyUrl = value
+            me.lampu.lampcord.shared.settings.Settings.shared.httpProxyUrl = value
         }
     
     private val scope = CoroutineScope(Dispatchers.Main)

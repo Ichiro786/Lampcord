@@ -245,7 +245,7 @@ class GuildStore(
 
     fun toggleMuteChannel(guildId: String, channelId: String) {
         val effectiveGuildId = if (guildId == "@me") null else guildId
-        val guildSettings = userGuildSettingsStore.userGuildSettings.value[effectiveGuildId] ?: return
+        val guildSettings = userGuildSettingsStore.userGuildSettings.value[effectiveGuildId] ?: UserGuildSettings(guild_id = effectiveGuildId)
         val currentOverrides = guildSettings.channel_overrides.toMutableList()
         val index = currentOverrides.indexOfFirst { it.channel_id == channelId }
         
@@ -257,15 +257,18 @@ class GuildStore(
         
         if (index != -1) currentOverrides[index] = newOverride else currentOverrides.add(newOverride)
 
+        val partial = UserGuildSettings.Partial(guild_id = effectiveGuildId, channel_overrides = currentOverrides)
+        userGuildSettingsStore.handlePartialUpdate(partial)
+
         scope.launch {
-            guildApi.updateUserGuildSettings(guildId, UserGuildSettings.Partial(channel_overrides = currentOverrides))
+            guildApi.updateUserGuildSettings(guildId, partial)
         }
     }
 
     fun muteChannelForDuration(guildId: String, channelId: String, duration: Duration?) {
         val effectiveGuildId = if (guildId == "@me") null else guildId
-        val guildSettings = userGuildSettingsStore.userGuildSettings.value[effectiveGuildId]
-        val currentOverrides = guildSettings?.channel_overrides?.toMutableList() ?: mutableListOf()
+        val guildSettings = userGuildSettingsStore.userGuildSettings.value[effectiveGuildId] ?: UserGuildSettings(guild_id = effectiveGuildId)
+        val currentOverrides = guildSettings.channel_overrides.toMutableList()
         val index = currentOverrides.indexOfFirst { it.channel_id == channelId }
         val muteConfig = if (duration != null) {
             MuteConfig(end_time = (Clock.System.now() + duration).toString())
@@ -278,29 +281,37 @@ class GuildStore(
         }
         if (index != -1) currentOverrides[index] = newOverride else currentOverrides.add(newOverride)
 
+        val partial = UserGuildSettings.Partial(guild_id = effectiveGuildId, channel_overrides = currentOverrides)
+        userGuildSettingsStore.handlePartialUpdate(partial)
+
         scope.launch {
-            guildApi.updateUserGuildSettings(guildId, UserGuildSettings.Partial(channel_overrides = currentOverrides))
+            guildApi.updateUserGuildSettings(guildId, partial)
         }
     }
 
     fun unmuteChannel(guildId: String, channelId: String) {
         val effectiveGuildId = if (guildId == "@me") null else guildId
-        val guildSettings = userGuildSettingsStore.userGuildSettings.value[effectiveGuildId] ?: return
+        val guildSettings = userGuildSettingsStore.userGuildSettings.value[effectiveGuildId] ?: UserGuildSettings(guild_id = effectiveGuildId)
         val currentOverrides = guildSettings.channel_overrides.toMutableList()
         val index = currentOverrides.indexOfFirst { it.channel_id == channelId }
-        if (index == -1) return
+        if (index != -1) {
+            currentOverrides[index] = currentOverrides[index].copy(muted = false, mute_config = null)
+        } else {
+            currentOverrides.add(ChannelOverride(channel_id = channelId, muted = false, mute_config = null))
+        }
 
-        currentOverrides[index] = currentOverrides[index].copy(muted = false, mute_config = null)
+        val partial = UserGuildSettings.Partial(guild_id = effectiveGuildId, channel_overrides = currentOverrides)
+        userGuildSettingsStore.handlePartialUpdate(partial)
 
         scope.launch {
-            guildApi.updateUserGuildSettings(guildId, UserGuildSettings.Partial(channel_overrides = currentOverrides))
+            guildApi.updateUserGuildSettings(guildId, partial)
         }
     }
 
     fun setChannelNotificationMode(guildId: String, channelId: String, mode: Int) {
         val effectiveGuildId = if (guildId == "@me") null else guildId
-        val guildSettings = userGuildSettingsStore.userGuildSettings.value[effectiveGuildId]
-        val currentOverrides = guildSettings?.channel_overrides?.toMutableList() ?: mutableListOf()
+        val guildSettings = userGuildSettingsStore.userGuildSettings.value[effectiveGuildId] ?: UserGuildSettings(guild_id = effectiveGuildId)
+        val currentOverrides = guildSettings.channel_overrides.toMutableList()
         val index = currentOverrides.indexOfFirst { it.channel_id == channelId }
 
         val newOverride = if (index != -1) {
@@ -310,8 +321,11 @@ class GuildStore(
         }
         if (index != -1) currentOverrides[index] = newOverride else currentOverrides.add(newOverride)
 
+        val partial = UserGuildSettings.Partial(guild_id = effectiveGuildId, channel_overrides = currentOverrides)
+        userGuildSettingsStore.handlePartialUpdate(partial)
+
         scope.launch {
-            guildApi.updateUserGuildSettings(guildId, UserGuildSettings.Partial(channel_overrides = currentOverrides))
+            guildApi.updateUserGuildSettings(guildId, partial)
         }
     }
 

@@ -25,6 +25,35 @@ import me.lampu.lampcord.shared.api.RemoteAuthState
 import me.lampu.lampcord.shared.ui.components.ContainedLoadingIndicator
 import kotlinx.coroutines.launch
 import me.lampu.lampcord.shared.ui.icons.Icons
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.back_to_login
+import me.lampu.lampcord.shared.generated.resources.enter_phone_or_email
+import me.lampu.lampcord.shared.generated.resources.error
+import me.lampu.lampcord.shared.generated.resources.form_label_password
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_backup_code_label
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_backup_title
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_error_enter_token
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_error_failed
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_error_invalid
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_error_invalid_mfa
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_error_unexpected
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_mfa_code_label
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_mfa_title
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_password_hide
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_password_show
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_qr_approve
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_qr_prompt
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_token_hide
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_token_label
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_token_show
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_use_authenticator
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_use_backup
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_with_credentials
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_with_token
+import me.lampu.lampcord.shared.generated.resources.login
+import me.lampu.lampcord.shared.generated.resources.retry
+import me.lampu.lampcord.shared.generated.resources.verify
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import qrcode.QRCode
 import qrcode.raw.ErrorCorrectionLevel
@@ -52,6 +81,12 @@ fun LoginScreen(
     
     val scope = rememberCoroutineScope()
     val remoteAuthState by remoteAuthClient.state.collectAsState()
+
+    val enterTokenError = stringResource(Res.string.lampcord_login_error_enter_token)
+    val loginFailedError = stringResource(Res.string.lampcord_login_error_failed)
+    val invalidLoginError = stringResource(Res.string.lampcord_login_error_invalid)
+    val invalidMfaError = stringResource(Res.string.lampcord_login_error_invalid_mfa)
+    val unexpectedError = stringResource(Res.string.lampcord_login_error_unexpected)
 
     LaunchedEffect(remoteAuthState) {
         val state = remoteAuthState
@@ -84,7 +119,7 @@ fun LoginScreen(
                     if (useTokenLogin) {
                         val authToken = token.trim()
                         if (authToken.isBlank()) {
-                            errorMessage = "Enter a token"
+                            errorMessage = enterTokenError
                         } else {
                             sessionManager.connect(authToken)
                             onLoginSuccess()
@@ -92,7 +127,7 @@ fun LoginScreen(
                     } else {
                         val response = sessionManager.login(login, password)
                         if (response == null) {
-                            errorMessage = "Login failed (check your connection)"
+                            errorMessage = loginFailedError
                         } else if (response.token != null) {
                             sessionManager.connect(response.token)
                             onLoginSuccess()
@@ -101,7 +136,7 @@ fun LoginScreen(
                         } else if (response.message != null) {
                             errorMessage = response.message
                         } else {
-                            errorMessage = "Invalid login or password"
+                            errorMessage = invalidLoginError
                         }
                     }
                 } else {
@@ -111,12 +146,12 @@ fun LoginScreen(
                         if (res) {
                             onLoginSuccess()
                         } else {
-                            errorMessage = "Invalid code or expired ticket"
+                            errorMessage = invalidMfaError
                         }
                     }
                 }
             } catch (e: Exception) {
-                errorMessage = e.message ?: "An unexpected error occurred"
+                errorMessage = e.message ?: unexpectedError
             } finally {
                 isLoading = false
             }
@@ -156,7 +191,7 @@ fun LoginScreen(
                         TextField(
                             value = token,
                             onValueChange = { token = it },
-                            label = { Text("Discord Token") },
+                            label = { Text(stringResource(Res.string.lampcord_login_token_label)) },
                             visualTransformation = if (tokenVisible) VisualTransformation.None else PasswordVisualTransformation(),
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
@@ -176,7 +211,7 @@ fun LoginScreen(
                                 IconButton(onClick = { tokenVisible = !tokenVisible }) {
                                     Icon(
                                         imageVector = if (tokenVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                        contentDescription = if (tokenVisible) "Hide token" else "Show token"
+                                        contentDescription = if (tokenVisible) stringResource(Res.string.lampcord_login_token_hide) else stringResource(Res.string.lampcord_login_token_show)
                                     )
                                 }
                             }
@@ -185,7 +220,7 @@ fun LoginScreen(
                         TextField(
                             value = login,
                             onValueChange = { login = it },
-                            label = { Text("Email or Phone Number") },
+                            label = { Text(stringResource(Res.string.enter_phone_or_email)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             shape = MaterialTheme.shapes.large,
@@ -202,7 +237,7 @@ fun LoginScreen(
                         TextField(
                             value = password,
                             onValueChange = { password = it },
-                            label = { Text("Password") },
+                            label = { Text(stringResource(Res.string.form_label_password)) },
                             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
@@ -222,7 +257,7 @@ fun LoginScreen(
                                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                     Icon(
                                         imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                        contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                                        contentDescription = if (passwordVisible) stringResource(Res.string.lampcord_login_password_hide) else stringResource(Res.string.lampcord_login_password_show)
                                     )
                                 }
                             }
@@ -236,18 +271,18 @@ fun LoginScreen(
                         },
                         modifier = Modifier.padding(top = 4.dp)
                     ) {
-                        Text(if (useTokenLogin) "Use email and password instead" else "Login with token")
+                        Text(if (useTokenLogin) stringResource(Res.string.lampcord_login_with_credentials) else stringResource(Res.string.lampcord_login_with_token))
                     }
                 } else {
                     Text(
-                        if (mfaType == "totp") "Enter 2FA Code" else "Enter Backup Code",
+                        if (mfaType == "totp") stringResource(Res.string.lampcord_login_mfa_title) else stringResource(Res.string.lampcord_login_backup_title),
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     TextField(
                         value = mfaCode,
                         onValueChange = { mfaCode = it },
-                        label = { Text(if (mfaType == "totp") "6-digit code" else "8-digit backup code") },
+                        label = { Text(if (mfaType == "totp") stringResource(Res.string.lampcord_login_mfa_code_label) else stringResource(Res.string.lampcord_login_backup_code_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         shape = MaterialTheme.shapes.large,
@@ -264,7 +299,7 @@ fun LoginScreen(
                         mfaType = if (mfaType == "totp") "backup" else "totp"
                         mfaCode = ""
                     }) {
-                        Text(if (mfaType == "totp") "Use Backup Code" else "Use Authenticator App")
+                        Text(if (mfaType == "totp") stringResource(Res.string.lampcord_login_use_backup) else stringResource(Res.string.lampcord_login_use_authenticator))
                     }
                 }
 
@@ -300,7 +335,7 @@ fun LoginScreen(
                         )
                     } else {
                         Text(
-                            text = if (mfaTicket == null) "Login" else "Verify",
+                            text = if (mfaTicket == null) stringResource(Res.string.login) else stringResource(Res.string.verify),
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
@@ -311,7 +346,7 @@ fun LoginScreen(
                         onClick = { mfaTicket = null; mfaCode = "" },
                         modifier = Modifier.padding(top = 8.dp)
                     ) {
-                        Text("Back to Login")
+                        Text(stringResource(Res.string.back_to_login))
                     }
                 }
 
@@ -326,7 +361,7 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(32.dp))
                     
                     Text(
-                        text = "Or scan this QR code to log in instantly",
+                        text = stringResource(Res.string.lampcord_login_qr_prompt),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -373,7 +408,7 @@ fun LoginScreen(
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
                                         Text(
-                                            "Approve on your phone",
+                                            stringResource(Res.string.lampcord_login_qr_approve),
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -387,9 +422,9 @@ fun LoginScreen(
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                         modifier = Modifier.padding(16.dp)
                                     ) {
-                                        Text("Error", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelLarge)
+                                        Text(stringResource(Res.string.error), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelLarge)
                                         TextButton(onClick = { scope.launch { remoteAuthClient.start() } }) {
-                                            Text("Retry")
+                                            Text(stringResource(Res.string.retry))
                                         }
                                     }
                                 }

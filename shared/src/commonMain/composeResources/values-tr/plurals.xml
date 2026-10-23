@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="age_gate_underage_existing_body_deletion_with_days_days">
+        <item quantity="one">1 günün</item>
+        <item quantity="other">{days} günün</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_monthly_mobile_intervalCount">
+        <item quantity="one">{#} ay</item>
+        <item quantity="other">{#} ay</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_yearly_mobile_intervalCount">
+        <item quantity="one">{#} yıl</item>
+        <item quantity="other">{#} yıl</item>
+    </plurals>
+    <plurals name="autocomplete_emoji_upsell_count">
+        <item quantity="one">{#} daha fazla eşleşen emoji</item>
+        <item quantity="other">{#} daha fazla eşleşen emoji</item>
+    </plurals>
+    <plurals name="blocked_messages_count">
+        <item quantity="one">1 Engellenen Mesaj</item>
+        <item quantity="other">{count} Engellenen Mesaj</item>
+    </plurals>
+    <plurals name="channel_slowmode_cooldown_seconds">
+        <item quantity="one">1 saniye</item>
+        <item quantity="other">{seconds} saniye</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_hours_hours">
+        <item quantity="one">{#} saat</item>
+        <item quantity="other">{#} saat</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_minutes_minutes">
+        <item quantity="one">{#} dakika</item>
+        <item quantity="other">{#} dakika</item>
+    </plurals>
+    <plurals name="discovery_speaker_count_speakersCount">
+        <item quantity="one">+{count} Konuşmacı</item>
+        <item quantity="other">+{count} Konuşmacı</item>
+    </plurals>
+    <plurals name="dm_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} okunmamış mesaj</item>
+        <item quantity="other">, {#} okunmamış mesaj</item>
+    </plurals>
+    <plurals name="duration_days_capitalize_days">
+        <item quantity="one">1 Gün</item>
+        <item quantity="other">{days} Gün</item>
+    </plurals>
+    <plurals name="duration_days_days">
+        <item quantity="one">1 gün</item>
+        <item quantity="other">{days} gün</item>
+    </plurals>
+    <plurals name="duration_hours_capitalize_hours">
+        <item quantity="one">1 Saat</item>
+        <item quantity="other">{hours} Saat</item>
+    </plurals>
+    <plurals name="duration_hours_hours">
+        <item quantity="one">1 saat</item>
+        <item quantity="other">{hours} saat</item>
+    </plurals>
+    <plurals name="duration_mins_mins">
+        <item quantity="one">1 dk</item>
+        <item quantity="other">{mins} dk</item>
+    </plurals>
+    <plurals name="duration_minutes_capitalize_minutes">
+        <item quantity="one">1 Dakika</item>
+        <item quantity="other">{minutes} Dakika</item>
+    </plurals>
+    <plurals name="duration_minutes_minutes">
+        <item quantity="one">1 dakika</item>
+        <item quantity="other">{minutes} dakika</item>
+    </plurals>
+    <plurals name="duration_months_capitalize_months">
+        <item quantity="one">1 Ay</item>
+        <item quantity="other">{months} Ay</item>
+    </plurals>
+    <plurals name="duration_seconds_capitalize_seconds">
+        <item quantity="one">1 Saniye</item>
+        <item quantity="other">{seconds} Saniye</item>
+    </plurals>
+    <plurals name="duration_seconds_seconds">
+        <item quantity="one">1 saniye</item>
+        <item quantity="other">{seconds} saniye</item>
+    </plurals>
+    <plurals name="duration_weeks_capitalize_weeks">
+        <item quantity="one">1 Hafta</item>
+        <item quantity="other">{weeks} Hafta</item>
+    </plurals>
+    <plurals name="duration_years_capitalize_years">
+        <item quantity="one">1 Yıl</item>
+        <item quantity="other">{years} Yıl</item>
+    </plurals>
+    <plurals name="emoji_slots_available_count">
+        <item quantity="one">{count} yer</item>
+        <item quantity="other">{count} yer</item>
+    </plurals>
+    <plurals name="emojis_title_count">
+        <item quantity="one">{count} emoji</item>
+        <item quantity="other">{count} emoji</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_days">
+        <item quantity="one">1 gündür</item>
+        <item quantity="other">{days} gündür</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_members">
+        <item quantity="one">1 üyeyi</item>
+        <item quantity="other">{members} üyeyi</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_months_time">
+        <item quantity="one">{#} ay</item>
+        <item quantity="other">{#} ay</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_years_time">
+        <item quantity="one">{#} yıl</item>
+        <item quantity="other">{#} yıl</item>
+    </plurals>
+    <plurals name="gift_inventory_copies_copies">
+        <item quantity="one">{#} kopya</item>
+        <item quantity="other">{#} kopya</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_months_intervalCount">
+        <item quantity="one">{#} ay</item>
+        <item quantity="other">{#} ay</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_years_intervalCount">
+        <item quantity="one">{#} yıl</item>
+        <item quantity="other">{#} yıl</item>
+    </plurals>
+    <plurals name="group_dm_invite_remaining_number">
+        <item quantity="one">1 arkadaş daha ekleyebilirsin.</item>
+        <item quantity="other">{number} arkadaş daha ekleyebilirsin.</item>
+    </plurals>
+    <plurals name="group_dm_invite_unselect_users_number">
+        <item quantity="one">1 arkadaş seçimini kaldırmalısın.</item>
+        <item quantity="other">{number} arkadaş seçimini kaldırmalısın.</item>
+    </plurals>
+    <plurals name="guild_event_interested_count_count">
+        <item quantity="one">{#} kişi</item>
+        <item quantity="other">{#} kişi</item>
+    </plurals>
+    <plurals name="guild_events_plural_number">
+        <item quantity="one">{#} Etkinlik</item>
+        <item quantity="other">{#} Etkinlik</item>
+    </plurals>
+    <plurals name="guild_folder_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} okunmamış bahsetme</item>
+        <item quantity="other">, {#} okunmamış bahsetme</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_denied_count">
+        <item quantity="one">bir izin</item>
+        <item quantity="other">izinler</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_granted_count">
+        <item quantity="one">bir izin</item>
+        <item quantity="other">izinler</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_reset_count">
+        <item quantity="one">bir izin</item>
+        <item quantity="other">izinler</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_rate_limit_per_user_change_newValue">
+        <item quantity="one">Yavaş modu **{#} saniye** yap</item>
+        <item quantity="other">Yavaş modu **{#} saniye** yap</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_disconnect_count">
+        <item quantity="one">**bir kullanıcıyı**</item>
+        <item quantity="other">**!!{count}!! kullanıcıyı**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_move_count">
+        <item quantity="one">**bir kullanıcıyı**</item>
+        <item quantity="other">**!!{count}!! kullanıcıyı**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_count">
+        <item quantity="one">**bir üye**</item>
+        <item quantity="other">**!!{count}!! üye**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_delete_days_newValue">
+        <item quantity="one">Bir günlük</item>
+        <item quantity="other">{newValue} günlük</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_add_count">
+        <item quantity="one">Bir rol</item>
+        <item quantity="other">bazı roller</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_remove_count">
+        <item quantity="one">Bir rol</item>
+        <item quantity="other">bazı roller</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_bulk_delete_count">
+        <item quantity="one">**bir mesajı**</item>
+        <item quantity="other">**!!{count}!! mesajı**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_delete_count">
+        <item quantity="one">**bir mesajı**</item>
+        <item quantity="other">**!!{count}!! mesajı**</item>
+    </plurals>
+    <plurals name="guild_settings_overview_boost_unlock_boosts">
+        <item quantity="one">{#} takviye</item>
+        <item quantity="other">{#} takviye</item>
+    </plurals>
+    <plurals name="guild_settings_premium_guild_tier_requirement_required">
+        <item quantity="one">{#} Takviye</item>
+        <item quantity="other">{#} Takviye</item>
+    </plurals>
+    <plurals name="guild_settings_premium_upsell_body_perk_no_free_guild_subscriptions_numFreeGuildSubscriptions">
+        <item quantity="one">{#} Takviye</item>
+        <item quantity="other">{#} Takviye</item>
+    </plurals>
+    <plurals name="guild_sidebar_announcement_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} bahsetme</item>
+        <item quantity="other">{#} bahsetme</item>
+    </plurals>
+    <plurals name="guild_sidebar_default_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} bahsetme</item>
+        <item quantity="other">{#} bahsetme</item>
+    </plurals>
+    <plurals name="guild_sidebar_voice_channel_a11y_label_with_users_userCount">
+        <item quantity="one">1 kullanıcı</item>
+        <item quantity="other">{#} kullanıcı</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_guildSubscriptionQuantity">
+        <item quantity="one">{#} kez</item>
+        <item quantity="other">{#} kez</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_no_application_guildSubscriptionQuantity">
+        <item quantity="one">{#} Sunucu Takviyesine</item>
+        <item quantity="other">{#} Sunucu Takviyesine</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_transferred_description_mobile2_guildSubscriptionQuantity">
+        <item quantity="one">{#} kez</item>
+        <item quantity="other">{#} kez</item>
+    </plurals>
+    <plurals name="guild_template_usages_usageCount">
+        <item quantity="one">**1** kişi bu şablonu kullandı</item>
+        <item quantity="other">**{usageCount}** kişi bu şablonu kullandı</item>
+    </plurals>
+    <plurals name="guild_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} bahsetme,</item>
+        <item quantity="other">{#} bahsetme,</item>
+    </plurals>
+    <plurals name="hub_email_connection_invite_header_count">
+        <item quantity="one">{count} arkadaşına</item>
+        <item quantity="other">{count} arkadaşına</item>
+    </plurals>
+    <plurals name="humanize_duration_days_time">
+        <item quantity="one">1 gün</item>
+        <item quantity="other">{#} gün</item>
+    </plurals>
+    <plurals name="humanize_duration_hours_time">
+        <item quantity="one">1 saat</item>
+        <item quantity="other">{#} saat</item>
+    </plurals>
+    <plurals name="humanize_duration_minutes_time">
+        <item quantity="one">1 dakika</item>
+        <item quantity="other">{#} dakika</item>
+    </plurals>
+    <plurals name="humanize_duration_seconds_time">
+        <item quantity="one">1 saniye</item>
+        <item quantity="other">{#} saniye</item>
+    </plurals>
+    <plurals name="instant_invite_guild_members_total_count">
+        <item quantity="one">1 Üye</item>
+        <item quantity="other">{count} Üye</item>
+    </plurals>
+    <plurals name="last_seen_days">
+        <item quantity="one">1 gün</item>
+        <item quantity="other">{days} gün</item>
+    </plurals>
+    <plurals name="max_uses_description_mobile_maxUses">
+        <item quantity="one">1 kullanım</item>
+        <item quantity="other">{maxUses} kullanım</item>
+    </plurals>
+    <plurals name="members_header_members">
+        <item quantity="one">1 Üye</item>
+        <item quantity="other">{members} Üye</item>
+    </plurals>
+    <plurals name="n_days_days">
+        <item quantity="one">1 gün</item>
+        <item quantity="other">{days} gün</item>
+    </plurals>
+    <plurals name="new_messages_count">
+        <item quantity="one">1 yeni mesaj</item>
+        <item quantity="other">{count} yeni mesaj</item>
+    </plurals>
+    <plurals name="num_members_subscribers">
+        <item quantity="one">**1** üye</item>
+        <item quantity="other">**{subscribers}** üye</item>
+    </plurals>
+    <plurals name="num_subscribers_subscribers">
+        <item quantity="one">**1** abone</item>
+        <item quantity="other">**{subscribers}** aboneler</item>
+    </plurals>
+    <plurals name="num_users_num">
+        <item quantity="one">1 kullanıcı</item>
+        <item quantity="other">{num} kullanıcı</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_count">
+        <item quantity="one">Bunu</item>
+        <item quantity="other">Bunları</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_countMessages">
+        <item quantity="one">Bu mesajı</item>
+        <item quantity="other">Bu mesajları</item>
+    </plurals>
+    <plurals name="partial_outage_count">
+        <item quantity="one">**1** sunucu daha geçici bir kesilmeden dolayı kullanım dışı.</item>
+        <item quantity="other">**{count}** sunucular geçici bir kesilmeden dolayı kullanım dışı.</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_header_subscription_count_subscriptions">
+        <item quantity="one">{#} Takviye</item>
+        <item quantity="other">{#} Takviye</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_protip_mobile_numFreeGuildSubscriptions">
+        <item quantity="one">Takviye</item>
+        <item quantity="other">{#} Takviye</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_confirmation_slotCount">
+        <item quantity="one">Takviye</item>
+        <item quantity="other">{#} kez Takviye</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_days">
+        <item quantity="one">{#} gün</item>
+        <item quantity="other">{#} gün</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_slotCount">
+        <item quantity="one">bu Takviyenin</item>
+        <item quantity="other">bu Takviyelerin</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_guildCount">
+        <item quantity="one">mevcut sunucu</item>
+        <item quantity="other">mevcut sunucular</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_slotCount">
+        <item quantity="one">Sunucu Takviyesini</item>
+        <item quantity="other">Sunucu Takviyelerini</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_from_guild_guildCount">
+        <item quantity="one">sunucu</item>
+        <item quantity="other">sunucular</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_to_guild_slotCount">
+        <item quantity="one">Takviyeyi</item>
+        <item quantity="other">Takviyeleri</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_transfer_confirm_confirmation_slotCount">
+        <item quantity="one">Takviyeyi</item>
+        <item quantity="other">Takviyeleri</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_available_numSubscriptions">
+        <item quantity="one">Takviye</item>
+        <item quantity="other">{#} Takviye</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_guild_subsription_subtitle_numSubscriptions">
+        <item quantity="one">{#} kez</item>
+        <item quantity="other">{#} kez</item>
+    </plurals>
+    <plurals name="premium_guild_subscriptions_renewal_info_quantity">
+        <item quantity="one">Sunucu Takviyesi</item>
+        <item quantity="other">Sunucu Takviyesi</item>
+    </plurals>
+    <plurals name="premium_subscription_credit_count_months_count">
+        <item quantity="one">{#} Ay</item>
+        <item quantity="other">{#} Ay</item>
+    </plurals>
+    <plurals name="premium_upsell_feature_free_guild_subscription_numFreeGuildSubscriptions">
+        <item quantity="one">{#} Sunucu Takviyesi</item>
+        <item quantity="other">{#} Sunucu Takviyesi</item>
+    </plurals>
+    <plurals name="stage_audience_waiting_many_numOthers">
+        <item quantity="one">{#} kişi</item>
+        <item quantity="other">{#} kişi</item>
+    </plurals>
+    <plurals name="stage_blocked_users_body_number">
+        <item quantity="one">{#} engellediğin hesap</item>
+        <item quantity="other">{#} engellediğin hesap</item>
+    </plurals>
+    <plurals name="stage_blocked_users_title_plural_number">
+        <item quantity="one">Hesap</item>
+        <item quantity="other">Hesap</item>
+    </plurals>
+    <plurals name="stage_is_speaking_hook_count">
+        <item quantity="one">ve bir kişi](usernameHook) konuşuyor…</item>
+        <item quantity="other">ve {count} kişi](usernameHook) konuşuyor…</item>
+    </plurals>
+    <plurals name="stage_speak_invite_blocked_users_number">
+        <item quantity="one">{#} engellenen kullanıcı</item>
+        <item quantity="other">{#} engellenen kullanıcı</item>
+    </plurals>
+    <plurals name="sticker_pack_sticker_count_numStickers">
+        <item quantity="one">{#} çıkartma</item>
+        <item quantity="other">{#} çıkartma</item>
+    </plurals>
+    <plurals name="total_results_count">
+        <item quantity="one">{count} Sonuç</item>
+        <item quantity="other">{count} Sonuç</item>
+    </plurals>
+    <plurals name="uploading_files_count">
+        <item quantity="one">1 Dosya Yükleniyor</item>
+        <item quantity="other">{count} Dosya Yükleniyor</item>
+    </plurals>
+    <plurals name="uploading_files_failed_count">
+        <item quantity="one">1 Dosya Yüklemesi Başarısız</item>
+        <item quantity="other">{count} Dosya Yüklemesi Başarısız</item>
+    </plurals>
+    <plurals name="user_profile_mutual_friends_count">
+        <item quantity="one">1 Ortak Arkadaş</item>
+        <item quantity="other">{count} Ortak Arkadaş</item>
+    </plurals>
+    <plurals name="user_profile_mutual_guilds_count">
+        <item quantity="one">1 Ortak Sunucu</item>
+        <item quantity="other">{count} Ortak Sunucu</item>
+    </plurals>
+    <plurals name="user_summary_with_others_count">
+        <item quantity="one">1 kişi daha</item>
+        <item quantity="other">{count} kişi daha</item>
+    </plurals>
+    <plurals name="vanity_url_header_uses_uses">
+        <item quantity="one">1 kullanım</item>
+        <item quantity="other">{uses} kullanım</item>
+    </plurals>
+</resources>

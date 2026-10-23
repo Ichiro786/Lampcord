@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="age_gate_underage_existing_body_deletion_with_days_days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{days} dager</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_monthly_mobile_intervalCount">
+        <item quantity="one">{#} måned</item>
+        <item quantity="other">{#} måneder</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_yearly_mobile_intervalCount">
+        <item quantity="one">{#} år</item>
+        <item quantity="other">{#} år</item>
+    </plurals>
+    <plurals name="autocomplete_emoji_upsell_count">
+        <item quantity="one">{#} matchende emoji</item>
+        <item quantity="other">{#} matchende emojier</item>
+    </plurals>
+    <plurals name="blocked_messages_count">
+        <item quantity="one">1 blokkert melding</item>
+        <item quantity="other">{count} Blokkerte meldinger</item>
+    </plurals>
+    <plurals name="channel_slowmode_cooldown_seconds">
+        <item quantity="one">1 sekund</item>
+        <item quantity="other">{seconds} sekunder</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_hours_hours">
+        <item quantity="one">{#} time</item>
+        <item quantity="other">{#} timer</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_minutes_minutes">
+        <item quantity="one">{#} minutt</item>
+        <item quantity="other">{#} minutter</item>
+    </plurals>
+    <plurals name="discovery_speaker_count_speakersCount">
+        <item quantity="one">+{count} taler</item>
+        <item quantity="other">+{count} talere</item>
+    </plurals>
+    <plurals name="dm_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} ulest melding</item>
+        <item quantity="other">, {#} uleste meldinger</item>
+    </plurals>
+    <plurals name="duration_days_capitalize_days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{days} dager</item>
+    </plurals>
+    <plurals name="duration_days_days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{days} dager</item>
+    </plurals>
+    <plurals name="duration_hours_capitalize_hours">
+        <item quantity="one">1 time</item>
+        <item quantity="other">{hours} timer</item>
+    </plurals>
+    <plurals name="duration_hours_hours">
+        <item quantity="one">1 time</item>
+        <item quantity="other">{hours} timer</item>
+    </plurals>
+    <plurals name="duration_mins_mins">
+        <item quantity="one">1 min</item>
+        <item quantity="other">{mins} min</item>
+    </plurals>
+    <plurals name="duration_minutes_capitalize_minutes">
+        <item quantity="one">1 minutt</item>
+        <item quantity="other">{minutes} minutter</item>
+    </plurals>
+    <plurals name="duration_minutes_minutes">
+        <item quantity="one">1 minutt</item>
+        <item quantity="other">{minutes} minutter</item>
+    </plurals>
+    <plurals name="duration_months_capitalize_months">
+        <item quantity="one">1 måned</item>
+        <item quantity="other">{months} måneder</item>
+    </plurals>
+    <plurals name="duration_seconds_capitalize_seconds">
+        <item quantity="one">1 sekund</item>
+        <item quantity="other">{seconds} sekunder</item>
+    </plurals>
+    <plurals name="duration_seconds_seconds">
+        <item quantity="one">1 sekund</item>
+        <item quantity="other">{seconds} sekunder</item>
+    </plurals>
+    <plurals name="duration_weeks_capitalize_weeks">
+        <item quantity="one">1 uke</item>
+        <item quantity="other">{weeks} uker</item>
+    </plurals>
+    <plurals name="duration_years_capitalize_years">
+        <item quantity="one">1 år</item>
+        <item quantity="other">{years} år</item>
+    </plurals>
+    <plurals name="emoji_slots_available_count">
+        <item quantity="one">{count} plass</item>
+        <item quantity="other">{count} plasser</item>
+    </plurals>
+    <plurals name="emojis_title_count">
+        <item quantity="one">{count} emoji</item>
+        <item quantity="other">{count} emojier</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{days} dager</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_members">
+        <item quantity="one">1 medlem</item>
+        <item quantity="other">{members} medlemmer</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_months_time">
+        <item quantity="one">{#} måned</item>
+        <item quantity="other">{#} måneder</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_years_time">
+        <item quantity="one">{#} år</item>
+        <item quantity="other">{#} år</item>
+    </plurals>
+    <plurals name="gift_inventory_copies_copies">
+        <item quantity="one">{#} kopi</item>
+        <item quantity="other">{#} kopier</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_months_intervalCount">
+        <item quantity="one">{#} måned</item>
+        <item quantity="other">{#} måneder</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_years_intervalCount">
+        <item quantity="one">{#} år</item>
+        <item quantity="other">{#} år</item>
+    </plurals>
+    <plurals name="group_dm_invite_remaining_number">
+        <item quantity="one">Du kan legge til 1 til venn.</item>
+        <item quantity="other">Du kan legge til {number} flere venner.</item>
+    </plurals>
+    <plurals name="group_dm_invite_unselect_users_number">
+        <item quantity="one">Du må fjerne merkingen på 1 venn.</item>
+        <item quantity="other">Du må fjerne merkingen på {number} venner.</item>
+    </plurals>
+    <plurals name="guild_event_interested_count_count">
+        <item quantity="one">{#} person er</item>
+        <item quantity="other">{#} personer er</item>
+    </plurals>
+    <plurals name="guild_events_plural_number">
+        <item quantity="one">{#} hendelse</item>
+        <item quantity="other">{#} hendelser</item>
+    </plurals>
+    <plurals name="guild_folder_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} ulest omtale</item>
+        <item quantity="other">, {#} uleste omtaler</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_denied_count">
+        <item quantity="one">en tillatelse</item>
+        <item quantity="other">tillatelser</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_granted_count">
+        <item quantity="one">en tillatelse</item>
+        <item quantity="other">tillatelser</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_reset_count">
+        <item quantity="one">en tillatelse</item>
+        <item quantity="other">tillatelser</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_rate_limit_per_user_change_newValue">
+        <item quantity="one">Angi saktemodus til **{#} sekund**</item>
+        <item quantity="other">Angi saktemodus til **{#} sekunder**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_disconnect_count">
+        <item quantity="one">**en bruker**</item>
+        <item quantity="other">**!!{count}!! brukere**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_move_count">
+        <item quantity="one">**en bruker**</item>
+        <item quantity="other">**!!{count}!! brukere**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_count">
+        <item quantity="one">**et medlem**</item>
+        <item quantity="other">**!!{count}!! medlemmer**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_delete_days_newValue">
+        <item quantity="one">en dag</item>
+        <item quantity="other">{newValue} dager</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_add_count">
+        <item quantity="one">en rolle</item>
+        <item quantity="other">noen roller</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_remove_count">
+        <item quantity="one">en rolle</item>
+        <item quantity="other">noen roller</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_bulk_delete_count">
+        <item quantity="one">**en melding**</item>
+        <item quantity="other">**!!{count}!! meldinger**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_delete_count">
+        <item quantity="one">**en melding**</item>
+        <item quantity="other">**!!{count}!! meldinger**</item>
+    </plurals>
+    <plurals name="guild_settings_overview_boost_unlock_boosts">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} boost</item>
+    </plurals>
+    <plurals name="guild_settings_premium_guild_tier_requirement_required">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} booster</item>
+    </plurals>
+    <plurals name="guild_settings_premium_upsell_body_perk_no_free_guild_subscriptions_numFreeGuildSubscriptions">
+        <item quantity="one">{#} Boost</item>
+        <item quantity="other">{#} Booster</item>
+    </plurals>
+    <plurals name="guild_sidebar_announcement_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} omtale</item>
+        <item quantity="other">{#} omtaler</item>
+    </plurals>
+    <plurals name="guild_sidebar_default_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} omtale</item>
+        <item quantity="other">{#} omtaler</item>
+    </plurals>
+    <plurals name="guild_sidebar_voice_channel_a11y_label_with_users_userCount">
+        <item quantity="one">1 bruker</item>
+        <item quantity="other">{#} brukere</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_guildSubscriptionQuantity">
+        <item quantity="one">{#} gang</item>
+        <item quantity="other">{#} ganger</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_no_application_guildSubscriptionQuantity">
+        <item quantity="one">{#} Server Boost</item>
+        <item quantity="other">{#} Server Booster</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_transferred_description_mobile2_guildSubscriptionQuantity">
+        <item quantity="one">{#} gang</item>
+        <item quantity="other">{#} ganger</item>
+    </plurals>
+    <plurals name="guild_template_usages_usageCount">
+        <item quantity="one">**1** person har brukt denne malen</item>
+        <item quantity="other">**{usageCount}** personer har brukt denne malen</item>
+    </plurals>
+    <plurals name="guild_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} omtale</item>
+        <item quantity="other">{#} omtaler</item>
+    </plurals>
+    <plurals name="hub_email_connection_invite_header_count">
+        <item quantity="one">{count} annen venn</item>
+        <item quantity="other">{count} andre venner</item>
+    </plurals>
+    <plurals name="humanize_duration_days_time">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{#} dager</item>
+    </plurals>
+    <plurals name="humanize_duration_hours_time">
+        <item quantity="one">1 time</item>
+        <item quantity="other">{#} timer</item>
+    </plurals>
+    <plurals name="humanize_duration_minutes_time">
+        <item quantity="one">1 minutt</item>
+        <item quantity="other">{#} minutter</item>
+    </plurals>
+    <plurals name="humanize_duration_seconds_time">
+        <item quantity="one">1 sekund</item>
+        <item quantity="other">{#} sekunder</item>
+    </plurals>
+    <plurals name="instant_invite_guild_members_total_count">
+        <item quantity="one">1 medlem</item>
+        <item quantity="other">{count} medlemmer</item>
+    </plurals>
+    <plurals name="last_seen_days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{days} dager</item>
+    </plurals>
+    <plurals name="max_uses_description_mobile_maxUses">
+        <item quantity="one">1 benyttelse</item>
+        <item quantity="other">{maxUses} benyttelser</item>
+    </plurals>
+    <plurals name="members_header_members">
+        <item quantity="one">1 Medlem</item>
+        <item quantity="other">{members} Medlemmer</item>
+    </plurals>
+    <plurals name="n_days_days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">{days} dager</item>
+    </plurals>
+    <plurals name="new_messages_count">
+        <item quantity="one">1 ny melding</item>
+        <item quantity="other">{count} nye meldinger</item>
+    </plurals>
+    <plurals name="num_members_subscribers">
+        <item quantity="one">**1** medlem</item>
+        <item quantity="other">**{subscribers}** medlemmer</item>
+    </plurals>
+    <plurals name="num_subscribers_subscribers">
+        <item quantity="one">**1** abonnent</item>
+        <item quantity="other">**{subscribers}** abonnenter</item>
+    </plurals>
+    <plurals name="num_users_num">
+        <item quantity="one">1 bruker</item>
+        <item quantity="other">{num} brukere</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_count">
+        <item quantity="one">denne</item>
+        <item quantity="other">disse</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_countMessages">
+        <item quantity="one">meldingen</item>
+        <item quantity="other">meldingene</item>
+    </plurals>
+    <plurals name="partial_outage_count">
+        <item quantity="one">**1** annen server er utilgjengelig grunnet midlertidig driftsstans.</item>
+        <item quantity="other">**{count}** andre servere er utilgjengelige grunnet midlertidig driftsstans.</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_header_subscription_count_subscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} booster</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_protip_mobile_numFreeGuildSubscriptions">
+        <item quantity="one">{#} Boost</item>
+        <item quantity="other">{#} Booster</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_confirmation_slotCount">
+        <item quantity="one">Boost</item>
+        <item quantity="other">Boost {#} ganger</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_days">
+        <item quantity="one">{#} dag</item>
+        <item quantity="other">{#} dager</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_slotCount">
+        <item quantity="one">denne boosten</item>
+        <item quantity="other">disse boostene</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_guildCount">
+        <item quantity="one">Den gjeldende serveren</item>
+        <item quantity="other">De gjeldende serverne</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_slotCount">
+        <item quantity="one">denne Server Boosten</item>
+        <item quantity="other">disse Server Boostene</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_from_guild_guildCount">
+        <item quantity="one">server</item>
+        <item quantity="other">servere</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_to_guild_slotCount">
+        <item quantity="one">boost</item>
+        <item quantity="other">booster</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_transfer_confirm_confirmation_slotCount">
+        <item quantity="one">boost</item>
+        <item quantity="other">booster</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_available_numSubscriptions">
+        <item quantity="one">{#} boost</item>
+        <item quantity="other">{#} booster</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_guild_subsription_subtitle_numSubscriptions">
+        <item quantity="one">{#} gang</item>
+        <item quantity="other">{#} ganger</item>
+    </plurals>
+    <plurals name="premium_guild_subscriptions_renewal_info_quantity">
+        <item quantity="one">Server Boost</item>
+        <item quantity="other">Server Booster</item>
+    </plurals>
+    <plurals name="premium_subscription_credit_count_months_count">
+        <item quantity="one">{#} Måned</item>
+        <item quantity="other">{#} Måneder</item>
+    </plurals>
+    <plurals name="premium_upsell_feature_free_guild_subscription_numFreeGuildSubscriptions">
+        <item quantity="one">{#} Server Boost</item>
+        <item quantity="other">{#} Server Booster</item>
+    </plurals>
+    <plurals name="stage_audience_waiting_many_numOthers">
+        <item quantity="one">{#} annen</item>
+        <item quantity="other">{#} andre</item>
+    </plurals>
+    <plurals name="stage_blocked_users_body_number">
+        <item quantity="one">{#} konto du har blokkert</item>
+        <item quantity="other">{#} kontoer du har blokkert</item>
+    </plurals>
+    <plurals name="stage_blocked_users_title_plural_number">
+        <item quantity="one">blokkert konto</item>
+        <item quantity="other">blokkerte kontoer</item>
+    </plurals>
+    <plurals name="stage_is_speaking_hook_count">
+        <item quantity="one">og én annen](usernameHook) snakker …</item>
+        <item quantity="other">og {count} andre](usernameHook) snakker …</item>
+    </plurals>
+    <plurals name="stage_speak_invite_blocked_users_number">
+        <item quantity="one">{#} blokkert bruker</item>
+        <item quantity="other">{#} blokkerte brukere</item>
+    </plurals>
+    <plurals name="sticker_pack_sticker_count_numStickers">
+        <item quantity="one">{#} klistremerke</item>
+        <item quantity="other">{#} klistremerker</item>
+    </plurals>
+    <plurals name="total_results_count">
+        <item quantity="one">{count} resultat</item>
+        <item quantity="other">{count} resultater</item>
+    </plurals>
+    <plurals name="uploading_files_count">
+        <item quantity="one">Laster opp en fil</item>
+        <item quantity="other">Laster opp {count} filer</item>
+    </plurals>
+    <plurals name="uploading_files_failed_count">
+        <item quantity="one">1 filopplasting mislyktes</item>
+        <item quantity="other">{count} filopplastinger mislyktes</item>
+    </plurals>
+    <plurals name="user_profile_mutual_friends_count">
+        <item quantity="one">1 felles venn</item>
+        <item quantity="other">{count} felles venner</item>
+    </plurals>
+    <plurals name="user_profile_mutual_guilds_count">
+        <item quantity="one">1 felles server</item>
+        <item quantity="other">{count} felles servere</item>
+    </plurals>
+    <plurals name="user_summary_with_others_count">
+        <item quantity="one">1 annen</item>
+        <item quantity="other">{count} andre</item>
+    </plurals>
+    <plurals name="vanity_url_header_uses_uses">
+        <item quantity="one">1 bruk</item>
+        <item quantity="other">{uses} bruk</item>
+    </plurals>
+</resources>

@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="age_gate_underage_existing_body_deletion_with_days_days">
+        <item quantity="one">1 วัน</item>
+        <item quantity="other">{days} วัน</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_monthly_mobile_intervalCount">
+        <item quantity="one">{#} เดือน</item>
+        <item quantity="other">{#} เดือน</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_yearly_mobile_intervalCount">
+        <item quantity="one">{#} ปี</item>
+        <item quantity="other">{#} ปี</item>
+    </plurals>
+    <plurals name="autocomplete_emoji_upsell_count">
+        <item quantity="one">{#} อีโมจิที่ตรงกันมากขึ้น</item>
+        <item quantity="other">{#} อีโมจิที่ตรงกันมากขึ้น</item>
+    </plurals>
+    <plurals name="blocked_messages_count">
+        <item quantity="one">1 ข้อความถูกบล็อก</item>
+        <item quantity="other">{count} ข้อความถูกบล็อก</item>
+    </plurals>
+    <plurals name="channel_slowmode_cooldown_seconds">
+        <item quantity="one">1 วินาที</item>
+        <item quantity="other">{seconds} วินาที</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_hours_hours">
+        <item quantity="one">{#} ชั่วโมง</item>
+        <item quantity="other">{#} ชั่วโมง</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_minutes_minutes">
+        <item quantity="one">{#} นาที</item>
+        <item quantity="other">{#} นาที</item>
+    </plurals>
+    <plurals name="discovery_speaker_count_speakersCount">
+        <item quantity="one">+{count} ผู้พูด</item>
+        <item quantity="other">+{count} ผู้พูดหลายคน</item>
+    </plurals>
+    <plurals name="dm_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} ข้อความที่ยังไม่ได้อ่าน</item>
+        <item quantity="other">, {#} ข้อความที่ยังไม่ได้อ่าน</item>
+    </plurals>
+    <plurals name="duration_days_capitalize_days">
+        <item quantity="one">1 วัน</item>
+        <item quantity="other">{days} วัน</item>
+    </plurals>
+    <plurals name="duration_days_days">
+        <item quantity="one">1 วัน</item>
+        <item quantity="other">{days} วัน</item>
+    </plurals>
+    <plurals name="duration_hours_capitalize_hours">
+        <item quantity="one">1 ชั่วโมง</item>
+        <item quantity="other">{hours} ชั่วโมง</item>
+    </plurals>
+    <plurals name="duration_hours_hours">
+        <item quantity="one">1 ชั่วโมง</item>
+        <item quantity="other">{hours} ชั่วโมง</item>
+    </plurals>
+    <plurals name="duration_mins_mins">
+        <item quantity="one">1 นาที</item>
+        <item quantity="other">{mins} นาที</item>
+    </plurals>
+    <plurals name="duration_minutes_capitalize_minutes">
+        <item quantity="one">1 นาที</item>
+        <item quantity="other">{minutes} นาที</item>
+    </plurals>
+    <plurals name="duration_minutes_minutes">
+        <item quantity="one">1 นาที</item>
+        <item quantity="other">{minutes} นาที</item>
+    </plurals>
+    <plurals name="duration_months_capitalize_months">
+        <item quantity="one">1 เดือน</item>
+        <item quantity="other">{months} เดือน</item>
+    </plurals>
+    <plurals name="duration_seconds_capitalize_seconds">
+        <item quantity="one">1 วินาที</item>
+        <item quantity="other">{seconds} วินาที</item>
+    </plurals>
+    <plurals name="duration_seconds_seconds">
+        <item quantity="one">1 วินาที</item>
+        <item quantity="other">{seconds} วินาที</item>
+    </plurals>
+    <plurals name="duration_weeks_capitalize_weeks">
+        <item quantity="one">1 สัปดาห์</item>
+        <item quantity="other">{weeks} สัปดาห์</item>
+    </plurals>
+    <plurals name="duration_years_capitalize_years">
+        <item quantity="one">1 ปี</item>
+        <item quantity="other">{years} ปี</item>
+    </plurals>
+    <plurals name="emoji_slots_available_count">
+        <item quantity="one">{count} slot</item>
+        <item quantity="other">{count} slots</item>
+    </plurals>
+    <plurals name="emojis_title_count">
+        <item quantity="one">{count} อีโมจิ</item>
+        <item quantity="other">{count} อีโมจิ</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_days">
+        <item quantity="one">1 วัน</item>
+        <item quantity="other">{days} วัน</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_members">
+        <item quantity="one">1 ราย</item>
+        <item quantity="other">{members} ราย</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_months_time">
+        <item quantity="one">{#} เดือน</item>
+        <item quantity="other">{#} เดือน</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_years_time">
+        <item quantity="one">{#} ปี</item>
+        <item quantity="other">{#} ปี</item>
+    </plurals>
+    <plurals name="gift_inventory_copies_copies">
+        <item quantity="one">{#} =ชิ้น</item>
+        <item quantity="other">{#} ชิ้น</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_months_intervalCount">
+        <item quantity="one">{#} เดือน</item>
+        <item quantity="other">{#} เดือน</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_years_intervalCount">
+        <item quantity="one">{#} ปี</item>
+        <item quantity="other">{#} ปี</item>
+    </plurals>
+    <plurals name="group_dm_invite_remaining_number">
+        <item quantity="one">คุณสามารถเพิ่มเพื่อนได้อีก 1 คน</item>
+        <item quantity="other">คุณสามารถเพิ่มเพื่อนได้อีก {number} คน</item>
+    </plurals>
+    <plurals name="group_dm_invite_unselect_users_number">
+        <item quantity="one">คุณต้องเลือกเพื่อนออก 1 คน</item>
+        <item quantity="other">คุณต้องเลือกเพื่อนออก {number} คน</item>
+    </plurals>
+    <plurals name="guild_event_interested_count_count">
+        <item quantity="one">{#} คน</item>
+        <item quantity="other">{#} คน</item>
+    </plurals>
+    <plurals name="guild_events_plural_number">
+        <item quantity="one">{#} กิจกรรม</item>
+        <item quantity="other">{#} กิจกรรม</item>
+    </plurals>
+    <plurals name="guild_folder_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} การกล่าวถึงที่ยังไม่ได้อ่าน</item>
+        <item quantity="other">, {#} การกล่าวถึงที่ยังไม่ได้อ่าน</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_denied_count">
+        <item quantity="one">สิทธิ์นี้</item>
+        <item quantity="other">สิทธิ์เหล่านี้</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_granted_count">
+        <item quantity="one">สิทธิ์</item>
+        <item quantity="other">สิทธิ์</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_reset_count">
+        <item quantity="one">สิทธิ์</item>
+        <item quantity="other">สิทธิ์</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_rate_limit_per_user_change_newValue">
+        <item quantity="one">ตั้งโหมดช้าเป็น **{#} วินาที**</item>
+        <item quantity="other">ตั้งโหมดช้าเป็น **{#} วินาที**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_disconnect_count">
+        <item quantity="one">**สมาชิก**</item>
+        <item quantity="other">**!!{count}!! สมาชิก**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_move_count">
+        <item quantity="one">**สมาชิก**</item>
+        <item quantity="other">**!!{count}!! สมาชิก**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_count">
+        <item quantity="one">**สมาชิก**</item>
+        <item quantity="other">**!!{count}!! สมาชิก**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_delete_days_newValue">
+        <item quantity="one">หนึ่งวัน</item>
+        <item quantity="other">{newValue} วัน</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_add_count">
+        <item quantity="one">บทบาท</item>
+        <item quantity="other">บางบทบาท</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_remove_count">
+        <item quantity="one">บทบาท</item>
+        <item quantity="other">บางบทบาท</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_bulk_delete_count">
+        <item quantity="one">**ข้อความ**</item>
+        <item quantity="other">**!!{count}!! ข้อความ**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_delete_count">
+        <item quantity="one">**ข้อความ**</item>
+        <item quantity="other">**!!{count}!! ข้อความ**</item>
+    </plurals>
+    <plurals name="guild_settings_overview_boost_unlock_boosts">
+        <item quantity="one">{#} บูสต์</item>
+        <item quantity="other">{#} บูสต์</item>
+    </plurals>
+    <plurals name="guild_settings_premium_guild_tier_requirement_required">
+        <item quantity="one">{#} บูสต์</item>
+        <item quantity="other">{#} บูสต์</item>
+    </plurals>
+    <plurals name="guild_settings_premium_upsell_body_perk_no_free_guild_subscriptions_numFreeGuildSubscriptions">
+        <item quantity="one">{#} บูสต์</item>
+        <item quantity="other">{#} บูสต์</item>
+    </plurals>
+    <plurals name="guild_sidebar_announcement_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} การกล่าวถึง</item>
+        <item quantity="other">{#} การกล่าวถึง</item>
+    </plurals>
+    <plurals name="guild_sidebar_default_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} การกล่าวถึง</item>
+        <item quantity="other">{#} การกล่าวถึง</item>
+    </plurals>
+    <plurals name="guild_sidebar_voice_channel_a11y_label_with_users_userCount">
+        <item quantity="one">1 คน</item>
+        <item quantity="other">{#} คน</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_guildSubscriptionQuantity">
+        <item quantity="one">{#} ครั้ง</item>
+        <item quantity="other">{#} ครั้ง</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_no_application_guildSubscriptionQuantity">
+        <item quantity="one">{#} การบูสต์เซิร์ฟเวอร์</item>
+        <item quantity="other">{#} การบูสต์เซิร์ฟเวอร์</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_transferred_description_mobile2_guildSubscriptionQuantity">
+        <item quantity="one">{#} ครั้ง</item>
+        <item quantity="other">{#} ครั้ง</item>
+    </plurals>
+    <plurals name="guild_template_usages_usageCount">
+        <item quantity="one">**1** คนใช้เทมเพลตนี้</item>
+        <item quantity="other">**{usageCount}** คนใช้เทมเพลตนี้</item>
+    </plurals>
+    <plurals name="guild_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} การกล่าวถึง</item>
+        <item quantity="other">{#} การกล่าวถึง</item>
+    </plurals>
+    <plurals name="hub_email_connection_invite_header_count">
+        <item quantity="one">{count} other คน</item>
+        <item quantity="other">{count} other คน</item>
+    </plurals>
+    <plurals name="humanize_duration_days_time">
+        <item quantity="one">1 วัน</item>
+        <item quantity="other">{#} วัน</item>
+    </plurals>
+    <plurals name="humanize_duration_hours_time">
+        <item quantity="one">1 ชั่วโมง</item>
+        <item quantity="other">{#} ชั่วโมง</item>
+    </plurals>
+    <plurals name="humanize_duration_minutes_time">
+        <item quantity="one">1 นาที</item>
+        <item quantity="other">{#} นาที</item>
+    </plurals>
+    <plurals name="humanize_duration_seconds_time">
+        <item quantity="one">1 วินาที</item>
+        <item quantity="other">{#} วินาที</item>
+    </plurals>
+    <plurals name="instant_invite_guild_members_total_count">
+        <item quantity="one">1 คน</item>
+        <item quantity="other">{count} คน</item>
+    </plurals>
+    <plurals name="last_seen_days">
+        <item quantity="one">1 day</item>
+        <item quantity="other">{days} days</item>
+    </plurals>
+    <plurals name="max_uses_description_mobile_maxUses">
+        <item quantity="one">1 ครั้ง</item>
+        <item quantity="other">{maxUses} ครั้ง</item>
+    </plurals>
+    <plurals name="members_header_members">
+        <item quantity="one">สมาชิก 1 คน</item>
+        <item quantity="other">สมาชิก {members} คน</item>
+    </plurals>
+    <plurals name="n_days_days">
+        <item quantity="one">1 วัน</item>
+        <item quantity="other">{days} วัน</item>
+    </plurals>
+    <plurals name="new_messages_count">
+        <item quantity="one">1 ข้อความใหม่</item>
+        <item quantity="other">{count} ข้อความใหม่</item>
+    </plurals>
+    <plurals name="num_members_subscribers">
+        <item quantity="one">**1** ราย</item>
+        <item quantity="other">**{subscribers}** ราย</item>
+    </plurals>
+    <plurals name="num_subscribers_subscribers">
+        <item quantity="one">**1** สมาชิก</item>
+        <item quantity="other">**{subscribers}** สมาชิก</item>
+    </plurals>
+    <plurals name="num_users_num">
+        <item quantity="one">ผู้ใช้ 1 คน</item>
+        <item quantity="other">ผู้ใช้ {num} คน</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_count">
+        <item quantity="one">นี้</item>
+        <item quantity="other">เหล่านี้</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_countMessages">
+        <item quantity="one">ข้อความ</item>
+        <item quantity="other">ข้อความ</item>
+    </plurals>
+    <plurals name="partial_outage_count">
+        <item quantity="one">**1** เซิร์ฟเวอร์อื่นไม่พร้อมใช้งานเนื่องจากเซิร์ฟเวอร์ขัดข้องชั่วคราว</item>
+        <item quantity="other">**{count}** เซิร์ฟเวอร์อื่นไม่พร้อมใช้งานเนื่องจากเซิร์ฟเวอร์ขัดข้องชั่วคราว</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_header_subscription_count_subscriptions">
+        <item quantity="one">{#} บูสต์</item>
+        <item quantity="other">{#} บูสต์</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_protip_mobile_numFreeGuildSubscriptions">
+        <item quantity="one">{#} บูสต์</item>
+        <item quantity="other">{#} บูสต์</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_confirmation_slotCount">
+        <item quantity="one">บูสต์</item>
+        <item quantity="other">บูสต์ {#} ครั้ง</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_days">
+        <item quantity="one">{#} วัน</item>
+        <item quantity="other">{#} วัน</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_slotCount">
+        <item quantity="one">บูสต์นี้</item>
+        <item quantity="other">บูสต์เหล่านี้</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_guildCount">
+        <item quantity="one">เซิร์ฟเวอร์ปัจจุบัน</item>
+        <item quantity="other">เซิร์ฟเวอร์ปัจจุบัน</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_slotCount">
+        <item quantity="one">บูสต์เซิร์ฟเวอร์นี้</item>
+        <item quantity="other">บูสต์เซิร์ฟเวอร์เหล่านี้</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_from_guild_guildCount">
+        <item quantity="one">เซิร์ฟเวอร์</item>
+        <item quantity="other">เซิร์ฟเวอร์</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_to_guild_slotCount">
+        <item quantity="one">บูสต์</item>
+        <item quantity="other">บูสต์</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_transfer_confirm_confirmation_slotCount">
+        <item quantity="one">บูสต์</item>
+        <item quantity="other">บูสต์</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_available_numSubscriptions">
+        <item quantity="one">{#} บูสต์</item>
+        <item quantity="other">{#} บูสต์</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_guild_subsription_subtitle_numSubscriptions">
+        <item quantity="one">{#} ครั้ง</item>
+        <item quantity="other">{#} ครั้ง</item>
+    </plurals>
+    <plurals name="premium_guild_subscriptions_renewal_info_quantity">
+        <item quantity="one">บูสต์เซิร์ฟเวอร์</item>
+        <item quantity="other">บูสต์เซิร์ฟเวอร์</item>
+    </plurals>
+    <plurals name="premium_subscription_credit_count_months_count">
+        <item quantity="one">{#} เดือน</item>
+        <item quantity="other">{#} เดือน</item>
+    </plurals>
+    <plurals name="premium_upsell_feature_free_guild_subscription_numFreeGuildSubscriptions">
+        <item quantity="one">{#} การบูสต์เซิร์ฟเวอร์</item>
+        <item quantity="other">{#} การบูสต์เซิร์ฟเวอร์</item>
+    </plurals>
+    <plurals name="stage_audience_waiting_many_numOthers">
+        <item quantity="one">{#} คน</item>
+        <item quantity="other">{#} คน</item>
+    </plurals>
+    <plurals name="stage_blocked_users_body_number">
+        <item quantity="one">{#} บัญชีที่คุณบล็อก</item>
+        <item quantity="other">บัญชีผู้ใช้ที่คุณบล็อกจำนวน</item>
+    </plurals>
+    <plurals name="stage_blocked_users_title_plural_number">
+        <item quantity="one">บัญชี</item>
+        <item quantity="other">ผู้ใช้</item>
+    </plurals>
+    <plurals name="stage_is_speaking_hook_count">
+        <item quantity="one">และอีก 1 คน](usernameHook)กำลังพูด…</item>
+        <item quantity="other">และอีก {count} คน](usernameHook)กำลังพูด…</item>
+    </plurals>
+    <plurals name="stage_speak_invite_blocked_users_number">
+        <item quantity="one">{#} ราย มีผู้ใช้ที่ถูกบล็อก</item>
+        <item quantity="other">{#} ราย</item>
+    </plurals>
+    <plurals name="sticker_pack_sticker_count_numStickers">
+        <item quantity="one">{#} สติกเกอร์</item>
+        <item quantity="other">{#} สติกเกอร์</item>
+    </plurals>
+    <plurals name="total_results_count">
+        <item quantity="one">{count} Result</item>
+        <item quantity="other">{count} รายการ</item>
+    </plurals>
+    <plurals name="uploading_files_count">
+        <item quantity="one">กำลังอัปโหลด 1 ไฟล์</item>
+        <item quantity="other">กำลังอัปโหลด {count} ไฟล์</item>
+    </plurals>
+    <plurals name="uploading_files_failed_count">
+        <item quantity="one">การอัปโหลดไฟล์ล้มเหลวจำนวน 1 ไฟล์</item>
+        <item quantity="other">{count} การอัปโหลดไฟล์ล้มเหลว</item>
+    </plurals>
+    <plurals name="user_profile_mutual_friends_count">
+        <item quantity="one">1 เพื่อนร่วมกัน</item>
+        <item quantity="other">{count} เพื่อนร่วมกัน</item>
+    </plurals>
+    <plurals name="user_profile_mutual_guilds_count">
+        <item quantity="one">1 เซิร์ฟเวอร์ร่วมกัน</item>
+        <item quantity="other">{count} เซิร์ฟเวอร์ร่วมกัน</item>
+    </plurals>
+    <plurals name="user_summary_with_others_count">
+        <item quantity="one">1 คน</item>
+        <item quantity="other">{count} คน</item>
+    </plurals>
+    <plurals name="vanity_url_header_uses_uses">
+        <item quantity="one">1 ครั้ง</item>
+        <item quantity="other">{uses} ครั้ง</item>
+    </plurals>
+</resources>

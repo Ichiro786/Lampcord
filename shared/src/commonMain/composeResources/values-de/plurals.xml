@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="age_gate_underage_existing_body_deletion_with_days_days">
+        <item quantity="one">1 Tag</item>
+        <item quantity="other">{days} Tage</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_monthly_mobile_intervalCount">
+        <item quantity="one">{#} Monat</item>
+        <item quantity="other">{#} Monate</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_yearly_mobile_intervalCount">
+        <item quantity="one">{#} Jahr</item>
+        <item quantity="other">{#} Jahre</item>
+    </plurals>
+    <plurals name="autocomplete_emoji_upsell_count">
+        <item quantity="one">{#} weiteres passenderes Emoji</item>
+        <item quantity="other">{#} weitere passende Emojis</item>
+    </plurals>
+    <plurals name="blocked_messages_count">
+        <item quantity="one">1 blockierte Nachricht</item>
+        <item quantity="other">{count} blockierte Nachrichten</item>
+    </plurals>
+    <plurals name="channel_slowmode_cooldown_seconds">
+        <item quantity="one">1 Sekunde</item>
+        <item quantity="other">{seconds} Sekunden</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_hours_hours">
+        <item quantity="one">{#} Stunde</item>
+        <item quantity="other">{#} Stunden</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_minutes_minutes">
+        <item quantity="one">{#} Minute</item>
+        <item quantity="other">{#} Minuten</item>
+    </plurals>
+    <plurals name="discovery_speaker_count_speakersCount">
+        <item quantity="one">+{count} Sprecher</item>
+        <item quantity="other">+{count} Sprecher</item>
+    </plurals>
+    <plurals name="dm_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} ungelesene Nachricht</item>
+        <item quantity="other">, {#} ungelesene Nachrichten</item>
+    </plurals>
+    <plurals name="duration_days_capitalize_days">
+        <item quantity="one">1 Tag</item>
+        <item quantity="other">{days} Tage</item>
+    </plurals>
+    <plurals name="duration_days_days">
+        <item quantity="one">1 Tag</item>
+        <item quantity="other">{days} Tage</item>
+    </plurals>
+    <plurals name="duration_hours_capitalize_hours">
+        <item quantity="one">1 Stunde</item>
+        <item quantity="other">{hours} Stunden</item>
+    </plurals>
+    <plurals name="duration_hours_hours">
+        <item quantity="one">1 Stunde</item>
+        <item quantity="other">{hours} Stunden</item>
+    </plurals>
+    <plurals name="duration_mins_mins">
+        <item quantity="one">1 min</item>
+        <item quantity="other">{mins} min</item>
+    </plurals>
+    <plurals name="duration_minutes_capitalize_minutes">
+        <item quantity="one">1 Minute</item>
+        <item quantity="other">{minutes} Minuten</item>
+    </plurals>
+    <plurals name="duration_minutes_minutes">
+        <item quantity="one">1 Minute</item>
+        <item quantity="other">{minutes} Minuten</item>
+    </plurals>
+    <plurals name="duration_months_capitalize_months">
+        <item quantity="one">1 Monat</item>
+        <item quantity="other">{months} Monate</item>
+    </plurals>
+    <plurals name="duration_seconds_capitalize_seconds">
+        <item quantity="one">1 Sekunde</item>
+        <item quantity="other">{seconds} Sekunden</item>
+    </plurals>
+    <plurals name="duration_seconds_seconds">
+        <item quantity="one">1 Sekunde</item>
+        <item quantity="other">{seconds} Sekunden</item>
+    </plurals>
+    <plurals name="duration_weeks_capitalize_weeks">
+        <item quantity="one">1 Woche</item>
+        <item quantity="other">{weeks} Wochen</item>
+    </plurals>
+    <plurals name="duration_years_capitalize_years">
+        <item quantity="one">1 Jahr</item>
+        <item quantity="other">{years} Jahre</item>
+    </plurals>
+    <plurals name="emoji_slots_available_count">
+        <item quantity="one">{count} Platz</item>
+        <item quantity="other">{count} Plätze</item>
+    </plurals>
+    <plurals name="emojis_title_count">
+        <item quantity="one">{count} Emoji</item>
+        <item quantity="other">{count} Emojis</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_days">
+        <item quantity="one">seit gestern</item>
+        <item quantity="other">seit {days} Tagen</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_members">
+        <item quantity="one">1 Mitglied</item>
+        <item quantity="other">{members} Mitglieder</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_months_time">
+        <item quantity="one">{#} Monat</item>
+        <item quantity="other">{#} Monate</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_years_time">
+        <item quantity="one">{#} Jahr</item>
+        <item quantity="other">{#} Jahre</item>
+    </plurals>
+    <plurals name="gift_inventory_copies_copies">
+        <item quantity="one">{#} Exemplar</item>
+        <item quantity="other">{#} Exemplare</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_months_intervalCount">
+        <item quantity="one">{#} Monat</item>
+        <item quantity="other">{#} Monate</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_years_intervalCount">
+        <item quantity="one">{#} Jahr</item>
+        <item quantity="other">{#} Jahre</item>
+    </plurals>
+    <plurals name="group_dm_invite_remaining_number">
+        <item quantity="one">Du kannst einen weiteren Freund hinzufügen.</item>
+        <item quantity="other">Du kannst {number} weitere Freunde hinzufügen.</item>
+    </plurals>
+    <plurals name="group_dm_invite_unselect_users_number">
+        <item quantity="one">Du musst einen Freund aus der Auswahl entfernen.</item>
+        <item quantity="other">Du musst {number} Freunde aus der Auswahl entfernen.</item>
+    </plurals>
+    <plurals name="guild_event_interested_count_count">
+        <item quantity="one">{#} Person ist</item>
+        <item quantity="other">{#} Personen sind</item>
+    </plurals>
+    <plurals name="guild_events_plural_number">
+        <item quantity="one">{#} Event</item>
+        <item quantity="other">{#} Events</item>
+    </plurals>
+    <plurals name="guild_folder_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} ungelesene Erwähnung</item>
+        <item quantity="other">, {#} ungelesene Erwähnungen</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_denied_count">
+        <item quantity="one">eine Berechtigung</item>
+        <item quantity="other">mehrere Berechtigungen</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_granted_count">
+        <item quantity="one">eine Berechtigung</item>
+        <item quantity="other">mehrere Berechtigungen</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_reset_count">
+        <item quantity="one">Eine Berechtigung</item>
+        <item quantity="other">Berechtigungen</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_rate_limit_per_user_change_newValue">
+        <item quantity="one">Slow-Modus auf **{#} Sekunde eingestellt**</item>
+        <item quantity="other">Slow-Modus auf **{#} Sekunden eingestellt**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_disconnect_count">
+        <item quantity="one">**einen Benutzer**</item>
+        <item quantity="other">**!!{count}!! Benutzer**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_move_count">
+        <item quantity="one">**einen Benutzer**</item>
+        <item quantity="other">**!!{count}!! Benutzer**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_count">
+        <item quantity="one">**ein inaktives Mitglied**</item>
+        <item quantity="other">**!!{count}!! inaktive Mitglieder**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_delete_days_newValue">
+        <item quantity="one">einen Tag</item>
+        <item quantity="other">{newValue} Tage</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_add_count">
+        <item quantity="one">Eine Rolle</item>
+        <item quantity="other">Mehrere Rollen</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_remove_count">
+        <item quantity="one">Eine Rolle</item>
+        <item quantity="other">Mehrere Rollen</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_bulk_delete_count">
+        <item quantity="one">**eine Nachricht**</item>
+        <item quantity="other">**!!{count}!! Nachrichten**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_delete_count">
+        <item quantity="one">**eine Nachricht**</item>
+        <item quantity="other">**!!{count}!! Nachrichten**</item>
+    </plurals>
+    <plurals name="guild_settings_overview_boost_unlock_boosts">
+        <item quantity="one">{#} Boost</item>
+        <item quantity="other">{#} Boosts</item>
+    </plurals>
+    <plurals name="guild_settings_premium_guild_tier_requirement_required">
+        <item quantity="one">{#} Boost</item>
+        <item quantity="other">{#} Boosts</item>
+    </plurals>
+    <plurals name="guild_settings_premium_upsell_body_perk_no_free_guild_subscriptions_numFreeGuildSubscriptions">
+        <item quantity="one">{#} Boost</item>
+        <item quantity="other">{#} Boosts</item>
+    </plurals>
+    <plurals name="guild_sidebar_announcement_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} Erwähnung</item>
+        <item quantity="other">{#} Erwähnungen</item>
+    </plurals>
+    <plurals name="guild_sidebar_default_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} Erwähnung</item>
+        <item quantity="other">{#} Erwähnungen</item>
+    </plurals>
+    <plurals name="guild_sidebar_voice_channel_a11y_label_with_users_userCount">
+        <item quantity="one">1 Benutzer</item>
+        <item quantity="other">{#} Benutzer</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_guildSubscriptionQuantity">
+        <item quantity="one">{#}-mal</item>
+        <item quantity="other">{#}-mal</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_no_application_guildSubscriptionQuantity">
+        <item quantity="one">{#} Server-Boost</item>
+        <item quantity="other">{#} Server-Boosts</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_transferred_description_mobile2_guildSubscriptionQuantity">
+        <item quantity="one">{#}-mal</item>
+        <item quantity="other">{#}-mal</item>
+    </plurals>
+    <plurals name="guild_template_usages_usageCount">
+        <item quantity="one">**Eine** Person hat diese Vorlage verwendet</item>
+        <item quantity="other">**{usageCount}** Leute haben diese Vorlage verwendet</item>
+    </plurals>
+    <plurals name="guild_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} Erwähnung</item>
+        <item quantity="other">{#} Erwähnungen</item>
+    </plurals>
+    <plurals name="hub_email_connection_invite_header_count">
+        <item quantity="one">{count} other Freund ist</item>
+        <item quantity="other">{count} other Freunde sind</item>
+    </plurals>
+    <plurals name="humanize_duration_days_time">
+        <item quantity="one">1 Tag</item>
+        <item quantity="other">{#} Tage</item>
+    </plurals>
+    <plurals name="humanize_duration_hours_time">
+        <item quantity="one">1 Stunde</item>
+        <item quantity="other">{#} Stunden</item>
+    </plurals>
+    <plurals name="humanize_duration_minutes_time">
+        <item quantity="one">1 Minute</item>
+        <item quantity="other">{#} Minuten</item>
+    </plurals>
+    <plurals name="humanize_duration_seconds_time">
+        <item quantity="one">1 Sekunde</item>
+        <item quantity="other">{#} Sekunden</item>
+    </plurals>
+    <plurals name="instant_invite_guild_members_total_count">
+        <item quantity="one">1 Mitglied</item>
+        <item quantity="other">{count} Mitglieder</item>
+    </plurals>
+    <plurals name="last_seen_days">
+        <item quantity="one">einem Tag</item>
+        <item quantity="other">{days} Tagen</item>
+    </plurals>
+    <plurals name="max_uses_description_mobile_maxUses">
+        <item quantity="one">Eine Verwendung</item>
+        <item quantity="other">{maxUses} Verwendungen</item>
+    </plurals>
+    <plurals name="members_header_members">
+        <item quantity="one">1 Mitglied</item>
+        <item quantity="other">{members} Mitglieder</item>
+    </plurals>
+    <plurals name="n_days_days">
+        <item quantity="one">1 Tag</item>
+        <item quantity="other">{days} Tage</item>
+    </plurals>
+    <plurals name="new_messages_count">
+        <item quantity="one">1 neue Nachricht</item>
+        <item quantity="other">{count} neue Nachrichten</item>
+    </plurals>
+    <plurals name="num_members_subscribers">
+        <item quantity="one">**1** Mitglied</item>
+        <item quantity="other">**{subscribers}** Mitglieder</item>
+    </plurals>
+    <plurals name="num_subscribers_subscribers">
+        <item quantity="one">**1** Abonnent</item>
+        <item quantity="other">**{subscribers}** Abonnenten</item>
+    </plurals>
+    <plurals name="num_users_num">
+        <item quantity="one">1 Benutzer</item>
+        <item quantity="other">{num} Benutzer</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_count">
+        <item quantity="one">Diese Nachricht</item>
+        <item quantity="other">Diese Nachrichten</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_countMessages">
+        <item quantity="one">Nachricht</item>
+        <item quantity="other">Nachrichten</item>
+    </plurals>
+    <plurals name="partial_outage_count">
+        <item quantity="one">**1** anderer Server ist aufgrund einer vorübergehenden Störung nicht verfügbar.</item>
+        <item quantity="other">**{count}** andere Server sind aufgrund einer vorübergehenden Störung nicht verfügbar.</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_header_subscription_count_subscriptions">
+        <item quantity="one">{#} Boost</item>
+        <item quantity="other">{#} Boosts</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_protip_mobile_numFreeGuildSubscriptions">
+        <item quantity="one">{#} Boost</item>
+        <item quantity="other">{#} Boosts</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_confirmation_slotCount">
+        <item quantity="one">Boost</item>
+        <item quantity="other">{#} Boosts</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_days">
+        <item quantity="one">{#} Tag</item>
+        <item quantity="other">{#} Tage</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_slotCount">
+        <item quantity="one">diesen Boost</item>
+        <item quantity="other">diese Boosts</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_guildCount">
+        <item quantity="one">Der aktuelle Server wird</item>
+        <item quantity="other">Die aktuellen Server werden</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_slotCount">
+        <item quantity="one">diesen Server-Boost</item>
+        <item quantity="other">diese Server-Boosts</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_from_guild_guildCount">
+        <item quantity="one">Aktueller Server</item>
+        <item quantity="other">Aktuelle Server</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_to_guild_slotCount">
+        <item quantity="one">Boost</item>
+        <item quantity="other">Boosts</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_transfer_confirm_confirmation_slotCount">
+        <item quantity="one">Boost</item>
+        <item quantity="other">Boosts</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_available_numSubscriptions">
+        <item quantity="one">{#} Boost</item>
+        <item quantity="other">{#} Boosts</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_guild_subsription_subtitle_numSubscriptions">
+        <item quantity="one">{#}-mal</item>
+        <item quantity="other">{#}-mal</item>
+    </plurals>
+    <plurals name="premium_guild_subscriptions_renewal_info_quantity">
+        <item quantity="one">Server-Boost</item>
+        <item quantity="other">Server Boosts</item>
+    </plurals>
+    <plurals name="premium_subscription_credit_count_months_count">
+        <item quantity="one">{#} Monat</item>
+        <item quantity="other">{#} Monate</item>
+    </plurals>
+    <plurals name="premium_upsell_feature_free_guild_subscription_numFreeGuildSubscriptions">
+        <item quantity="one">{#} Server-Boost</item>
+        <item quantity="other">{#} Server-Boosts</item>
+    </plurals>
+    <plurals name="stage_audience_waiting_many_numOthers">
+        <item quantity="one">{#} weiterer</item>
+        <item quantity="other">{#} weitere</item>
+    </plurals>
+    <plurals name="stage_blocked_users_body_number">
+        <item quantity="one">{#} Account, den du blockiert hast, ist</item>
+        <item quantity="other">{#} Accounts, die du blockiert hast, sind</item>
+    </plurals>
+    <plurals name="stage_blocked_users_title_plural_number">
+        <item quantity="one">blockierter Account</item>
+        <item quantity="other">blockierte Accounts</item>
+    </plurals>
+    <plurals name="stage_is_speaking_hook_count">
+        <item quantity="one">und ein weiterer](usernameHook) reden …</item>
+        <item quantity="other">und {count} weitere](usernameHook) reden …</item>
+    </plurals>
+    <plurals name="stage_speak_invite_blocked_users_number">
+        <item quantity="one">{#} blockierter Benutzer</item>
+        <item quantity="other">{#} blockierte Benutzer</item>
+    </plurals>
+    <plurals name="sticker_pack_sticker_count_numStickers">
+        <item quantity="one">{#} Sticker</item>
+        <item quantity="other">{#} Sticker</item>
+    </plurals>
+    <plurals name="total_results_count">
+        <item quantity="one">{count} Ergebnis</item>
+        <item quantity="other">{count} Ergebnisse</item>
+    </plurals>
+    <plurals name="uploading_files_count">
+        <item quantity="one">Es wird 1 Datei hochgeladen.</item>
+        <item quantity="other">Es werden {count} Dateien hochgeladen.</item>
+    </plurals>
+    <plurals name="uploading_files_failed_count">
+        <item quantity="one">1 Datei</item>
+        <item quantity="other">{count} Dateien</item>
+    </plurals>
+    <plurals name="user_profile_mutual_friends_count">
+        <item quantity="one">1 gemeinsamer Freund</item>
+        <item quantity="other">{count} gemeinsame Freunde</item>
+    </plurals>
+    <plurals name="user_profile_mutual_guilds_count">
+        <item quantity="one">1 gemeinsamer Server</item>
+        <item quantity="other">{count} gemeinsame Server</item>
+    </plurals>
+    <plurals name="user_summary_with_others_count">
+        <item quantity="one">1 weiterer</item>
+        <item quantity="other">{count} weitere</item>
+    </plurals>
+    <plurals name="vanity_url_header_uses_uses">
+        <item quantity="one">Eine Verwendung</item>
+        <item quantity="other">{uses} Verwendungen</item>
+    </plurals>
+</resources>

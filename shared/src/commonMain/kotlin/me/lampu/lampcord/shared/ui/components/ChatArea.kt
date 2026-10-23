@@ -335,7 +335,7 @@ fun ChatArea(
                             modifier = Modifier
                                         .width(46.dp)
                                         .height(54.dp),
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     Spacer(modifier = Modifier.height(14.dp))
@@ -346,7 +346,7 @@ fun ChatArea(
                         },
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(

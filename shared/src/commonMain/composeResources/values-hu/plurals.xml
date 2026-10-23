@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="age_gate_underage_existing_body_deletion_with_days_days">
+        <item quantity="one">1 napod</item>
+        <item quantity="other">{days} napod</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_monthly_mobile_intervalCount">
+        <item quantity="one">{#} hónapra</item>
+        <item quantity="other">{#} hónapra</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_yearly_mobile_intervalCount">
+        <item quantity="one">{#} évre</item>
+        <item quantity="other">{#} évre</item>
+    </plurals>
+    <plurals name="autocomplete_emoji_upsell_count">
+        <item quantity="one">{#} egyező emotikont</item>
+        <item quantity="other">{#} egyező emotikont</item>
+    </plurals>
+    <plurals name="blocked_messages_count">
+        <item quantity="one">1 blokkolt üzenet</item>
+        <item quantity="other">{count} blokkolt üzenet</item>
+    </plurals>
+    <plurals name="channel_slowmode_cooldown_seconds">
+        <item quantity="one">1 másodperc</item>
+        <item quantity="other">{seconds} másodperc</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_hours_hours">
+        <item quantity="one">{#} órán</item>
+        <item quantity="other">{#} órán</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_minutes_minutes">
+        <item quantity="one">{#} percen</item>
+        <item quantity="other">{#} percen</item>
+    </plurals>
+    <plurals name="discovery_speaker_count_speakersCount">
+        <item quantity="one">+{count} beszélő</item>
+        <item quantity="other">+{count} beszélő</item>
+    </plurals>
+    <plurals name="dm_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} olvasatlan üzenet</item>
+        <item quantity="other">, {#} olvasatlan üzenet</item>
+    </plurals>
+    <plurals name="duration_days_capitalize_days">
+        <item quantity="one">1 nap</item>
+        <item quantity="other">{days} nap</item>
+    </plurals>
+    <plurals name="duration_days_days">
+        <item quantity="one">1 nap</item>
+        <item quantity="other">{days} nap</item>
+    </plurals>
+    <plurals name="duration_hours_capitalize_hours">
+        <item quantity="one">1 óra</item>
+        <item quantity="other">{hours} óra</item>
+    </plurals>
+    <plurals name="duration_hours_hours">
+        <item quantity="one">1 óra</item>
+        <item quantity="other">{hours} óra</item>
+    </plurals>
+    <plurals name="duration_mins_mins">
+        <item quantity="one">1 perc</item>
+        <item quantity="other">{mins} perc</item>
+    </plurals>
+    <plurals name="duration_minutes_capitalize_minutes">
+        <item quantity="one">1 perc</item>
+        <item quantity="other">{minutes} perc</item>
+    </plurals>
+    <plurals name="duration_minutes_minutes">
+        <item quantity="one">1 perc</item>
+        <item quantity="other">{minutes} perc</item>
+    </plurals>
+    <plurals name="duration_months_capitalize_months">
+        <item quantity="one">1 hónap</item>
+        <item quantity="other">{months} hónap</item>
+    </plurals>
+    <plurals name="duration_seconds_capitalize_seconds">
+        <item quantity="one">1 másodperc</item>
+        <item quantity="other">{seconds} másodperc</item>
+    </plurals>
+    <plurals name="duration_seconds_seconds">
+        <item quantity="one">1 másodperc</item>
+        <item quantity="other">{seconds} másodperc</item>
+    </plurals>
+    <plurals name="duration_weeks_capitalize_weeks">
+        <item quantity="one">1 hét</item>
+        <item quantity="other">{weeks} hét</item>
+    </plurals>
+    <plurals name="duration_years_capitalize_years">
+        <item quantity="one">1 év</item>
+        <item quantity="other">{years} év</item>
+    </plurals>
+    <plurals name="emoji_slots_available_count">
+        <item quantity="one">{count} hely</item>
+        <item quantity="other">{count} hely</item>
+    </plurals>
+    <plurals name="emojis_title_count">
+        <item quantity="one">{count} emotikon</item>
+        <item quantity="other">{count} emotikon</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_days">
+        <item quantity="one">1 napja</item>
+        <item quantity="other">{days} napja</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_members">
+        <item quantity="one">1 rang nélküli tagot</item>
+        <item quantity="other">{members} rang nélküli tagot</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_months_time">
+        <item quantity="one">{#} hónap</item>
+        <item quantity="other">{#} hónap</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_years_time">
+        <item quantity="one">{#} év</item>
+        <item quantity="other">{#} év</item>
+    </plurals>
+    <plurals name="gift_inventory_copies_copies">
+        <item quantity="one">{#} másolat</item>
+        <item quantity="other">{#} másolat</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_months_intervalCount">
+        <item quantity="one">{#} hónap</item>
+        <item quantity="other">{#} hónap</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_years_intervalCount">
+        <item quantity="one">{#} év</item>
+        <item quantity="other">{#} év</item>
+    </plurals>
+    <plurals name="group_dm_invite_remaining_number">
+        <item quantity="one">Még 1 barátot tudsz még hozzáadni.</item>
+        <item quantity="other">Még {number} barátot tudsz hozzáadni.</item>
+    </plurals>
+    <plurals name="group_dm_invite_unselect_users_number">
+        <item quantity="one">1 barát kiválasztását szüntesd meg.</item>
+        <item quantity="other">{number} barát kiválasztását szüntesd meg.</item>
+    </plurals>
+    <plurals name="guild_event_interested_count_count">
+        <item quantity="one">{#} személyt</item>
+        <item quantity="other">{#} személyt</item>
+    </plurals>
+    <plurals name="guild_events_plural_number">
+        <item quantity="one">{#} esemény</item>
+        <item quantity="other">{#} esemény</item>
+    </plurals>
+    <plurals name="guild_folder_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} olvasatlan említés</item>
+        <item quantity="other">, {#} olvasatlan említés</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_denied_count">
+        <item quantity="one">egy jogosultsága</item>
+        <item quantity="other">jogosultsága</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_granted_count">
+        <item quantity="one">egy jogosultságot</item>
+        <item quantity="other">jogosultságot</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_reset_count">
+        <item quantity="one">egy jogosultsága</item>
+        <item quantity="other">jogosultsága</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_rate_limit_per_user_change_newValue">
+        <item quantity="one">Lassított mód beállítása **{#} másodpercre**</item>
+        <item quantity="other">Lassított mód beállítása **{#} másodpercre**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_disconnect_count">
+        <item quantity="one">**egy felhasználót**</item>
+        <item quantity="other">**!!{count}!! felhasználót**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_move_count">
+        <item quantity="one">**egy felhasználót**</item>
+        <item quantity="other">**!!{count}!! felhasználót**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_count">
+        <item quantity="one">**egy taggal**</item>
+        <item quantity="other">**!!{count}!! taggal**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_delete_days_newValue">
+        <item quantity="one">Egy nap</item>
+        <item quantity="other">{newValue} nap</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_add_count">
+        <item quantity="one">egy rangot</item>
+        <item quantity="other">néhány rangot</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_remove_count">
+        <item quantity="one">egy rangot</item>
+        <item quantity="other">néhány rangot</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_bulk_delete_count">
+        <item quantity="one">**egy üzenetet**</item>
+        <item quantity="other">**!!{count}!! üzenetet**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_delete_count">
+        <item quantity="one">**egy üzenetét**</item>
+        <item quantity="other">**!!{count}!! üzenetét**</item>
+    </plurals>
+    <plurals name="guild_settings_overview_boost_unlock_boosts">
+        <item quantity="one">{#} gyorsítás</item>
+        <item quantity="other">{#} gyorsítás</item>
+    </plurals>
+    <plurals name="guild_settings_premium_guild_tier_requirement_required">
+        <item quantity="one">{#} gyorsítás</item>
+        <item quantity="other">{#} gyorsítás</item>
+    </plurals>
+    <plurals name="guild_settings_premium_upsell_body_perk_no_free_guild_subscriptions_numFreeGuildSubscriptions">
+        <item quantity="one">{#} gyorsítást</item>
+        <item quantity="other">{#} gyorsítást</item>
+    </plurals>
+    <plurals name="guild_sidebar_announcement_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} említés</item>
+        <item quantity="other">{#} említés</item>
+    </plurals>
+    <plurals name="guild_sidebar_default_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#} említés</item>
+        <item quantity="other">{#} említés</item>
+    </plurals>
+    <plurals name="guild_sidebar_voice_channel_a11y_label_with_users_userCount">
+        <item quantity="one">1 felhasználó</item>
+        <item quantity="other">{#} felhasználó</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_guildSubscriptionQuantity">
+        <item quantity="one">{#} alkalommal</item>
+        <item quantity="other">{#} alkalommal</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_no_application_guildSubscriptionQuantity">
+        <item quantity="one">{#} szervergyorsítás</item>
+        <item quantity="other">{#} szervergyorsítás</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_transferred_description_mobile2_guildSubscriptionQuantity">
+        <item quantity="one">{#} alkalommal</item>
+        <item quantity="other">{#} alkalommal</item>
+    </plurals>
+    <plurals name="guild_template_usages_usageCount">
+        <item quantity="one">**1** személy használta ezt a sablont</item>
+        <item quantity="other">**{usageCount}** személy használta ezt a sablont</item>
+    </plurals>
+    <plurals name="guild_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} említés,</item>
+        <item quantity="other">{#} említés,</item>
+    </plurals>
+    <plurals name="hub_email_connection_invite_header_count">
+        <item quantity="one">{count} baráthoz</item>
+        <item quantity="other">{count} baráthoz</item>
+    </plurals>
+    <plurals name="humanize_duration_days_time">
+        <item quantity="one">1 nap</item>
+        <item quantity="other">{#} nap</item>
+    </plurals>
+    <plurals name="humanize_duration_hours_time">
+        <item quantity="one">1 óra</item>
+        <item quantity="other">{#} óra</item>
+    </plurals>
+    <plurals name="humanize_duration_minutes_time">
+        <item quantity="one">1 perc</item>
+        <item quantity="other">{#} perc</item>
+    </plurals>
+    <plurals name="humanize_duration_seconds_time">
+        <item quantity="one">1 másodperc</item>
+        <item quantity="other">{#} másodperc</item>
+    </plurals>
+    <plurals name="instant_invite_guild_members_total_count">
+        <item quantity="one">1 tag</item>
+        <item quantity="other">{count} tag</item>
+    </plurals>
+    <plurals name="last_seen_days">
+        <item quantity="one">1 napja</item>
+        <item quantity="other">{days} napja</item>
+    </plurals>
+    <plurals name="max_uses_description_mobile_maxUses">
+        <item quantity="one">1 használat</item>
+        <item quantity="other">{maxUses} használat</item>
+    </plurals>
+    <plurals name="members_header_members">
+        <item quantity="one">1 tag</item>
+        <item quantity="other">{members} tag</item>
+    </plurals>
+    <plurals name="n_days_days">
+        <item quantity="one">1 nap</item>
+        <item quantity="other">{days} nap</item>
+    </plurals>
+    <plurals name="new_messages_count">
+        <item quantity="one">1 új üzenet</item>
+        <item quantity="other">{count} új üzenet</item>
+    </plurals>
+    <plurals name="num_members_subscribers">
+        <item quantity="one">**1** tag</item>
+        <item quantity="other">**{subscribers}** tag</item>
+    </plurals>
+    <plurals name="num_subscribers_subscribers">
+        <item quantity="one">**1** előfizető</item>
+        <item quantity="other">**{subscribers}** előfizető</item>
+    </plurals>
+    <plurals name="num_users_num">
+        <item quantity="one">1 felhasználó</item>
+        <item quantity="other">{num} felhasználó</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_count">
+        <item quantity="one">ezt</item>
+        <item quantity="other">ezeket</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_countMessages">
+        <item quantity="one">üzenet</item>
+        <item quantity="other">üzenetek</item>
+    </plurals>
+    <plurals name="partial_outage_count">
+        <item quantity="one">**1** további szerver nem érhető el ideiglenes leállás miatt.</item>
+        <item quantity="other">**{count}** szerver nem érhető el ideiglenes leállás miatt.</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_header_subscription_count_subscriptions">
+        <item quantity="one">{#} gyorsítás</item>
+        <item quantity="other">{#} gyorsítás</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_protip_mobile_numFreeGuildSubscriptions">
+        <item quantity="one">{#} gyorsítást</item>
+        <item quantity="other">{#} gyorsítást</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_confirmation_slotCount">
+        <item quantity="one">Gyorsítás</item>
+        <item quantity="other">Gyorsítás {#} alkalommal</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_days">
+        <item quantity="one">{#} napig</item>
+        <item quantity="other">{#} napig</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_slotCount">
+        <item quantity="one">gyorsításnak</item>
+        <item quantity="other">gyorsításnak</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_guildCount">
+        <item quantity="one">szerver elveszti</item>
+        <item quantity="other">szerverek elvesztik</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_slotCount">
+        <item quantity="one">ezt a szervergyorsítást</item>
+        <item quantity="other">ezeket a szervergyorsításokat</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_from_guild_guildCount">
+        <item quantity="one">szerver</item>
+        <item quantity="other">szerverek</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_to_guild_slotCount">
+        <item quantity="one">Gyorsítás</item>
+        <item quantity="other">Gyorsítások</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_transfer_confirm_confirmation_slotCount">
+        <item quantity="one">gyorsítás</item>
+        <item quantity="other">gyorsítások</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_available_numSubscriptions">
+        <item quantity="one">{#} gyorsítás</item>
+        <item quantity="other">{#} gyorsítás</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_guild_subsription_subtitle_numSubscriptions">
+        <item quantity="one">{#}</item>
+        <item quantity="other">{#}</item>
+    </plurals>
+    <plurals name="premium_guild_subscriptions_renewal_info_quantity">
+        <item quantity="one">szervergyorsítás</item>
+        <item quantity="other">szervergyorsítás</item>
+    </plurals>
+    <plurals name="premium_subscription_credit_count_months_count">
+        <item quantity="one">{#} hónap</item>
+        <item quantity="other">{#} hónap</item>
+    </plurals>
+    <plurals name="premium_upsell_feature_free_guild_subscription_numFreeGuildSubscriptions">
+        <item quantity="one">{#} szervergyorsítás</item>
+        <item quantity="other">{#} szervergyorsítás</item>
+    </plurals>
+    <plurals name="stage_audience_waiting_many_numOthers">
+        <item quantity="one">{#} további hallgató</item>
+        <item quantity="other">{#} további hallgató</item>
+    </plurals>
+    <plurals name="stage_blocked_users_body_number">
+        <item quantity="one">{#} letiltott fiók</item>
+        <item quantity="other">{#} letiltott fiók</item>
+    </plurals>
+    <plurals name="stage_blocked_users_title_plural_number">
+        <item quantity="one">letiltott fiók</item>
+        <item quantity="other">letiltott fiók</item>
+    </plurals>
+    <plurals name="stage_is_speaking_hook_count">
+        <item quantity="one">és további egy fő](usernameHook) beszél…</item>
+        <item quantity="other">és {count} további](usernameHook) beszél…</item>
+    </plurals>
+    <plurals name="stage_speak_invite_blocked_users_number">
+        <item quantity="one">{#} letiltott felhasználó</item>
+        <item quantity="other">{#} letiltott felhasználó</item>
+    </plurals>
+    <plurals name="sticker_pack_sticker_count_numStickers">
+        <item quantity="one">{#} matrica</item>
+        <item quantity="other">{#} matrica</item>
+    </plurals>
+    <plurals name="total_results_count">
+        <item quantity="one">{count} találat</item>
+        <item quantity="other">{count} találat</item>
+    </plurals>
+    <plurals name="uploading_files_count">
+        <item quantity="one">1 fájl feltöltése</item>
+        <item quantity="other">{count} fájl feltöltése</item>
+    </plurals>
+    <plurals name="uploading_files_failed_count">
+        <item quantity="one">1 fájl feltöltése sikertelen</item>
+        <item quantity="other">{count} fájl feltöltése sikertelen</item>
+    </plurals>
+    <plurals name="user_profile_mutual_friends_count">
+        <item quantity="one">1 közös barát</item>
+        <item quantity="other">{count} közös barát</item>
+    </plurals>
+    <plurals name="user_profile_mutual_guilds_count">
+        <item quantity="one">1 közös szerver</item>
+        <item quantity="other">{count} közös szerver</item>
+    </plurals>
+    <plurals name="user_summary_with_others_count">
+        <item quantity="one">1 további személy</item>
+        <item quantity="other">{count} további személy</item>
+    </plurals>
+    <plurals name="vanity_url_header_uses_uses">
+        <item quantity="one">1 használat</item>
+        <item quantity="other">{uses} használat</item>
+    </plurals>
+</resources>

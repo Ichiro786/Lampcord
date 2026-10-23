@@ -600,14 +600,14 @@ fun MessageItem(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 15.sp
                                 ),
-                                color = if (isDm) Color.White else displayColor,
+                                color = displayColor,
                                 roleGradient = roleGradient,
                                 overflow = TextOverflow.Clip,
                                 modifier = Modifier
                                     .onGloballyPositioned { namePosition = it.positionInRoot() }
                                     .clickableCursor(enabled = !isPreview) { profileStore.showProfile(cAuthor.id, guildId, namePosition) },
                                 ignoreEffects = !isHovered,
-                                ignoreColors = if (isDm) !isHovered else false
+                                ignoreColors = false
                             )
                             cAuthor.primary_guild?.let {
                                 Spacer(Modifier.width(4.dp))
@@ -766,14 +766,14 @@ fun MessageItem(
                                                 name = cMember?.nick ?: cAuthor.global_name ?: cAuthor.username ?: "Unknown User",
                                                 style = cMember?.display_name_styles ?: cAuthor.display_name_styles,
                                                 baseStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                                color = if (isDm) Color.White else displayColor,
+                                                color = displayColor,
                                                 roleGradient = roleGradient,
                                                 overflow = TextOverflow.Clip,
                                                 modifier = Modifier
                                                     .onGloballyPositioned { namePosition = it.positionInRoot() }
                                                     .clickableCursor { profileStore.showProfile(cAuthor.id, guildId, namePosition) },
                                                 ignoreEffects = !isHovered,
-                                                ignoreColors = if (isDm) !isHovered else false
+                                                ignoreColors = false
                                             )
                                             cAuthor.primary_guild?.let {
                                                 Spacer(Modifier.width(4.dp))
@@ -789,7 +789,7 @@ fun MessageItem(
                                                 ": ",
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 fontWeight = FontWeight.Bold,
-                                                color = if (isDm) Color.White else displayColor
+                                                color = displayColor
                                             )
                                         }
                                     }

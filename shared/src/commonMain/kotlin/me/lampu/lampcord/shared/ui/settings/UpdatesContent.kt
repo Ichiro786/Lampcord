@@ -35,6 +35,28 @@ import me.lampu.lampcord.shared.update.UpdateChannel
 import me.lampu.lampcord.shared.update.UpdateManager
 import me.lampu.lampcord.shared.update.UpdateState
 import me.lampu.lampcord.shared.update.installUpdate
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.dismiss
+import me.lampu.lampcord.shared.generated.resources.download
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_available_fmt
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_channel_nightly
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_channel_stable
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_check_for_updates
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_check_for_updates_desc
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_check_now
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_checking
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_downloading_fmt
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_install_restart
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_nightly_desc
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_ready_fmt
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_up_to_date
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_update_notifications
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_update_notifications_desc
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_version_fmt
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_view_changelog
+import me.lampu.lampcord.shared.generated.resources.try_again
+import me.lampu.lampcord.shared.generated.resources.whats_new
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 @Composable
@@ -60,13 +82,13 @@ fun UpdatesContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Version $APP_VERSION", style = MaterialTheme.typography.bodyMedium)
+        Text(stringResource(Res.string.lampcord_settings_version_fmt, APP_VERSION), style = MaterialTheme.typography.bodyMedium)
 
         Material3SettingsGroup(
             items = listOf(
                 switchSettingsItem(
-                    title = "Check for Updates",
-                    description = "Look for a newer build when Lampcord opens.",
+                    title = stringResource(Res.string.lampcord_settings_check_for_updates),
+                    description = stringResource(Res.string.lampcord_settings_check_for_updates_desc),
                     checked = settingsStore.checkForUpdates,
                     onCheckedChange = {
                         settingsStore.checkForUpdates = it
@@ -74,8 +96,8 @@ fun UpdatesContent(
                     }
                 ),
                 switchSettingsItem(
-                    title = "Update Notifications",
-                    description = "Tell me when an update is ready to install.",
+                    title = stringResource(Res.string.lampcord_settings_update_notifications),
+                    description = stringResource(Res.string.lampcord_settings_update_notifications_desc),
                     checked = settingsStore.updateNotifications,
                     onCheckedChange = { settingsStore.updateNotifications = it }
                 )
@@ -85,54 +107,54 @@ fun UpdatesContent(
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(
                 onClick = { scope.launch { updateManager.check(channel, force = true) } },
-            ) { Text("Check for updates") }
+            ) { Text(stringResource(Res.string.lampcord_settings_check_now)) }
             OutlinedButton(
                 onClick = { showChangelog = true },
                 enabled = (state as? UpdateState.Available) != null,
-            ) { Text("View changelog") }
+            ) { Text(stringResource(Res.string.lampcord_settings_view_changelog)) }
         }
 
         Text(
-            if (channel == UpdateChannel.NIGHTLY) "Channel: Nightly" else "Channel: Stable",
+            if (channel == UpdateChannel.NIGHTLY) stringResource(Res.string.lampcord_settings_channel_nightly) else stringResource(Res.string.lampcord_settings_channel_stable),
             style = MaterialTheme.typography.bodyMedium,
         )
 
         if (channel == UpdateChannel.NIGHTLY) {
             Text(
-                "Nightly builds come from the latest commit to main and can be unstable.",
+                stringResource(Res.string.lampcord_settings_nightly_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
         when (val current = state) {
-            is UpdateState.Checking -> StatusRow("Checking for updates", busy = true)
-            is UpdateState.UpToDate -> StatusRow("Lampcord is up to date")
+            is UpdateState.Checking -> StatusRow(stringResource(Res.string.lampcord_settings_checking), busy = true)
+            is UpdateState.UpToDate -> StatusRow(stringResource(Res.string.lampcord_settings_up_to_date))
             is UpdateState.Idle -> Button(
                 onClick = { scope.launch { updateManager.check(channel, force = true) } },
-            ) { Text("Check for updates") }
+            ) { Text(stringResource(Res.string.lampcord_settings_check_now)) }
 
             is UpdateState.Available -> Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    "Version ${current.version} is available",
+                    stringResource(Res.string.lampcord_settings_available_fmt, current.version),
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { showChangelog = true }) { Text("What's new") }
+                    Button(onClick = { showChangelog = true }) { Text(stringResource(Res.string.whats_new)) }
                     Button(onClick = { scope.launch { updateManager.download() } }) {
-                        Text("Download")
+                        Text(stringResource(Res.string.download))
                     }
                 }
-                TextButton(onClick = { updateManager.reset() }) { Text("Dismiss") }
+                TextButton(onClick = { updateManager.reset() }) { Text(stringResource(Res.string.dismiss)) }
             }
 
             is UpdateState.Downloading -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Downloading ${current.version}")
+                Text(stringResource(Res.string.lampcord_settings_downloading_fmt, current.version))
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
 
             is UpdateState.ReadyToInstall -> Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("${current.version} is ready to install")
+                Text(stringResource(Res.string.lampcord_settings_ready_fmt, current.version))
                 installNote?.let {
                     Text(
                         it,
@@ -154,7 +176,7 @@ fun UpdatesContent(
                             InstallResult.Started -> null
                         }
                     }
-                ) { Text("Install and restart") }
+                ) { Text(stringResource(Res.string.lampcord_settings_install_restart)) }
             }
 
             is UpdateState.Failed -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -164,8 +186,8 @@ fun UpdatesContent(
                     color = MaterialTheme.colorScheme.error,
                 )
                 OutlinedButton(
-                    onClick = { scope.launch { updateManager.check(channel, force = true) } }
-                ) { Text("Try again") }
+                    onClick = { scope.launch { updateManager.check(channel, force = true) } },
+                ) { Text(stringResource(Res.string.try_again)) }
             }
         }
     }

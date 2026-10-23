@@ -7,6 +7,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.lampu.lampcord.shared.state.SettingsStore
 import me.lampu.lampcord.shared.ui.components.settings.*
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.form_label_mobile_notifications_inapp_label
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_enable_notifications
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_enable_notifications_desc
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_incoming_call_sound
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_incoming_call_sound_desc
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_message_sound
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_message_sound_desc
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_show_in_app_notifications
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_show_in_app_notifications_desc
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_show_message_preview
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_show_message_preview_desc
+import me.lampu.lampcord.shared.generated.resources.notifications
+import me.lampu.lampcord.shared.generated.resources.sounds
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 @Composable
@@ -15,7 +30,7 @@ fun NotificationsSettings(
     settingsStore: SettingsStore = koinInject()
 ) {
     SettingsSubScreen(
-        title = "Notifications",
+        title = stringResource(Res.string.notifications),
         onNavigateBack = onBack
     ) {
         NotificationsSettingsContent(settingsStore = settingsStore)
@@ -26,17 +41,17 @@ fun NotificationsSettings(
 fun NotificationsSettingsContent(settingsStore: SettingsStore = koinInject()) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Material3SettingsGroup(
-            title = "Notifications",
+            title = stringResource(Res.string.notifications),
             items = listOf(
                 switchSettingsItem(
-                    title = "Enable Notifications",
-                    description = "Show notifications in your system tray when Lampcord is in the background.",
+                    title = stringResource(Res.string.lampcord_settings_enable_notifications),
+                    description = stringResource(Res.string.lampcord_settings_enable_notifications_desc),
                     checked = settingsStore.notificationsEnabled,
                     onCheckedChange = { settingsStore.notificationsEnabled = it }
                 ),
                 switchSettingsItem(
-                    title = "Show Message Preview",
-                    description = "Include message content in notifications.",
+                    title = stringResource(Res.string.lampcord_settings_show_message_preview),
+                    description = stringResource(Res.string.lampcord_settings_show_message_preview_desc),
                     checked = settingsStore.showMessagePreview,
                     onCheckedChange = { settingsStore.showMessagePreview = it }
                 )
@@ -44,17 +59,17 @@ fun NotificationsSettingsContent(settingsStore: SettingsStore = koinInject()) {
         )
 
         Material3SettingsGroup(
-            title = "Sounds",
+            title = stringResource(Res.string.sounds),
             items = listOf(
                 switchSettingsItem(
-                    title = "Message Sound",
-                    description = "Play a sound when you receive a message.",
+                    title = stringResource(Res.string.lampcord_settings_message_sound),
+                    description = stringResource(Res.string.lampcord_settings_message_sound_desc),
                     checked = settingsStore.notificationSound,
                     onCheckedChange = { settingsStore.notificationSound = it }
                 ),
                 switchSettingsItem(
-                    title = "Incoming Call Sound",
-                    description = "Play a sound when you are being called.",
+                    title = stringResource(Res.string.lampcord_settings_incoming_call_sound),
+                    description = stringResource(Res.string.lampcord_settings_incoming_call_sound_desc),
                     checked = settingsStore.incomingCallSound,
                     onCheckedChange = { settingsStore.incomingCallSound = it }
                 )
@@ -62,11 +77,11 @@ fun NotificationsSettingsContent(settingsStore: SettingsStore = koinInject()) {
         )
 
         Material3SettingsGroup(
-            title = "In-App Notifications",
+            title = stringResource(Res.string.form_label_mobile_notifications_inapp_label),
             items = listOf(
                 switchSettingsItem(
-                    title = "Show In-App Notifications",
-                    description = "Display banners in the app when someone mentions or pings you.",
+                    title = stringResource(Res.string.lampcord_settings_show_in_app_notifications),
+                    description = stringResource(Res.string.lampcord_settings_show_in_app_notifications_desc),
                     checked = settingsStore.showInAppNotifications,
                     onCheckedChange = { settingsStore.showInAppNotifications = it }
                 )

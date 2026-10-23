@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="age_gate_underage_existing_body_deletion_with_days_days">
+        <item quantity="one">1 日後</item>
+        <item quantity="other">{days} 日後</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_monthly_mobile_intervalCount">
+        <item quantity="one">{#} 月</item>
+        <item quantity="other">{#} 月</item>
+    </plurals>
+    <plurals name="application_store_gift_purchase_confirm_yearly_mobile_intervalCount">
+        <item quantity="one">{#} 年</item>
+        <item quantity="other">{#} 年</item>
+    </plurals>
+    <plurals name="autocomplete_emoji_upsell_count">
+        <item quantity="one">{#} 個</item>
+        <item quantity="other">{#} 個</item>
+    </plurals>
+    <plurals name="blocked_messages_count">
+        <item quantity="one">1件のブロックされたメッセージ</item>
+        <item quantity="other">{count}件のブロックされたメッセージ</item>
+    </plurals>
+    <plurals name="channel_slowmode_cooldown_seconds">
+        <item quantity="one">1秒</item>
+        <item quantity="other">{seconds}秒</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_hours_hours">
+        <item quantity="one">{#}時間</item>
+        <item quantity="other">{#}時間</item>
+    </plurals>
+    <plurals name="custom_status_clear_in_minutes_minutes">
+        <item quantity="one">{#}分</item>
+        <item quantity="other">{#}分</item>
+    </plurals>
+    <plurals name="discovery_speaker_count_speakersCount">
+        <item quantity="one">スピーカー +{count} 人</item>
+        <item quantity="other">スピーカー +{count} 人</item>
+    </plurals>
+    <plurals name="dm_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} 件の未読のメッセージ</item>
+        <item quantity="other">, {#} 件の未読のメッセージ</item>
+    </plurals>
+    <plurals name="duration_days_capitalize_days">
+        <item quantity="one">1 日</item>
+        <item quantity="other">{days} 日</item>
+    </plurals>
+    <plurals name="duration_days_days">
+        <item quantity="one">1日</item>
+        <item quantity="other">{days}日</item>
+    </plurals>
+    <plurals name="duration_hours_capitalize_hours">
+        <item quantity="one">1 時間</item>
+        <item quantity="other">{hours} 時間</item>
+    </plurals>
+    <plurals name="duration_hours_hours">
+        <item quantity="one">1時間</item>
+        <item quantity="other">{hours}時間</item>
+    </plurals>
+    <plurals name="duration_mins_mins">
+        <item quantity="one">1分</item>
+        <item quantity="other">{mins}分</item>
+    </plurals>
+    <plurals name="duration_minutes_capitalize_minutes">
+        <item quantity="one">1 分</item>
+        <item quantity="other">{minutes} 分</item>
+    </plurals>
+    <plurals name="duration_minutes_minutes">
+        <item quantity="one">1分</item>
+        <item quantity="other">{minutes}分</item>
+    </plurals>
+    <plurals name="duration_months_capitalize_months">
+        <item quantity="one">1 カ月</item>
+        <item quantity="other">{months} カ月</item>
+    </plurals>
+    <plurals name="duration_seconds_capitalize_seconds">
+        <item quantity="one">1 秒</item>
+        <item quantity="other">{seconds} 秒</item>
+    </plurals>
+    <plurals name="duration_seconds_seconds">
+        <item quantity="one">1秒</item>
+        <item quantity="other">{seconds}秒</item>
+    </plurals>
+    <plurals name="duration_weeks_capitalize_weeks">
+        <item quantity="one">1 週間</item>
+        <item quantity="other">{weeks} 週間</item>
+    </plurals>
+    <plurals name="duration_years_capitalize_years">
+        <item quantity="one">1 年</item>
+        <item quantity="other">{years} 年</item>
+    </plurals>
+    <plurals name="emoji_slots_available_count">
+        <item quantity="one">あと{count}スロット</item>
+        <item quantity="other">あと{count}スロット</item>
+    </plurals>
+    <plurals name="emojis_title_count">
+        <item quantity="one">絵文字{count}個</item>
+        <item quantity="other">絵文字{count}個</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_days">
+        <item quantity="one">1 日</item>
+        <item quantity="other">{days} 日間</item>
+    </plurals>
+    <plurals name="form_help_last_seen_1_members">
+        <item quantity="one">1 人</item>
+        <item quantity="other">{members} 人</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_months_time">
+        <item quantity="one">{#} 月</item>
+        <item quantity="other">{#} 月</item>
+    </plurals>
+    <plurals name="gift_confirmation_nitro_time_frame_years_time">
+        <item quantity="one">{#} 年</item>
+        <item quantity="other">{#} 年</item>
+    </plurals>
+    <plurals name="gift_inventory_copies_copies">
+        <item quantity="one">{#} コピー</item>
+        <item quantity="other">{#} コピー</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_months_intervalCount">
+        <item quantity="one">{#} 月</item>
+        <item quantity="other">{#} 月</item>
+    </plurals>
+    <plurals name="gift_inventory_subscription_years_intervalCount">
+        <item quantity="one">{#} 年</item>
+        <item quantity="other">{#} 年</item>
+    </plurals>
+    <plurals name="group_dm_invite_remaining_number">
+        <item quantity="one">あと1人フレンドを追加できます。</item>
+        <item quantity="other">あと{number}人フレンドを追加できます。</item>
+    </plurals>
+    <plurals name="group_dm_invite_unselect_users_number">
+        <item quantity="one">あと1人フレンドの選択を外す必要があります。</item>
+        <item quantity="other">あと{number}人フレンドの選択を外す必要があります。</item>
+    </plurals>
+    <plurals name="guild_event_interested_count_count">
+        <item quantity="one">{#} 人</item>
+        <item quantity="other">{#} 人</item>
+    </plurals>
+    <plurals name="guild_events_plural_number">
+        <item quantity="one">{#} 件のイベント</item>
+        <item quantity="other">{#} 件のイベント</item>
+    </plurals>
+    <plurals name="guild_folder_tooltip_a11y_label_mentions">
+        <item quantity="one">, {#} 件の未読のメンション</item>
+        <item quantity="other">, {#} 件の未読のメンション</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_denied_count">
+        <item quantity="one">許諾</item>
+        <item quantity="other">許諾</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_granted_count">
+        <item quantity="one">許諾</item>
+        <item quantity="other">許諾</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_permission_overrides_reset_count">
+        <item quantity="one">権限</item>
+        <item quantity="other">権限</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_channel_rate_limit_per_user_change_newValue">
+        <item quantity="one">低速モードを**{#}秒**に設定</item>
+        <item quantity="other">低速モードを**{#}秒**に設定</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_disconnect_count">
+        <item quantity="one">**1人のユーザー**</item>
+        <item quantity="other">**!!{count}!!人のユーザー**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_move_count">
+        <item quantity="one">**1人のユーザー**</item>
+        <item quantity="other">**!!{count}!!人のユーザー**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_count">
+        <item quantity="one">**メンバー**</item>
+        <item quantity="other">**!!{count}!!メンバー**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_prune_delete_days_newValue">
+        <item quantity="one">日</item>
+        <item quantity="other">{newValue}日</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_add_count">
+        <item quantity="one">ロール</item>
+        <item quantity="other">ロール</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_member_roles_remove_count">
+        <item quantity="one">ロール</item>
+        <item quantity="other">ロール</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_bulk_delete_count">
+        <item quantity="one">**1件のメッセージ**</item>
+        <item quantity="other">**!!{count}!!件のメッセージ**</item>
+    </plurals>
+    <plurals name="guild_settings_audit_log_message_delete_count">
+        <item quantity="one">**メッセージ**</item>
+        <item quantity="other">**!!{count}!!メッセージ**</item>
+    </plurals>
+    <plurals name="guild_settings_overview_boost_unlock_boosts">
+        <item quantity="one">{#} ブースト</item>
+        <item quantity="other">{#} ブースト</item>
+    </plurals>
+    <plurals name="guild_settings_premium_guild_tier_requirement_required">
+        <item quantity="one">{#} ブースト</item>
+        <item quantity="other">{#} ブースト</item>
+    </plurals>
+    <plurals name="guild_settings_premium_upsell_body_perk_no_free_guild_subscriptions_numFreeGuildSubscriptions">
+        <item quantity="one">{#}個のブースト</item>
+        <item quantity="other">{#}個のブースト</item>
+    </plurals>
+    <plurals name="guild_sidebar_announcement_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#}件のメンション</item>
+        <item quantity="other">{#}件のメンション</item>
+    </plurals>
+    <plurals name="guild_sidebar_default_channel_a11y_label_with_mentions_mentionCount">
+        <item quantity="one">{#}件のメンション</item>
+        <item quantity="other">{#}件のメンション</item>
+    </plurals>
+    <plurals name="guild_sidebar_voice_channel_a11y_label_with_users_userCount">
+        <item quantity="one">1人のユーザー</item>
+        <item quantity="other">{#} 人のユーザー</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_guildSubscriptionQuantity">
+        <item quantity="one">{#}回</item>
+        <item quantity="other">{#}回</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_activated_description_no_application_guildSubscriptionQuantity">
+        <item quantity="one">{#} 回のサーバーブースト</item>
+        <item quantity="other">{#} 回のサーバーブースト</item>
+    </plurals>
+    <plurals name="guild_subscription_purchase_modal_transferred_description_mobile2_guildSubscriptionQuantity">
+        <item quantity="one">{#}回</item>
+        <item quantity="other">{#}回</item>
+    </plurals>
+    <plurals name="guild_template_usages_usageCount">
+        <item quantity="one">**1**人がこのテンプレートを利用しました</item>
+        <item quantity="other">**{usageCount}**人がこのテンプレートを利用しました</item>
+    </plurals>
+    <plurals name="guild_tooltip_a11y_label_mentions">
+        <item quantity="one">{#} 件のメンション、</item>
+        <item quantity="other">{#} 件のメンション、</item>
+    </plurals>
+    <plurals name="hub_email_connection_invite_header_count">
+        <item quantity="one">{count} 人</item>
+        <item quantity="other">{count} 人</item>
+    </plurals>
+    <plurals name="humanize_duration_days_time">
+        <item quantity="one">1 日</item>
+        <item quantity="other">{#} 日</item>
+    </plurals>
+    <plurals name="humanize_duration_hours_time">
+        <item quantity="one">1 時間</item>
+        <item quantity="other">{#} 時間</item>
+    </plurals>
+    <plurals name="humanize_duration_minutes_time">
+        <item quantity="one">1 分</item>
+        <item quantity="other">{#} 分</item>
+    </plurals>
+    <plurals name="humanize_duration_seconds_time">
+        <item quantity="one">1 秒</item>
+        <item quantity="other">{#} 秒</item>
+    </plurals>
+    <plurals name="instant_invite_guild_members_total_count">
+        <item quantity="one">1人</item>
+        <item quantity="other">{count}人</item>
+    </plurals>
+    <plurals name="last_seen_days">
+        <item quantity="one">1日</item>
+        <item quantity="other">{days}日</item>
+    </plurals>
+    <plurals name="max_uses_description_mobile_maxUses">
+        <item quantity="one">1回</item>
+        <item quantity="other">{maxUses}回</item>
+    </plurals>
+    <plurals name="members_header_members">
+        <item quantity="one">1人のメンバー</item>
+        <item quantity="other">{members}人のメンバー</item>
+    </plurals>
+    <plurals name="n_days_days">
+        <item quantity="one">1日</item>
+        <item quantity="other">{days}日</item>
+    </plurals>
+    <plurals name="new_messages_count">
+        <item quantity="one">1件の新着メッセージ</item>
+        <item quantity="other">{count}件の新着メッセージ</item>
+    </plurals>
+    <plurals name="num_members_subscribers">
+        <item quantity="one">**1** 人のメンバー</item>
+        <item quantity="other">**{subscribers}** 人のメンバー</item>
+    </plurals>
+    <plurals name="num_subscribers_subscribers">
+        <item quantity="one">**1**人の購読者</item>
+        <item quantity="other">**{subscribers}**人の購読者</item>
+    </plurals>
+    <plurals name="num_users_num">
+        <item quantity="one">1人</item>
+        <item quantity="other">{num}人</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_count">
+        <item quantity="one">これは</item>
+        <item quantity="other">これらは</item>
+    </plurals>
+    <plurals name="only_you_can_see_and_delete_these_countMessages">
+        <item quantity="one">のメッセージを削除する</item>
+        <item quantity="other">れらのメッセージを削除する</item>
+    </plurals>
+    <plurals name="partial_outage_count">
+        <item quantity="one">**1**台のサーバーが一時的にダウンしています。</item>
+        <item quantity="other">**{count}**台のサーバーが一時的にダウンしています。</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_header_subscription_count_subscriptions">
+        <item quantity="one">{#}ブースト</item>
+        <item quantity="other">{#}ブースト</item>
+    </plurals>
+    <plurals name="premium_guild_perks_modal_protip_mobile_numFreeGuildSubscriptions">
+        <item quantity="one">{#}個のブースト</item>
+        <item quantity="other">{#}個のブースト</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_confirmation_slotCount">
+        <item quantity="one">ブースト</item>
+        <item quantity="other">ブースト{#}回</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_days">
+        <item quantity="one">{#}日</item>
+        <item quantity="other">{#}日</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_cooldown_warning_slotCount">
+        <item quantity="one">このブースト</item>
+        <item quantity="other">これらのブースト</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_guildCount">
+        <item quantity="one">現在のサーバー</item>
+        <item quantity="other">現在のサーバー</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_blurb_slotCount">
+        <item quantity="one">このサーバーブースト</item>
+        <item quantity="other">これらのサーバーブースト</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_from_guild_guildCount">
+        <item quantity="one">サーバー</item>
+        <item quantity="other">サーバー</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_confirm_transfer_to_guild_slotCount">
+        <item quantity="one">ブースト</item>
+        <item quantity="other">ブースト</item>
+    </plurals>
+    <plurals name="premium_guild_subscribe_transfer_confirm_confirmation_slotCount">
+        <item quantity="one">ブースト</item>
+        <item quantity="other">ブースト</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_available_numSubscriptions">
+        <item quantity="one">{#}ブースト</item>
+        <item quantity="other">{#}ブースト</item>
+    </plurals>
+    <plurals name="premium_guild_subscription_guild_subsription_subtitle_numSubscriptions">
+        <item quantity="one">{#}回</item>
+        <item quantity="other">{#}回</item>
+    </plurals>
+    <plurals name="premium_guild_subscriptions_renewal_info_quantity">
+        <item quantity="one">サーバーブースト</item>
+        <item quantity="other">サーバーブースト</item>
+    </plurals>
+    <plurals name="premium_subscription_credit_count_months_count">
+        <item quantity="one">{#} 月</item>
+        <item quantity="other">{#} 月</item>
+    </plurals>
+    <plurals name="premium_upsell_feature_free_guild_subscription_numFreeGuildSubscriptions">
+        <item quantity="one">{#}個のサーバーブースト</item>
+        <item quantity="other">{#}個のサーバーブースト</item>
+    </plurals>
+    <plurals name="stage_audience_waiting_many_numOthers">
+        <item quantity="one">{#} 人</item>
+        <item quantity="other">{#} 人</item>
+    </plurals>
+    <plurals name="stage_blocked_users_body_number">
+        <item quantity="one">{#} 件</item>
+        <item quantity="other">{#} 件</item>
+    </plurals>
+    <plurals name="stage_blocked_users_title_plural_number">
+        <item quantity="one">件</item>
+        <item quantity="other">件</item>
+    </plurals>
+    <plurals name="stage_is_speaking_hook_count">
+        <item quantity="one">と残り 1 人](usernameHook)のスピーカーが話しています…</item>
+        <item quantity="other">と残り {count} 人](usernameHook)のスピーカーが話しています…</item>
+    </plurals>
+    <plurals name="stage_speak_invite_blocked_users_number">
+        <item quantity="one">{#} 人</item>
+        <item quantity="other">{#} 人</item>
+    </plurals>
+    <plurals name="sticker_pack_sticker_count_numStickers">
+        <item quantity="one">{#}個のスタンプ</item>
+        <item quantity="other">{#}個のスタンプ</item>
+    </plurals>
+    <plurals name="total_results_count">
+        <item quantity="one">{count}件ヒット</item>
+        <item quantity="other">{count}件ヒット</item>
+    </plurals>
+    <plurals name="uploading_files_count">
+        <item quantity="one">1ファイルのアップロード</item>
+        <item quantity="other">{count}ファイルのアップロード</item>
+    </plurals>
+    <plurals name="uploading_files_failed_count">
+        <item quantity="one">1個のファイルをアップロードできませんでした</item>
+        <item quantity="other">{count}個のファイルをアップロードできませんでした</item>
+    </plurals>
+    <plurals name="user_profile_mutual_friends_count">
+        <item quantity="one">1 人の共通の友だち</item>
+        <item quantity="other">{count} 人の共通の友だち</item>
+    </plurals>
+    <plurals name="user_profile_mutual_guilds_count">
+        <item quantity="one">1 個の共通サーバー</item>
+        <item quantity="other">{count} 個の共通サーバー</item>
+    </plurals>
+    <plurals name="user_summary_with_others_count">
+        <item quantity="one">1 人</item>
+        <item quantity="other">{count} 人</item>
+    </plurals>
+    <plurals name="vanity_url_header_uses_uses">
+        <item quantity="one">1</item>
+        <item quantity="other">{uses}</item>
+    </plurals>
+</resources>
