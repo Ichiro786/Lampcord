@@ -87,7 +87,10 @@ class GatewayManager(
     private var connectionJob: Job? = null
     private val _events = MutableSharedFlow<GatewayPayload>(
         extraBufferCapacity = 4096,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+        // SUSPEND, not DROP_OLDEST: when the collector falls behind (e.g. while READY is
+        // processed) the socket reader waits instead of silently discarding dispatch events,
+        // which desynced message/channel state.
+        onBufferOverflow = BufferOverflow.SUSPEND
     )
     val events: SharedFlow<GatewayPayload> = _events.asSharedFlow()
 
@@ -105,9 +108,11 @@ class GatewayManager(
     private var lastSequence: Int? = null
     var sessionId: String? = null
     private var resumeGatewayUrl: String? = null
+    @Volatile private var cachedGatewayUrl: String? = null
     private var clientHeartbeatSessionId = randomUUID()
-    private val clientLaunchId = randomUUID()
-    private val launchSignature = (getCurrentTimeMillis() * 1_000_000L).toString()
+    // Same launch identity as REST's X-Super-Properties, so both look like one client launch.
+    private val clientLaunchId get() = rest.launchId
+    private val launchSignature get() = rest.launchSignature
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
@@ -141,30 +146,24 @@ class GatewayManager(
     }
 
     fun connect(token: String) {
-        destroy()
+        // A reconnect keeps queued payloads and guild subscriptions; only an explicit
+        // disconnect() throws them away.
+        destroy(clearState = false)
         Logging.i("Gateway", "Connecting to Discord Gateway...")
         connectionJob = scope.launch {
+            val self = coroutineContext[Job]
             try {
-                val gatewayUrl = authApi.getGatewayUrl() ?: "wss://gateway.discord.gg"
+                // Fetched once per process: it never changes, and resumes use resume_gateway_url.
+                val gatewayUrl = cachedGatewayUrl
+                    ?: authApi.getGatewayUrl()?.also { cachedGatewayUrl = it }
+                    ?: "wss://gateway.discord.gg"
                 val url = (resumeGatewayUrl ?: gatewayUrl).removeSuffix("/") + "/?v=9&encoding=json"
                 Logging.d("Gateway", "Gateway URL: $url")
 
-                val userAgent = when (val platform = getPlatformName()) {
-                    "android" -> {
-                        "Discord-Android/341200;RNA"
-                    }
-                    "ios" -> {
-                        "Discord/105180 CFNetwork/1410.0.3 Darwin/22.4.0"
-                    }
-                    else -> {
-                        val browserOsName = when (platform) {
-                            "windows" -> "Windows NT 10.0; Win64; x64"
-                            "linux" -> "X11; Linux x86_64"
-                            "macos" -> "Macintosh; Intel Mac OS X 10_15_7"
-                            else -> "X11; Linux x86_64"
-                        }
-                        "Mozilla/5.0 ($browserOsName) AppleWebKit/537.36 (KHTML, like Gecko) discord/0.0.398 Chrome/138.0.7204.251 Electron/37.6.0 Safari/537.36"
-                    }
+                val userAgent = when (getPlatformName()) {
+                    "android" -> "Discord-Android/341200;RNA"
+                    "ios" -> "Discord/105180 CFNetwork/1410.0.3 Darwin/22.4.0"
+                    else -> me.lampu.lampcord.shared.api.desktopUserAgent()
                 }
 
                 startHelloTimeout(token)
@@ -207,8 +206,20 @@ class GatewayManager(
                             val reason = withTimeoutOrNull(2.seconds) { closeReason.await() }
                             when (reason?.code?.toInt()) {
                                 4003, 4004 -> {
-                                    _events.tryEmit(GatewayPayload(op = -1, t = "AUTH_FAILED"))
+                                    _events.emit(GatewayPayload(op = -1, t = "AUTH_FAILED"))
                                     disconnect("auth failed ${reason.code}")
+                                }
+                                // Invalid seq / session timed out: a resume can only fail, so start fresh.
+                                4007, 4009 -> {
+                                    sessionId = null
+                                    lastSequence = null
+                                    resumeGatewayUrl = null
+                                }
+                                // Invalid shard, sharding required, bad API version, invalid or
+                                // disallowed intents: reconnecting just loops on the same error.
+                                4010, 4011, 4012, 4013, 4014 -> {
+                                    Logging.e("Gateway", "Fatal gateway close ${reason.code}: ${reason.message}")
+                                    disconnect("fatal close ${reason.code}")
                                 }
                             }
                             break
@@ -228,13 +239,18 @@ class GatewayManager(
             } catch (e: Exception) {
                 Logging.e("Gateway", "Connection failed", e)
             } finally {
-                Logging.i("Gateway", "Cleaning up connection...")
-                session = null
-                authenticated = false
-                stopHeartbeat()
-                stopTimeSpentUpdates()
-                stopHelloTimeout()
-                withContext(NonCancellable) { queueLock.withLock { lazyQueue.clear() } }
+                // If connect() already started a replacement (op 7, HELLO timeout), this cleanup
+                // runs late and must not tear down the new connection's session and heartbeat.
+                val current = connectionJob
+                if (current == null || current === self) {
+                    Logging.i("Gateway", "Cleaning up connection...")
+                    session = null
+                    authenticated = false
+                    stopHeartbeat()
+                    stopTimeSpentUpdates()
+                    stopHelloTimeout()
+                    withContext(NonCancellable) { queueLock.withLock { lazyQueue.clear() } }
+                }
 
                 if (isActive) {
                     reconnectAttempt++
@@ -254,10 +270,10 @@ class GatewayManager(
 
     fun disconnect(reason: String = "requested") {
         Logging.i("Gateway", "Disconnecting: $reason")
-        destroy()
+        destroy(clearState = true)
     }
 
-    private fun destroy() {
+    private fun destroy(clearState: Boolean) {
         connectionJob?.cancel()
         connectionJob = null
         session = null
@@ -265,17 +281,22 @@ class GatewayManager(
         stopHeartbeat()
         stopTimeSpentUpdates()
         stopHelloTimeout()
+        if (!clearState) return
         guildSubscriptions.clear()
         scope.launch {
             queueLock.withLock {
                 lazyQueue.clear()
                 queue.clear()
             }
+            presenceLock.withLock {
+                appActivities.clear()
+                lastPresenceJson = null
+            }
         }
     }
 
     fun close() {
-        destroy()
+        destroy(clearState = true)
         scope.cancel()
     }
 
@@ -329,6 +350,12 @@ class GatewayManager(
                     throw e
                 } catch (e: Exception) {
                     Logging.e("Gateway", "Send failed for op ${next.op}", e)
+                    // Put it back so it goes out after the reconnect, and force that reconnect
+                    // instead of leaving the queue silently stalled on a broken socket.
+                    // Lazy guild requests (op 14) are superseded by newer ones; don't resurrect them.
+                    if (next.op != 14) queueLock.withLock { queue.addFirst(next) }
+                    // Not 1000/1001: those invalidate the session and would prevent a resume.
+                    runCatching { socket.close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "send failed")) }
                     return
                 }
             }
@@ -371,6 +398,12 @@ class GatewayManager(
                         Logging.i("Gateway", "READY. Session: $sessionId")
                         markAuthenticated()
                         startTimeSpentUpdates()
+                        // A fresh session starts with no activities; republish ours if any.
+                        scope.launch {
+                            presenceLock.withLock {
+                                if (appActivities.isNotEmpty()) sendMergedPresenceLocked(force = true)
+                            }
+                        }
                     }
                     "RESUMED" -> {
                         Logging.i("Gateway", "RESUMED session $sessionId")
@@ -382,7 +415,7 @@ class GatewayManager(
                 sendHeartbeat()
             }
             7 -> {
-                disconnect("server requested reconnect (op 7)")
+                Logging.i("Gateway", "Server requested reconnect (op 7)")
                 connect(token)
             }
             9 -> {
@@ -391,9 +424,11 @@ class GatewayManager(
                 if (!resumable) {
                     sessionId = null
                     lastSequence = null
+                    resumeGatewayUrl = null
                 }
-                delay(1000.milliseconds)
-                identify(token)
+                // Discord asks for a random 1-5s wait; resume when it says the session survives.
+                delay((1000L..5000L).random().milliseconds)
+                if (resumable) resume(token) else identify(token)
             }
             11 -> {
                 heartbeatAckReceived = true
@@ -432,7 +467,7 @@ class GatewayManager(
         helloTimeoutJob?.cancel()
         helloTimeoutJob = scope.launch {
             delay(20.seconds)
-            disconnect("no HELLO within 20s")
+            Logging.w("Gateway", "No HELLO within 20s, reconnecting")
             connect(token)
         }
     }
@@ -509,19 +544,19 @@ class GatewayManager(
                 put("device", JsonPrimitive(getDeviceName()))
             } else {
                 put("os", JsonPrimitive(platform.replaceFirstChar { it.uppercase() }))
-                put("browser", JsonPrimitive("Discord Desktop"))
+                put("browser", JsonPrimitive("Discord Client"))
                 put("device", JsonPrimitive(""))
             }
             put("system_locale", JsonPrimitive("en-US"))
             put("has_client_mods", JsonPrimitive(false))
-            put("client_version", JsonPrimitive(if (isMobile) "341.0 - rn" else "0.0.309"))
+            put("client_version", JsonPrimitive(if (isMobile) "341.0 - rn" else me.lampu.lampcord.shared.api.DESKTOP_CLIENT_VERSION))
             put("release_channel", JsonPrimitive("stable"))
             put("device_vendor_id", JsonPrimitive(rest.vendorId))
             put("design_id", JsonPrimitive(if (isMobile) 2 else 0))
             put("browser_user_agent", JsonPrimitive(""))
             put("browser_version", JsonPrimitive(""))
             put("os_version", JsonPrimitive(getOsSdkVersion()))
-            put("client_build_number", JsonPrimitive(if (isMobile) 6081 else 309000))
+            put("client_build_number", JsonPrimitive(if (isMobile) 6081 else me.lampu.lampcord.shared.api.DESKTOP_CLIENT_BUILD))
             put("client_event_source", JsonNull)
             put("client_launch_id", JsonPrimitive(clientLaunchId))
             put("launch_signature", JsonPrimitive(launchSignature))
@@ -592,11 +627,83 @@ class GatewayManager(
         session?.send(json.encodeToString(payload))
     }
 
+    /**
+     * The user's own status and custom status, supplied by the settings layer. Every presence
+     * update this session sends is built on top of it, so an app activity (music, RPC) never
+     * wipes the custom status or resets online/idle/dnd.
+     */
+    var presenceBase: () -> PresenceBase = { PresenceBase() }
+
+    data class PresenceBase(
+        val status: String? = null,
+        val customStatusText: String? = null,
+        val customStatusEmojiId: String? = null,
+        val customStatusEmojiName: String? = null
+    )
+
+    private val appActivities = LinkedHashMap<String, Activity>()
+    private val presenceLock = Mutex()
+    private var lastPresenceJson: String? = null
+
+    /**
+     * Sets (or clears, with null) the activity published under [source], e.g. "music" or an RPC
+     * client id. Activities from different sources coexist; identical updates are not resent,
+     * which keeps media seek/metadata churn from burning the presence rate limit.
+     */
+    fun setAppActivity(source: String, activity: Activity?) {
+        scope.launch {
+            presenceLock.withLock {
+                val changed = if (activity == null) appActivities.remove(source) != null
+                else appActivities.put(source, activity) != activity
+                if (changed) sendMergedPresenceLocked(force = false)
+            }
+        }
+    }
+
+    /** Re-publishes the merged presence, e.g. after the user changed status or custom status. */
+    fun refreshPresence() {
+        scope.launch {
+            presenceLock.withLock {
+                if (appActivities.isNotEmpty()) sendMergedPresenceLocked(force = false)
+            }
+        }
+    }
+
+    private fun sendMergedPresenceLocked(force: Boolean) {
+        val base = presenceBase()
+        val d = buildJsonObject {
+            put("status", JsonPrimitive(base.status ?: "online"))
+            put("activities", buildJsonArray {
+                if (base.customStatusText != null || base.customStatusEmojiName != null) {
+                    add(buildJsonObject {
+                        put("name", "Custom Status")
+                        put("type", 4)
+                        base.customStatusText?.let { put("state", it) }
+                        if (base.customStatusEmojiName != null) {
+                            put("emoji", buildJsonObject {
+                                put("name", base.customStatusEmojiName)
+                                base.customStatusEmojiId?.let { put("id", it) }
+                            })
+                        }
+                    })
+                }
+                appActivities.values.forEach { add(json.encodeToJsonElement<Activity>(it)) }
+            })
+            put("afk", JsonPrimitive(false))
+            put("since", JsonPrimitive(0))
+        }
+        val encoded = d.toString()
+        if (!force && encoded == lastPresenceJson) return
+        lastPresenceJson = encoded
+        enqueue(GatewayPayload(op = 3, d = d))
+    }
+
+    /** Low-level presence update. Prefer [setAppActivity], which preserves status and custom status. */
     fun updatePresence(status: String?, activities: List<Activity>?) {
         val payload = GatewayPayload(
             op = 3,
             d = buildJsonObject {
-                put("status", status?.let { JsonPrimitive(it) } ?: JsonNull)
+                put("status", JsonPrimitive(status ?: presenceBase().status ?: "online"))
                 put("activities", buildJsonArray {
                     activities?.forEach { activity ->
                         add(json.encodeToJsonElement<Activity>(activity))

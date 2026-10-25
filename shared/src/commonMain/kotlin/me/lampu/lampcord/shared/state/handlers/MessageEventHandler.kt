@@ -32,10 +32,29 @@ class MessageEventHandler(
     private val scope: CoroutineScope
 ) : GatewayEventHandler {
     private val fetchingDmChannels = mutableSetOf<String>()
+    private val pendingAckJobs = mutableMapOf<String, kotlinx.coroutines.Job>()
+
+    /**
+     * Acks the newest message in an open channel at most once per [ACK_DEBOUNCE_MS]. Acking every
+     * single MESSAGE_CREATE in a busy channel sent a REST call per message and ran into 429s.
+     */
+    private fun scheduleAck(channelId: String, messageId: String) {
+        pendingAckJobs.remove(channelId)?.cancel()
+        pendingAckJobs[channelId] = scope.launch {
+            kotlinx.coroutines.delay(ACK_DEBOUNCE_MS)
+            pendingAckJobs.remove(channelId)
+            readStateStore.ackMessage(channelId, messageId)
+        }
+    }
+
+    private companion object {
+        const val ACK_DEBOUNCE_MS = 1_500L
+    }
     override val supportedEvents = setOf(
         "MESSAGE_CREATE", 
         "MESSAGE_UPDATE", 
         "MESSAGE_DELETE", 
+        "MESSAGE_DELETE_BULK",
         "MESSAGE_ACK",
         "MESSAGE_REACTION_ADD",
         "MESSAGE_REACTION_REMOVE",
@@ -49,6 +68,7 @@ class MessageEventHandler(
             "MESSAGE_CREATE" -> handleMessageCreate(data)
             "MESSAGE_UPDATE" -> handleMessageUpdate(data)
             "MESSAGE_DELETE" -> handleMessageDelete(data)
+            "MESSAGE_DELETE_BULK" -> handleMessageDeleteBulk(data)
             "MESSAGE_ACK" -> handleMessageAck(data)
             "MESSAGE_REACTION_ADD" -> handleReactionAdd(data)
             "MESSAGE_REACTION_REMOVE" -> handleReactionRemove(data)
@@ -123,16 +143,14 @@ class MessageEventHandler(
             }
         }
 
-        if (message.author?.id == userStore.currentUser.value?.id) {
-            messageStore.draftMessages.remove(message.channel_id)
-        }
+        // Drafts are cleared locally in sendMessageDraft(). Clearing them on every own
+        // MESSAGE_CREATE wiped what you were typing here whenever another of your devices sent
+        // a message in the same channel.
 
         messageStore.handleMessageCreate(message)
         
         if (navigationStore.shouldAutoAcknowledge(message.channel_id)) {
-            scope.launch {
-                readStateStore.ackMessage(message.channel_id, message.id)
-            }
+            scheduleAck(message.channel_id, message.id)
         } else {
             val currentUserId = userStore.currentUser.value?.id
             val myRoles = message.guild_id?.let { userStore.getMember(it, currentUserId ?: "")?.roles } ?: emptyList()
@@ -151,8 +169,23 @@ class MessageEventHandler(
         val id = obj["id"]?.jsonPrimitive?.content ?: return
         val channelId = obj["channel_id"]?.jsonPrimitive?.content ?: return
         messageLogger.logDelete(channelId, id)
-        messageStore.handleMessageDelete(id)
+        messageStore.handleMessageDelete(id, channelId)
         readStateStore.handleMessageDelete(channelId, id)
+    }
+
+    /** Purges and moderator bulk deletes arrive only as MESSAGE_DELETE_BULK. */
+    private fun handleMessageDeleteBulk(data: JsonElement) {
+        val obj = data as? kotlinx.serialization.json.JsonObject ?: return
+        val channelId = obj["channel_id"]?.jsonPrimitive?.content ?: return
+        val ids = (obj["ids"] as? kotlinx.serialization.json.JsonArray)
+            ?.mapNotNull { it.jsonPrimitive.content.takeIf { id -> id.isNotEmpty() } }
+            ?.toSet()
+            ?: return
+        ids.forEach { id ->
+            messageLogger.logDelete(channelId, id)
+            readStateStore.handleMessageDelete(channelId, id)
+        }
+        messageStore.handleMessagesDelete(ids, channelId)
     }
 
     private fun handleMessageAck(data: JsonElement) {

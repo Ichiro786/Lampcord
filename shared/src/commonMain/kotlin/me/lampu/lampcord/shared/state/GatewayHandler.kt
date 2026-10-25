@@ -112,7 +112,15 @@ class GatewayHandler(
                 }
 
                 memberListStore.resubscribe()
-            } catch (e: Exception) { }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A schema change in READY used to be swallowed here, leaving the app stuck on
+                // "Connecting" forever with nothing in the logs.
+                me.lampu.lampcord.shared.utils.Logging.e("GatewayHandler", "Failed to process READY", e)
+                navigationStore.isConnected = true
+                navigationStore.isConnecting = false
+            }
         }
     }
 }

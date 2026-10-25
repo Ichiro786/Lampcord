@@ -12,7 +12,9 @@ data class PendingFile(
         other as PendingFile
 
         if (name != other.name) return false
-        if (!data.contentEquals(other.data)) return false
+        // Same buffer, not same content: hashing a multi-MB attachment on every Compose list
+        // comparison was pure overhead, and two picks of one file are still two attachments.
+        if (data !== other.data) return false
         if (uri != other.uri) return false
 
         return true
@@ -20,7 +22,7 @@ data class PendingFile(
 
     override fun hashCode(): Int {
         var result = name.hashCode()
-        result = 31 * result + data.contentHashCode()
+        result = 31 * result + data.size
         result = 31 * result + (uri?.hashCode() ?: 0)
         return result
     }

@@ -37,6 +37,10 @@ class MusicPresenceService : NotificationListenerService(), KoinComponent {
             controller.unregisterCallback(callback)
         }
         controllerCallbacks.clear()
+        if (lastActivity != null) {
+            lastActivity = null
+            gatewayManager.setAppActivity(SOURCE, null)
+        }
     }
 
     private fun updateControllers(controllers: List<MediaController>?) {
@@ -61,19 +65,25 @@ class MusicPresenceService : NotificationListenerService(), KoinComponent {
         syncPresence()
     }
 
+    private var lastActivity: Activity? = null
+
     private fun syncPresence() {
-        if (Settings.shared.discordToken.isBlank() || !Settings.shared.musicPresenceEnabled) return
+        val enabled = Settings.shared.discordToken.isNotBlank() && Settings.shared.musicPresenceEnabled
+        val activeController = if (enabled) controllerCallbacks.keys.find {
+            it.playbackState?.state == PlaybackState.STATE_PLAYING
+        } else null
 
-        val activeController = controllerCallbacks.keys.find { 
-            it.playbackState?.state == PlaybackState.STATE_PLAYING 
-        }
-
-        if (activeController == null) {
+        val metadata = activeController?.metadata
+        val title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE)
+        if (activeController == null || title == null) {
+            // Paused, stopped or disabled: clear "Listening to" instead of leaving it stuck.
+            if (lastActivity != null) {
+                lastActivity = null
+                gatewayManager.setAppActivity(SOURCE, null)
+            }
             return
         }
 
-        val metadata = activeController.metadata
-        val title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) ?: return
         val artist = metadata.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: "Unknown Artist"
         val album = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM)
         val duration = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION)
@@ -86,24 +96,33 @@ class MusicPresenceService : NotificationListenerService(), KoinComponent {
             else -> activeController.packageName ?: "Music"
         }
 
+        val now = System.currentTimeMillis()
+        val start = now - position
+        val previous = lastActivity
+        // Playback callbacks fire constantly with a few ms of drift; reuse the previous start
+        // time for the same track so identical presences are deduplicated downstream.
+        val stableStart = previous?.timestamps?.start
+            ?.takeIf { previous.details == title && previous.state == artist && kotlin.math.abs(it - start) < DRIFT_TOLERANCE_MS }
+            ?: start
+
         val activity = Activity(
             name = appName,
             type = 2, // Listening
             details = title,
             state = artist,
-            assets = ActivityAssets(
-                large_text = album,
-                large_image = if (appName == "Spotify") "spotify:${activeController.packageName}" else null // Dummy for now
-            ),
+            assets = album?.let { ActivityAssets(large_text = it) },
             timestamps = if (duration > 0) {
-                val now = System.currentTimeMillis()
-                ActivityTimestamps(
-                    start = now - position,
-                    end = now - position + duration
-                )
+                ActivityTimestamps(start = stableStart, end = stableStart + duration)
             } else null
         )
 
-        gatewayManager.updatePresence(null, listOf(activity))
+        if (activity == previous) return
+        lastActivity = activity
+        gatewayManager.setAppActivity(SOURCE, activity)
+    }
+
+    private companion object {
+        const val SOURCE = "music"
+        const val DRIFT_TOLERANCE_MS = 3_000L
     }
 }

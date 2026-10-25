@@ -255,7 +255,7 @@ fun ChatArea(
         ) {
             itemsIndexed(
                 items = filteredMessages,
-                key = { _, message -> message.id },
+                key = { _, message -> messageStore.stableKey(message) },
                 contentType = { _, message -> message.type ?: 0 }
             ) { index, message ->
                 val priorMessage = filteredMessages.getOrNull(index + 1)

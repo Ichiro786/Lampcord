@@ -199,8 +199,10 @@ private fun watchThemeFiles(
                 val key = watchService.poll(30, TimeUnit.SECONDS) ?: continue
                 var changed = false
                 for (event in key.pollEvents()) {
-                    val context = event.context()
-                    if (context is File && context.name in watchedNames) changed = true
+                    // WatchService reports a java.nio.file.Path, never a java.io.File, so the old
+                    // `is File` check was always false and palette changes were never picked up.
+                    val name = (event.context() as? java.nio.file.Path)?.fileName?.toString()
+                    if (name != null && name in watchedNames) changed = true
                 }
                 key.reset()
                 if (changed) {

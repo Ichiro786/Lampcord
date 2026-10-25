@@ -74,7 +74,20 @@ val databaseModule = module {
 
 val networkModule = module {
     single { RemoteAuthClient(get(), get()) }
-    single { GatewayManager(get(), get(), get(), getOrNull<ReadStateStore>()) }
+    single {
+        val koin = getKoin()
+        GatewayManager(get(), get(), get(), getOrNull<ReadStateStore>()).apply {
+            presenceBase = {
+                val settings = koin.getOrNull<SettingsStore>()?.userSettings
+                GatewayManager.PresenceBase(
+                    status = settings?.status,
+                    customStatusText = settings?.custom_status?.text,
+                    customStatusEmojiId = settings?.custom_status?.emoji_id,
+                    customStatusEmojiName = settings?.custom_status?.emoji_name
+                )
+            }
+        }
+    }
     single { VoiceGatewayManager(get(), get()) }
 }
 

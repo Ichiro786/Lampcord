@@ -1,6 +1,7 @@
 package me.lampu.lampcord.shared.state
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -14,13 +15,29 @@ class MessageLogger(
     private val userStore: UserStore,
     private val scope: CoroutineScope
 ) {
+    init {
+        scope.launch {
+            try {
+                val cutoff = kotlin.time.Clock.System.now() - RETENTION
+                messageDao.pruneUnremarkable(cutoff.toString())
+            } catch (e: Exception) {
+                me.lampu.lampcord.shared.utils.Logging.e("MessageLogger", "Pruning logged messages failed", e)
+            }
+        }
+    }
+
+    private companion object {
+        val RETENTION = kotlin.time.Duration.parse("7d")
+    }
+
     fun logMessage(message: Message) {
         if (!me.lampu.lampcord.shared.settings.Settings.shared.messageLoggerEnabled) return
         val settings = me.lampu.lampcord.shared.settings.Settings.shared
         if (settings.messageLoggerIgnoreBots && message.author?.bot == true) return
         if (settings.messageLoggerIgnoreSelf && message.author?.id == userStore.currentUser.value?.id) return
         
-        scope.launch {
+        // Encoding the full message to JSON is real work; keep it off the main thread.
+        scope.launch(Dispatchers.Default) {
             try {
                 val entity = MessageEntity(
                     id = message.id,
@@ -46,7 +63,7 @@ class MessageLogger(
         if (settings.messageLoggerIgnoreBots && message.author?.bot == true) return
         if (settings.messageLoggerIgnoreSelf && message.author?.id == userStore.currentUser.value?.id) return
 
-        scope.launch {
+        scope.launch(Dispatchers.Default) {
             try {
                 messageDao.applyEdit(message.id, message.content, json.encodeToString(message))
             } catch (e: Exception) {

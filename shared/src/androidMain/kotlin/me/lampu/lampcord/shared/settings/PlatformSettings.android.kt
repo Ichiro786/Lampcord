@@ -17,17 +17,32 @@ fun initSettings(context: Context) {
 actual fun createSettings(): Settings {
     val context = appContext ?: throw IllegalStateException("Settings not initialized with context")
 
+    val delegate = try {
+        openEncryptedPrefs(context)
+    } catch (e: Exception) {
+        // The file can't be decrypted (restored from another device, Keystore wiped or
+        // corrupted). Crashing in Application.onCreate is unrecoverable for the user, so start
+        // over with fresh settings; they'll simply need to sign in again.
+        android.util.Log.e("Settings", "Encrypted settings unreadable, resetting", e)
+        context.deleteSharedPreferences(PREFS_NAME)
+        openEncryptedPrefs(context)
+    }
+
+    return SharedPreferencesSettings(delegate)
+}
+
+private const val PREFS_NAME = "lampcord_encrypted_settings"
+
+private fun openEncryptedPrefs(context: Context): android.content.SharedPreferences {
     val masterKey = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
         .build()
 
-    val delegate = EncryptedSharedPreferences.create(
+    return EncryptedSharedPreferences.create(
         context,
-        "lampcord_encrypted_settings",
+        PREFS_NAME,
         masterKey,
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
-
-    return SharedPreferencesSettings(delegate)
 }

@@ -27,6 +27,8 @@ import me.lampu.lampcord.shared.model.SearchResponse
 import me.lampu.lampcord.shared.model.customEmojiCdnUrl
 import me.lampu.lampcord.shared.settings.Settings
 import me.lampu.lampcord.shared.utils.Logging
+import io.ktor.client.plugins.HttpTimeoutConfig
+import io.ktor.client.plugins.timeout
 
 @Serializable
 data class MessageRequest(
@@ -34,6 +36,8 @@ data class MessageRequest(
     val message_reference: MessageReference? = null,
     val tts: Boolean = false,
     val nonce: String? = null,
+    /** Makes Discord return the existing message for a repeated nonce instead of posting twice. */
+    val enforce_nonce: Boolean? = null,
     val attachments: List<AttachmentRequest>? = null,
     val sticker_ids: List<String>? = null,
     val allowed_mentions: AllowedMentions? = null,
@@ -107,6 +111,7 @@ class MessageApi(private val rest: RestClient) {
                         content = finalContent,
                         message_reference = messageReference,
                         nonce = nonce,
+                        enforce_nonce = if (nonce != null) true else null,
                         sticker_ids = stickerIds,
                         allowed_mentions = allowedMentions,
                         poll = poll
@@ -117,6 +122,9 @@ class MessageApi(private val rest: RestClient) {
             } else {
                 val response = rest.httpClient.post("${rest.apiBase}/channels/$channelId/messages") {
                     standardHeaders(rest)
+                    // The client-wide 15s request timeout failed any upload bigger than a few MB
+                    // on mobile data.
+                    timeout { uploadTimeouts() }
 
                     val attachmentMetadata = remainingFiles.mapIndexed { index, (name, _) ->
                         AttachmentRequest(id = index.toString(), filename = name)
@@ -128,6 +136,7 @@ class MessageApi(private val rest: RestClient) {
                                 content = finalContent,
                                 message_reference = messageReference,
                                 nonce = nonce,
+                                enforce_nonce = if (nonce != null) true else null,
                                 attachments = attachmentMetadata,
                                 sticker_ids = stickerIds,
                                 allowed_mentions = allowedMentions,
@@ -156,6 +165,7 @@ class MessageApi(private val rest: RestClient) {
     suspend fun uploadToCatbox(name: String, bytes: ByteArray): String? {
         return try {
             val response = rest.httpClient.post("https://catbox.moe/user/api.php") {
+                timeout { uploadTimeouts() }
                 setBody(MultiPartFormDataContent(
                     formData {
                         append("reqtype", "fileupload")
@@ -437,3 +447,9 @@ class MessageApi(private val rest: RestClient) {
         }
     }
 }
+
+private fun HttpTimeoutConfig.uploadTimeouts() {
+    requestTimeoutMillis = 10 * 60_000L
+    socketTimeoutMillis = 60_000L
+}
+

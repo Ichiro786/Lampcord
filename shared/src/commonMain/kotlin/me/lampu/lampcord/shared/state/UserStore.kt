@@ -45,16 +45,16 @@ class UserStore {
         if (existing == null) return user
         return existing.copy(
             username = user.username ?: existing.username,
-            global_name = user.global_name ?: existing.global_name,
-            avatar = user.avatar ?: existing.avatar,
+            global_name = raw.pick("global_name", user.global_name, existing.global_name),
+            avatar = raw.pick("avatar", user.avatar, existing.avatar),
             avatar_decoration_data = if (raw?.containsKey("avatar_decoration_data") == true) user.avatar_decoration_data else (user.avatar_decoration_data ?: existing.avatar_decoration_data),
             discriminator = user.discriminator ?: existing.discriminator,
             public_flags = user.public_flags ?: existing.public_flags,
             flags = user.flags ?: existing.flags,
-            accent_color = user.accent_color ?: existing.accent_color,
-            banner = user.banner ?: existing.banner,
-            bio = user.bio ?: existing.bio,
-            pronouns = user.pronouns ?: existing.pronouns,
+            accent_color = raw.pick("accent_color", user.accent_color, existing.accent_color),
+            banner = raw.pick("banner", user.banner, existing.banner),
+            bio = raw.pick("bio", user.bio, existing.bio),
+            pronouns = raw.pick("pronouns", user.pronouns, existing.pronouns),
             display_name_styles = if (raw?.containsKey("display_name_styles") == true) user.display_name_styles else (user.display_name_styles ?: existing.display_name_styles)
         )
     }
@@ -74,7 +74,7 @@ class UserStore {
         }
         val users = ArrayList<Pair<User, JsonObject?>>(members.size)
         members.forEachIndexed { i, (_, member) ->
-            member.user?.let { users.add(it to raws?.getOrNull(i)) }
+            member.user?.let { users.add(it to (raws?.getOrNull(i)?.get("user") as? JsonObject)) }
         }
         handleUserUpdates(users)
     }
@@ -83,14 +83,14 @@ class UserStore {
         if (existing == null) return member
         return existing.copy(
             user = member.user ?: existing.user,
-            nick = member.nick ?: existing.nick,
-            avatar = member.avatar ?: existing.avatar,
-            roles = member.roles.ifEmpty { existing.roles },
+            nick = raw.pick("nick", member.nick, existing.nick),
+            avatar = raw.pick("avatar", member.avatar, existing.avatar),
+            roles = if (raw?.containsKey("roles") == true) member.roles else member.roles.ifEmpty { existing.roles },
             display_name_styles = if (raw?.containsKey("display_name_styles") == true) member.display_name_styles else (member.display_name_styles ?: existing.display_name_styles),
-            premium_since = member.premium_since ?: existing.premium_since,
+            premium_since = raw.pick("premium_since", member.premium_since, existing.premium_since),
             pending = member.pending ?: existing.pending,
             permissions = member.permissions ?: existing.permissions,
-            communication_disabled_until = member.communication_disabled_until ?: existing.communication_disabled_until,
+            communication_disabled_until = raw.pick("communication_disabled_until", member.communication_disabled_until, existing.communication_disabled_until),
             deaf = member.deaf,
             mute = member.mute,
             flags = member.flags,
@@ -123,3 +123,12 @@ class UserStore {
         return getMember(guildId, userId)
     }
 }
+
+/**
+ * When the raw payload carries [key], its value wins even if it is null: that is how Discord
+ * says a field was cleared (nickname removed, bio emptied, timeout lifted). Without the raw
+ * payload, fall back to keeping what we already had.
+ */
+private fun <T> JsonObject?.pick(key: String, incoming: T?, existing: T?): T? =
+    if (this?.containsKey(key) == true) incoming else incoming ?: existing
+

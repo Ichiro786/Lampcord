@@ -26,21 +26,29 @@ class DesktopRPCServer(private val gatewayManager: GatewayManager) {
             for (port in 6463..6472) {
                 try {
                     Logging.i("RPC", "Attempting to start RPC server on port $port")
-                    val engine = embeddedServer(Netty, port = port) {
+                    val engine = embeddedServer(Netty, port = port, host = "127.0.0.1") {
                         install(WebSockets) {
                             pingPeriod = 15.seconds
                             timeout = 15.seconds
-                            maxFrameSize = Long.MAX_VALUE
+                            maxFrameSize = MAX_FRAME_BYTES
                             masking = false
                         }
                         routing {
                             webSocket("/") {
+                                // Browsers always send Origin; native RPC clients send none.
+                                // Without this check any web page could drive the user's presence.
+                                val origin = call.request.headers["Origin"]
+                                if (origin != null && origin !in ALLOWED_ORIGINS) {
+                                    Logging.w("RPC", "Rejected RPC connection from origin $origin")
+                                    close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Invalid origin"))
+                                    return@webSocket
+                                }
                                 handleConnection()
                             }
                         }
                     }
-                    server = engine
                     engine.start(wait = false)
+                    server = engine
                     Logging.i("RPC", "RPC server started on port $port")
                     break
                 } catch (e: Exception) {
@@ -52,6 +60,7 @@ class DesktopRPCServer(private val gatewayManager: GatewayManager) {
 
     private suspend fun DefaultWebSocketServerSession.handleConnection() {
         Logging.d("RPC", "New RPC connection")
+        val source = "rpc:" + (call.request.queryParameters["client_id"] ?: hashCode().toString())
         try {
             send(buildJsonObject {
                 put("cmd", "DISPATCH")
@@ -77,12 +86,14 @@ class DesktopRPCServer(private val gatewayManager: GatewayManager) {
                     when (cmd) {
                         "SET_ACTIVITY" -> {
                             val data = payload["args"]?.jsonObject
-                            val activityJson = data?.get("activity")
-                            if (activityJson != null) {
+                            val activityJson = data?.get("activity")?.takeUnless { it is JsonNull }
+                            if (activityJson == null) {
+                                gatewayManager.setAppActivity(source, null)
+                            } else {
                                 try {
                                     val activity = json.decodeFromJsonElement<Activity>(activityJson)
                                     Logging.i("RPC", "Received activity: ${activity.name}")
-                                    gatewayManager.updatePresence(null, listOf(activity))
+                                    gatewayManager.setAppActivity(source, activity)
                                 } catch (e: Exception) {
                                     Logging.e("RPC", "Error decoding activity: ${e.message}")
                                 }
@@ -103,8 +114,15 @@ class DesktopRPCServer(private val gatewayManager: GatewayManager) {
         } catch (e: Exception) {
             Logging.e("RPC", "RPC connection error: ${e.message}")
         } finally {
+            // The app that set this activity is gone; don't leave its presence behind.
+            gatewayManager.setAppActivity(source, null)
             Logging.d("RPC", "RPC connection closed")
         }
+    }
+
+    private companion object {
+        const val MAX_FRAME_BYTES = 64L * 1024
+        val ALLOWED_ORIGINS = setOf("https://discord.com", "https://ptb.discord.com", "https://canary.discord.com")
     }
 
     fun stop() {

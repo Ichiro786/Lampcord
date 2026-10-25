@@ -5,8 +5,24 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MessageDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(message: MessageEntity)
+    /**
+     * Logs a message without clobbering what the logger already knows about it.
+     *
+     * REPLACE used to overwrite `oldContent` and `isDeleted` whenever history was re-fetched
+     * after a restart, wiping the edit/delete record the logger exists to keep. An existing
+     * row only has its payload refreshed when its content is unchanged.
+     */
+    @Transaction
+    suspend fun insert(message: MessageEntity) {
+        if (insertIgnore(message) != -1L) return
+        val existing = getMessageById(message.id) ?: return
+        if (existing.content == message.content && !existing.isDeleted) {
+            update(existing.copy(jsonPayload = message.jsonPayload))
+        }
+    }
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIgnore(message: MessageEntity): Long
 
     @Update
     suspend fun update(message: MessageEntity)
@@ -40,4 +56,11 @@ interface MessageDao {
 
     @Query("DELETE FROM logged_messages")
     suspend fun clearAll()
+
+    /**
+     * Drops plain messages (never edited, never deleted) older than [cutoffIso]. Those carry no
+     * information the logger needs, and without pruning the table grew forever.
+     */
+    @Query("DELETE FROM logged_messages WHERE isDeleted = 0 AND oldContent IS NULL AND timestamp < :cutoffIso")
+    suspend fun pruneUnremarkable(cutoffIso: String)
 }

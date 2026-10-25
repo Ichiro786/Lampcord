@@ -100,6 +100,8 @@ import me.lampu.lampcord.shared.ui.kit.UserAvatar
 import me.lampu.lampcord.shared.utils.*
 import kotlin.time.Instant
 import org.koin.compose.koinInject
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
@@ -142,7 +144,6 @@ fun MessageItem(
     var messageLongPressRequest by remember { mutableStateOf(0) }
     
     val currentUser by userStore.currentUser.collectAsState()
-    val members by userStore.members.collectAsState()
     val userSettings = settingsStore.userSettings
     val scope = rememberCoroutineScope()
 
@@ -156,10 +157,17 @@ fun MessageItem(
         if (authorId == currentUser?.id) currentUser ?: message.author else message.author
     }
 
-    val member = remember(message.member, authorId, members, guildId) {
-        val cached = if (guildId != null && authorId != null) members[guildId]?.get(authorId) else null
-        message.member ?: cached
-    }
+    // Observe only this author's member entry. Collecting the whole all-guild members map made
+    // every visible message recompose on any member or presence update anywhere.
+    val cachedAuthorMember by remember(guildId, authorId) {
+        userStore.members
+            .map { all -> if (guildId != null && authorId != null) all[guildId]?.get(authorId) else null }
+            .distinctUntilChanged()
+    }.collectAsState(
+        initial = if (guildId != null && authorId != null) userStore.getMember(guildId, authorId) else null
+    )
+
+    val member = message.member ?: cachedAuthorMember
 
     LaunchedEffect(authorId, guildId) {
         if (authorId != null && guildId != null && message.member == null) {
@@ -175,11 +183,15 @@ fun MessageItem(
         }
     }
 
-    val currentMember = remember(navigationStore.selectedGuild, currentUser, members) {
-        val gId = navigationStore.selectedGuild?.id ?: return@remember null
-        val uId = currentUser?.id ?: return@remember null
-        userStore.getMember(gId, uId)
-    }
+    val selectedGuildId = navigationStore.selectedGuild?.id
+    val currentUserId = currentUser?.id
+    val currentMember by remember(selectedGuildId, currentUserId) {
+        userStore.members
+            .map { all -> if (selectedGuildId != null && currentUserId != null) all[selectedGuildId]?.get(currentUserId) else null }
+            .distinctUntilChanged()
+    }.collectAsState(
+        initial = if (selectedGuildId != null && currentUserId != null) userStore.getMember(selectedGuildId, currentUserId) else null
+    )
 
     val cAuthor = author
     val cMember = member
@@ -555,7 +567,7 @@ fun MessageItem(
                 openRequest = messageLongPressRequest
             ) {
                 val guilds by guildStore.guilds.collectAsState()
-                val roleData = remember(message, guilds, navigationStore.selectedGuild, members, cAuthor, cMember) {
+                val roleData = remember(message, guilds, navigationStore.selectedGuild, cAuthor, cMember) {
                     val guild = (if (message.guild_id != null) guilds.find { it.id == message.guild_id } else null)
                         ?: navigationStore.selectedGuild
                         ?: return@remember null
