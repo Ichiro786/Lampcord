@@ -185,13 +185,14 @@ fun MessageItem(
 
     val selectedGuildId = navigationStore.selectedGuild?.id
     val currentUserId = currentUser?.id
-    val currentMember by remember(selectedGuildId, currentUserId) {
+    val currentMemberState by remember(selectedGuildId, currentUserId) {
         userStore.members
             .map { all -> if (selectedGuildId != null && currentUserId != null) all[selectedGuildId]?.get(currentUserId) else null }
             .distinctUntilChanged()
     }.collectAsState(
         initial = if (selectedGuildId != null && currentUserId != null) userStore.getMember(selectedGuildId, currentUserId) else null
     )
+    val currentMember = currentMemberState
 
     val cAuthor = author
     val cMember = member

@@ -75,7 +75,7 @@ class MusicPresenceService : NotificationListenerService(), KoinComponent {
 
         val metadata = activeController?.metadata
         val title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE)
-        if (activeController == null || title == null) {
+        if (activeController == null || metadata == null || title == null) {
             // Paused, stopped or disabled: clear "Listening to" instead of leaving it stuck.
             if (lastActivity != null) {
                 lastActivity = null

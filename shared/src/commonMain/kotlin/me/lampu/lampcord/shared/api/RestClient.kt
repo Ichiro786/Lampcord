@@ -78,9 +78,9 @@ class RestClient(
     }
 
     /** Everything in it is fixed for the process, so build it once instead of on every request. */
-    private val superProperties: String by lazy { buildSuperProperties() }
+    private val cachedSuperProperties: String by lazy { buildSuperProperties() }
 
-    fun getSuperProperties(): String = superProperties
+    fun getSuperProperties(): String = cachedSuperProperties
 
     @OptIn(ExperimentalEncodingApi::class)
     private fun buildSuperProperties(): String {
