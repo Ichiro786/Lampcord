@@ -193,6 +193,23 @@ jobs:
           fi
           echo "path=$output" >> "$GITHUB_OUTPUT"
 
+      # Compose Multiplatform ships its strings as Android assets. The AGP 9 KMP library
+      # plugin disables Android resource processing by default, which silently drops those
+      # assets from the APK and makes every localized string crash at runtime. Nightly 150
+      # shipped like that, so fail the build instead of another release.
+      - name: Verify Compose resources are packaged
+        shell: bash
+        env:
+          APK_PATH: ${{ steps.apk.outputs.path }}
+        run: |
+          set -euo pipefail
+          resources="$(unzip -l "$APK_PATH" | grep -E 'assets/composeResources/.*\.cvr$' || true)"
+          if [[ -z "$resources" ]]; then
+            echo "APK contains no Compose Multiplatform resources (assets/composeResources/)" >&2
+            exit 1
+          fi
+          echo "Compose resource files in APK: $(wc -l <<< "$resources")"
+
       - name: Verify APK signature
         if: inputs.variant == 'release' && inputs.require-signing
         shell: bash
