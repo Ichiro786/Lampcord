@@ -64,7 +64,20 @@ jobs:
 
       # Only arm64-v8a: native voice code is compiled once instead of four times.
       - name: Build release APK
-        run: ./gradlew :androidApp:assembleRelease --no-daemon -PvoiceAbis=arm64-v8a
+        # AGP ignored ~/.android/debug.keystore on the runner and signed with a fresh random key
+        # every run, so updates refused to install. Sign explicitly with the cached key instead.
+        run: >
+          ./gradlew :androidApp:assembleRelease --no-daemon -PvoiceAbis=arm64-v8a
+          -Pandroid.injected.signing.store.file=$HOME/.android/debug.keystore
+          -Pandroid.injected.signing.store.password=android
+          -Pandroid.injected.signing.key.alias=androiddebugkey
+          -Pandroid.injected.signing.key.password=android
+
+      - name: Print signing certificate
+        shell: bash
+        run: |
+          apk="$(ls androidApp/build/outputs/apk/*/*arm64-v8a*.apk | head -n 1)"
+          "$ANDROID_HOME"/build-tools/*/apksigner verify --print-certs "$apk" | grep -E "DN|SHA-256" || true
 
       - name: Collect APK
         id: apk
