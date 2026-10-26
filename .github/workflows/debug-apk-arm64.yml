@@ -1,9 +1,8 @@
 name: Debug APK (arm64-v8a)
 
 # Builds a test APK for real phones from any fix/** branch, or on demand.
+# Manual only: pushes build the faster release APK instead (release-apk-arm64.yml).
 on:
-  push:
-    branches: [ 'fix/**' ]
   workflow_dispatch:
 
 concurrency:

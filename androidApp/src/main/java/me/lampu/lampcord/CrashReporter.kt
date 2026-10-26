@@ -6,7 +6,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
@@ -22,7 +21,7 @@ import java.io.File
 import kotlin.system.exitProcess
 
 /**
- * Debug builds only: any uncaught crash opens [CrashActivity] with the full stack trace and a
+ * Any uncaught crash opens [CrashActivity] with the full stack trace and a
  * Copy button, so a tester can send the trace without adb/logcat. The activity runs in its own
  * ":crash" process, so a crash during startup can't take the report screen down with it.
  */
@@ -33,7 +32,6 @@ object CrashReporter {
     fun isCrashProcess(): Boolean = currentProcessName().endsWith(CRASH_PROCESS_SUFFIX)
 
     fun install(app: Application) {
-        if (app.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE == 0) return
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, error ->
             try {

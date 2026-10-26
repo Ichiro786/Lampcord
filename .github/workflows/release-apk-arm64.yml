@@ -1,0 +1,86 @@
+name: Release APK (arm64-v8a)
+
+# Builds an optimized (R8, non-debuggable) APK for real-world performance testing. Debug builds
+# run Compose without R8 and with ART debugging on, so they stutter no matter what the code does.
+# Signed with a debug key cached across runs, so each build installs over the previous one.
+on:
+  push:
+    branches: [ 'fix/**' ]
+  workflow_dispatch:
+
+concurrency:
+  group: release-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Release APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Restore native build tree
+        uses: actions/cache@v4
+        with:
+          path: androidApp/.cxx
+          key: release-native-arm64-${{ hashFiles('native/voice/**', 'androidApp/build.gradle.kts') }}
+          restore-keys: release-native-arm64-
+
+      # One stable signing key for every run, so updates install without uninstalling.
+      - name: Restore signing key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: lampcord-test-signing-key-v1
+
+      - name: Create signing key if missing
+        shell: bash
+        run: |
+          mkdir -p ~/.android
+          if [ ! -f ~/.android/debug.keystore ]; then
+            keytool -genkeypair -v -keystore ~/.android/debug.keystore -storepass android \
+              -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      # Only arm64-v8a: native voice code is compiled once instead of four times.
+      - name: Build release APK
+        run: ./gradlew :androidApp:assembleRelease --no-daemon -PvoiceAbis=arm64-v8a
+
+      - name: Collect APK
+        id: apk
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk="$(ls androidApp/build/outputs/apk/release/*arm64-v8a*.apk | head -n 1)"
+          test -f "$apk"
+          mkdir -p dist
+          short_sha="$(echo "$GITHUB_SHA" | cut -c1-7)"
+          cp "$apk" "dist/lampcord-release-arm64-v8a-${short_sha}.apk"
+          ls -la dist
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: lampcord-release-arm64-v8a
+          path: dist/*.apk
+          retention-days: 14
