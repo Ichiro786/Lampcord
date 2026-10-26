@@ -26,6 +26,7 @@ class EntityStore(
                 description = guild.description ?: existing.description,
                 features = guild.features ?: existing.features,
                 roles = guild.roles.ifEmpty { existing.roles },
+                permissions = guild.permissions ?: existing.permissions,
                 emojis = guild.emojis.ifEmpty { existing.emojis },
                 stickers = guild.stickers.ifEmpty { existing.stickers },
                 afk_channel_id = guild.afk_channel_id ?: existing.afk_channel_id,
@@ -58,6 +59,14 @@ class EntityStore(
         guild.members?.forEach { member ->
             val userId = member.userId() ?: return@forEach
             userStore.cacheMember(guild.id, userId, member)
+        }
+    }
+
+    /** Applies a role create/update/delete without touching the rest of the guild. */
+    fun updateGuildRoles(guildId: String, transform: (List<me.lampu.lampcord.shared.model.Role>) -> List<me.lampu.lampcord.shared.model.Role>) {
+        _guilds.update { current ->
+            val existing = current[guildId] ?: return@update current
+            current + (guildId to existing.copy(roles = transform(existing.roles)))
         }
     }
 

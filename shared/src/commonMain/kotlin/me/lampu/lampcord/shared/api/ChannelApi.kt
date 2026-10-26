@@ -14,6 +14,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.Json
@@ -398,6 +399,9 @@ class ChannelApi(private val rest: RestClient) {
                     })
                 })
             }
+            if (!response.status.isSuccess()) {
+                Logging.e("Message", "ack-bulk rejected (${response.status.value}): ${runCatching { response.bodyAsText() }.getOrNull()?.take(300)}")
+            }
             response.status.isSuccess()
         } catch (e: Exception) {
             if (e is CancellationException) throw e
@@ -414,13 +418,12 @@ class ChannelApi(private val rest: RestClient) {
                 standardHeaders(rest)
                 contentType(ContentType.Application.Json)
                 setBody(buildJsonObject {
-                    put("channel_overrides", buildJsonArray {
-                        add(buildJsonObject {
-                            put("channel_id", channelId)
+                    // Discord takes channel_overrides as a map keyed by channel id.
+                    put("channel_overrides", buildJsonObject {
+                        put(channelId, buildJsonObject {
                             put("muted", true)
                             put("mute_config", buildJsonObject {
                                 put("selected_time_window", durationSeconds)
-                                put("duration", durationSeconds)
                                 put("end_time", endTime)
                             })
                         })
@@ -429,7 +432,8 @@ class ChannelApi(private val rest: RestClient) {
             }
             response.status.isSuccess()
         } catch (e: Exception) {
-            println("Error muting channel: ${e.message}")
+            if (e is CancellationException) throw e
+            Logging.e("Channel", "Error muting channel: ${e.message}")
             false
         }
     }

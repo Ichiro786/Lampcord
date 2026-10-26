@@ -154,7 +154,8 @@ class MessageEventHandler(
         } else {
             val currentUserId = userStore.currentUser.value?.id
             val myRoles = message.guild_id?.let { userStore.getMember(it, currentUserId ?: "")?.roles } ?: emptyList()
-            readStateStore.handleMessageCreate(message, currentUserId, myRoles)
+            val dmMuted = message.guild_id == null && guildStore.isChannelMuted(null, message.channel_id)
+            readStateStore.handleMessageCreate(message, currentUserId, myRoles, dmMuted)
         }
     }
 

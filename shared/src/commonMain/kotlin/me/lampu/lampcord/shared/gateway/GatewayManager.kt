@@ -282,6 +282,10 @@ class GatewayManager(
         stopTimeSpentUpdates()
         stopHelloTimeout()
         if (!clearState) return
+        // A logout or account switch must start a new session, not RESUME the old one.
+        sessionId = null
+        lastSequence = null
+        resumeGatewayUrl = null
         guildSubscriptions.clear()
         scope.launch {
             queueLock.withLock {

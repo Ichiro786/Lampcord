@@ -64,7 +64,10 @@ fun GuildChannelList(
     guildStore: GuildStore = koinInject(),
     profileStore: ProfileStore = koinInject()
 ) {
-    val guild = navigationStore.selectedGuild
+    // selectedGuild is a snapshot taken when the server was opened; read the live copy so
+    // role and permission updates reach the channel list.
+    val liveGuilds by guildStore.guilds.collectAsState()
+    val guild = navigationStore.selectedGuild?.let { selected -> liveGuilds.find { it.id == selected.id } ?: selected }
     val currentUser by userStore.currentUser.collectAsState()
     val allMembers by userStore.members.collectAsState()
     
@@ -144,8 +147,19 @@ fun GuildChannelList(
             else allGuildChannels.values.filter { it.guild_id == g.id }
         }
 
-        val categories = visibleChannels.filter { it.type == 4 }.distinctBy { it.id }.sortedBy { it.position ?: 0 }
-        val rootChannels = visibleChannels.filter { it.parent_id == null && it.type != 4 }
+        // Like Discord, a category shows when you can see it or any channel inside it.
+        val categories = remember(visibleChannels, allChannelsForThisGuild) {
+            val parentsWithVisibleChildren = visibleChannels.mapNotNullTo(HashSet()) { if (it.type != 4) it.parent_id else null }
+            allChannelsForThisGuild
+                .filter { it.type == 4 && (it.id in parentsWithVisibleChildren || visibleChannels.any { v -> v.id == it.id }) }
+                .distinctBy { it.id }
+                .sortedBy { it.position ?: 0 }
+        }
+        val knownChannelIds = remember(allChannelsForThisGuild) { allChannelsForThisGuild.mapTo(HashSet()) { it.id } }
+        // Channels whose category we never received would otherwise vanish; show them at the top.
+        val rootChannels = visibleChannels.filter {
+            it.type != 4 && it.type !in 10..12 && (it.parent_id == null || it.parent_id !in knownChannelIds)
+        }
             .distinctBy { it.id }
             .sortedWith(compareBy({ it.type == 2 || it.type == 13 }, { it.position ?: 0 }))
 

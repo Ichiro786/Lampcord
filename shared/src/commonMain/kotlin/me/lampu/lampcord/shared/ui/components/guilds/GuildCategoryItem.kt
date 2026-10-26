@@ -53,7 +53,8 @@ fun GuildCategoryItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
 
-    val guild = navigationStore.selectedGuild
+    val liveGuilds by guildStore.guilds.collectAsState()
+    val guild = navigationStore.selectedGuild?.let { selected -> liveGuilds.find { it.id == selected.id } ?: selected }
     val currentUser by userStore.currentUser.collectAsState()
     val allMembers by userStore.members.collectAsState()
     

@@ -165,6 +165,21 @@ fun ChatInputBar(
         if (!canSend) navigationStore.isEmojiPickerVisible = false
     }
 
+    // Close the emoji panel whenever the soft keyboard comes up, however it was opened (the
+    // keyboard button, tapping the text field, or the IME's own switch). Only the rising edge
+    // counts, so the keyboard sliding away as the panel opens doesn't close it again.
+    val imeInsets = WindowInsets.ime
+    val imeDensity = LocalDensity.current
+    LaunchedEffect(imeInsets, imeDensity) {
+        var wasOpen = imeInsets.getBottom(imeDensity) > 0
+        snapshotFlow { imeInsets.getBottom(imeDensity) > 0 }.collect { open ->
+            if (open && !wasOpen && navigationStore.isEmojiPickerVisible) {
+                navigationStore.isEmojiPickerVisible = false
+            }
+            wasOpen = open
+        }
+    }
+
     val focusOnChannelOpen = getPlatformName() != "android" && getPlatformName() != "ios"
     LaunchedEffect(channel.id, canSend, focusOnChannelOpen) {
         if (!focusOnChannelOpen || !canSend) return@LaunchedEffect
@@ -258,6 +273,9 @@ fun ChatInputBar(
     }
 
     LaunchedEffect(channel.id) {
+        // Replies, edits and picked files belong to the channel they started in.
+        if (messageStore.replyingTo?.let { it.channel_id != channel.id } == true) messageStore.replyingTo = null
+        if (messageStore.editingMessage?.let { it.channel_id != channel.id } == true) messageStore.editingMessage = null
         val draft = messageStore.draftMessages[channel.id] ?: ""
         textFieldValue = TextFieldValue(draft, TextRange(draft.length))
         autocompleteStore.clear()
@@ -967,6 +985,7 @@ if (it.selection.collapsed) {
                                 onKeyboardClick = {
                                     navigationStore.isEmojiPickerVisible = false
                                     focusRequester.requestFocus()
+                                    keyboardController?.show()
                                 },
                                 onEmojiSelected = { emoji ->
                                     insertEmoji(emoji)

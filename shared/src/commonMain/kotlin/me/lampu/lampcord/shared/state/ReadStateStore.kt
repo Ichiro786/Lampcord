@@ -105,10 +105,20 @@ class ReadStateStore(private val channelApi: ChannelApi) {
         }
     }
 
-    fun handleMessageCreate(message: Message, currentUserId: String?, myRoles: List<String> = emptyList()) {
+    fun handleMessageCreate(message: Message, currentUserId: String?, myRoles: List<String> = emptyList(), dmMuted: Boolean = false) {
         updateMostRecentId(message.channel_id, message.id)
 
+        // Discord advances your read state for your own messages without a MESSAGE_ACK,
+        // so a message you sent elsewhere must not leave the channel unread here.
+        if (currentUserId != null && message.author?.id == currentUserId) {
+            if (message.type != 46) applyAcknowledgements(mapOf(message.channel_id to message.id))
+            return
+        }
+
+        // Every DM message counts toward the badge (except recipient-remove), like Discord.
+        val isDm = message.guild_id == null
         val hasMention = message.author?.id != currentUserId && (
+            (isDm && !dmMuted && message.type != 2) ||
             message.mention_everyone ||
             message.mentions.any { it.id == currentUserId } ||
             message.mention_roles.any { myRoles.contains(it) }

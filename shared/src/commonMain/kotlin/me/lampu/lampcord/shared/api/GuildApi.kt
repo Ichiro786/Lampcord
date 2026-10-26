@@ -20,6 +20,12 @@ import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
 import kotlinx.coroutines.CancellationException
 import me.lampu.lampcord.shared.model.ApplicationCommandIndex
 import me.lampu.lampcord.shared.model.AuditLog
@@ -372,6 +378,38 @@ class GuildApi(private val rest: RestClient) {
         }
     }
 
+    /**
+     * Discord's own computation of the current user's base permissions in every guild
+     * (GET /users/@me/guilds). Used as a floor for channel visibility so a missing or stale
+     * role in our cache can't hide channels the user can actually see.
+     */
+    suspend fun getMyGuildPermissions(): Map<String, String> {
+        val result = HashMap<String, String>()
+        var after: String? = null
+        try {
+            repeat(10) {
+                val response = rest.httpClient.get("${rest.apiBase}/users/@me/guilds") {
+                    standardHeaders(rest)
+                    parameter("limit", 200)
+                    after?.let { parameter("after", it) }
+                }
+                if (!response.status.isSuccess()) return result
+                val page = rest.json.parseToJsonElement(response.bodyAsText()) as? JsonArray ?: return result
+                page.forEach { element ->
+                    val obj = element as? JsonObject ?: return@forEach
+                    val id = obj["id"]?.jsonPrimitive?.contentOrNull ?: return@forEach
+                    obj["permissions"]?.jsonPrimitive?.contentOrNull?.let { result[id] = it }
+                }
+                if (page.size < 200) return result
+                after = (page.last() as? JsonObject)?.get("id")?.jsonPrimitive?.contentOrNull ?: return result
+            }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Logging.e("Guild", "Error fetching guild permissions: ${e.message}")
+        }
+        return result
+    }
+
     suspend fun getGuildMember(guildId: String, userId: String): Member? {
         return try {
             val response = rest.httpClient.get("${rest.apiBase}/guilds/$guildId/members/$userId") {
@@ -445,12 +483,56 @@ class GuildApi(private val rest: RestClient) {
         }
     }
 
+    /**
+     * Discord's PATCH body takes channel_overrides as a map keyed by channel id, not the
+     * array the gateway sends, and has no guild_id field. Nulls are dropped so unset
+     * fields aren't reset, except mute_config, where null is meaningful when unmuting.
+     */
+    private fun userGuildSettingsBody(settings: UserGuildSettings.Partial): JsonObject {
+        val encoded = rest.json.encodeToJsonElement(UserGuildSettings.Partial.serializer(), settings).jsonObject
+        return buildJsonObject {
+            encoded.forEach { (key, value) ->
+                when {
+                    key == "guild_id" -> Unit
+                    key == "channel_overrides" -> Unit
+
+                    value is JsonNull && key != "mute_config" -> Unit
+                    else -> put(key, value)
+                }
+            }
+            if (settings.mute_config == null && settings.muted == false && "mute_config" !in encoded) put("mute_config", JsonNull)
+            // Every field is written out: the shared Json drops defaults, which used to turn
+            // "muted = false" into nothing and made unmuting a channel a no-op.
+            settings.channel_overrides?.let { overrides ->
+                put("channel_overrides", buildJsonObject {
+                    overrides.forEach { o ->
+                        put(o.channel_id, buildJsonObject {
+                            put("muted", o.muted)
+                            put("message_notifications", o.message_notifications)
+                            put("collapsed", o.collapsed)
+                            put("flags", o.flags)
+                            o.mute_config?.let { mc ->
+                                put("mute_config", buildJsonObject {
+                                    put("end_time", mc.end_time?.let { kotlinx.serialization.json.JsonPrimitive(it) } ?: JsonNull)
+                                    put("selected_time_window", mc.selected_time_window ?: -1)
+                                })
+                            } ?: put("mute_config", JsonNull)
+                        })
+                    }
+                })
+            }
+        }
+    }
+
     suspend fun updateUserGuildSettings(guildId: String, settings: UserGuildSettings.Partial): Boolean {
         return try {
             val response = rest.httpClient.patch("${rest.apiBase}/users/@me/guilds/$guildId/settings") {
                 standardHeaders(rest)
                 contentType(ContentType.Application.Json)
-                setBody(settings)
+                setBody(userGuildSettingsBody(settings))
+            }
+            if (!response.status.isSuccess()) {
+                Logging.e("Guild", "Guild settings PATCH rejected (${response.status.value}): ${runCatching { response.bodyAsText() }.getOrNull()?.take(300)}")
             }
             response.status.isSuccess()
         } catch (e: Exception) {

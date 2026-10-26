@@ -82,7 +82,10 @@ fun ChatArea(
 ) {
     val joinVoice = me.lampu.lampcord.shared.voice.rememberVoiceJoin(voiceStore)
     val channelId = navigationStore.selectedChannel?.id
-    val scrollState = remember(channelId) { LazyListState() }
+    // Read state, unread divider and "at bottom" tracking belong to the open thread when there is one;
+    // using the parent here acked the parent with a thread message id.
+    val readChannelId = navigationStore.selectedThread?.id ?: channelId
+    val scrollState = remember(readChannelId) { LazyListState() }
     var isHovered by remember { mutableStateOf(false) }
     val messages by messageStore.messages.collectAsState()
     val relationships by relationshipStore.relationships.collectAsState()
@@ -94,8 +97,8 @@ fun ChatArea(
 
     val backgroundUrl = if (themeBackgroundUrl.isNotEmpty()) themeBackgroundUrl else settingsStore.chatBackground
 
-    val ackedMessageId = remember(readStates, channelId) {
-        if (channelId == null) "0" else readStates[channelId]?.last_message_id?.toString()?.removeSurrounding("\"") ?: "0"
+    val ackedMessageId = remember(readStates, readChannelId) {
+        if (readChannelId == null) "0" else readStates[readChannelId]?.last_message_id?.toString()?.removeSurrounding("\"") ?: "0"
     }
 
     val unreadMessagesCount = remember(messages, ackedMessageId) {
@@ -115,7 +118,8 @@ fun ChatArea(
     // Report this view as attached so the gateway can auto-acknowledge while it is genuinely
     // on screen and scrolled to the bottom. Discord derives the same thing from the chat list's
     // LinearLayoutManager, which stops reporting once the activity is not resumed.
-    DisposableEffect(channelId) {
+    DisposableEffect(readChannelId) {
+        val channelId = readChannelId
         if (channelId != null) {
             navigationStore.setChatInteraction(channelId, true)
         }
@@ -139,13 +143,13 @@ fun ChatArea(
                 if (lastVisibleItemIndex != null) {
 
 
-                    if (channelId != null) {
-                        navigationStore.setChatInteraction(channelId, atBottom)
+                    if (readChannelId != null) {
+                        navigationStore.setChatInteraction(readChannelId, atBottom)
                     }
                     if (atBottom && messages.isNotEmpty()) {
                         val latestId = messages.first().id
                         if ((latestId.toLongOrNull() ?: 0L) > (ackedMessageId.toLongOrNull() ?: 0L)) {
-                            readStateStore.ackMessage(channelId ?: "", latestId)
+                            readStateStore.ackMessage(readChannelId ?: "", latestId)
                         }
                     }
                     if (lastVisibleItemIndex >= messages.size - 5) {

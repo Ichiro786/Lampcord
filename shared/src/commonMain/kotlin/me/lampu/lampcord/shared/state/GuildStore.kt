@@ -1,5 +1,6 @@
 package me.lampu.lampcord.shared.state
 
+import me.lampu.lampcord.shared.utils.PermissionHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -21,7 +22,14 @@ class GuildStore(
     private val userStore: UserStore,
     private val scope: CoroutineScope
 ) {
-    private companion object {        const val CHANNEL_OPT_IN_FLAG = 1 shl 10
+    private companion object {
+        // Discord channel override flag OPT_IN_ENABLED (1 << 12). 1 << 10 is UNREADS_ALL_MESSAGES,
+        // which the old value toggled by mistake, so opt-ins never stuck.
+        const val CHANNEL_OPT_IN_FLAG = 1 shl 12
+        // User guild settings flag OPT_IN_CHANNELS_ON (1 << 14): only opted-in channels are shown.
+        const val GUILD_OPT_IN_CHANNELS_ON = 1 shl 14
+        // Discord rejects very large ack-bulk bodies; official clients send 100 at a time.
+        const val ACK_BULK_CHUNK = 100
     }
 
     private val _guildIds = MutableStateFlow<List<String>>(emptyList())
@@ -63,6 +71,21 @@ class GuildStore(
             }).map { it.id }
         }
         _guildIds.value = sortedIds
+        refreshGuildPermissions()
+    }
+
+    private var permissionsJob: kotlinx.coroutines.Job? = null
+
+    /** Pulls Discord's computed base permissions for each guild (see GuildApi.getMyGuildPermissions). */
+    fun refreshGuildPermissions() {
+        permissionsJob?.cancel()
+        permissionsJob = scope.launch {
+            val permissions = guildApi.getMyGuildPermissions()
+            permissions.forEach { (guildId, perms) ->
+                val guild = entityStore.guilds.value[guildId] ?: return@forEach
+                if (guild.permissions != perms) entityStore.updateGuild(guild.copy(permissions = perms))
+            }
+        }
     }
 
     fun handleGuildCreate(guild: Guild, order: List<String>) {
@@ -154,25 +177,45 @@ class GuildStore(
         markGuildsAsRead(guildIds, "folder")
     }
 
-    private fun markGuildsAsRead(guildIds: Collection<String>, target: String) {
+    /** Whether the current user can see [channel]; true while the data needed to decide is missing. */
+    fun canViewChannel(channel: Channel): Boolean {
+        val guildId = channel.guild_id ?: return true
+        val guild = entityStore.guilds.value[guildId] ?: return true
+        val userId = userStore.currentUser.value?.id ?: return true
+        val member = userStore.getMember(guildId, userId) ?: return true
+        return PermissionHelper.canViewChannel(member, guild, channel, userId)
+    }
+
+    private fun markGuildsAsRead(guildIds: Collection<String>, target: String, categoryId: String? = null) {
         if (guildIds.isEmpty()) return
         scope.launch {
             try {
+                val guildSet = guildIds.toSet()
                 val readStates = allGuildChannels.value.values
                     .asSequence()
+                    .filter { it.guild_id in guildSet && it.type != 4 }
+                    .filter { categoryId == null || it.parent_id == categoryId }
                     .filter {
-                        it.guild_id in guildIds &&
-                            (readStateStore.isUnread(it) || readStateStore.getMentionCount(it.id) > 0)
+                        readStateStore.isUnread(it) || readStateStore.getMentionCount(it.id) > 0
                     }
+                    // Acking a channel we can't see makes Discord reject the whole batch.
+                    .filter { canViewChannel(it) }
                     .mapNotNull { channel ->
                         readStateStore.mostRecentMessageId(channel)
                             ?.let { channel.id to it }
                     }
                     .toMap()
 
-                if (!readStateStore.ackBulk(readStates)) {
+                if (readStates.isEmpty()) return@launch
+                var failed = 0
+                readStates.entries.chunked(ACK_BULK_CHUNK).forEach { chunk ->
+                    if (!readStateStore.ackBulk(chunk.associate { it.key to it.value })) failed++
+                }
+                if (failed > 0) {
                     errorStore.pushError("Failed to mark $target as read.")
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 errorStore.pushError("Error marking $target as read: ${e.message}")
             }
@@ -217,14 +260,17 @@ class GuildStore(
     }
     fun isChannelOptedIn(guildId: String, channelId: String): Boolean {
         val effectiveGuildId = if (guildId == "@me") null else guildId
-        val override = userGuildSettingsStore.userGuildSettings.value[effectiveGuildId]
-            ?.channel_overrides?.find { it.channel_id == channelId }
-        return override == null || (override.flags and CHANNEL_OPT_IN_FLAG) != 0
+        val settings = userGuildSettingsStore.userGuildSettings.value[effectiveGuildId] ?: return true
+        val override = settings.channel_overrides.find { it.channel_id == channelId }
+        if (override != null && (override.flags and CHANNEL_OPT_IN_FLAG) != 0) return true
+        // Outside opt-in mode every channel is shown, so it counts as opted in.
+        return (settings.flags and GUILD_OPT_IN_CHANNELS_ON) == 0 && override == null
     }
 
     fun setChannelOptIn(guildId: String, channelId: String, enabled: Boolean) {
         val effectiveGuildId = if (guildId == "@me") null else guildId
-        val guildSettings = userGuildSettingsStore.userGuildSettings.value[effectiveGuildId] ?: return
+        val previous = userGuildSettingsStore.userGuildSettings.value[effectiveGuildId]
+        val guildSettings = previous ?: UserGuildSettings(guild_id = effectiveGuildId)
         val currentOverrides = guildSettings.channel_overrides.toMutableList()
         val index = currentOverrides.indexOfFirst { it.channel_id == channelId }
         val existingFlags = if (index != -1) currentOverrides[index].flags else 0
@@ -235,11 +281,26 @@ class GuildStore(
         } else {
             ChannelOverride(channel_id = channelId, flags = newFlags)
         }
-
         if (index != -1) currentOverrides[index] = newOverride else currentOverrides.add(newOverride)
 
+        // Apply locally first so Browse Channels shows the new state when reopened,
+        // then send only the changed override (Discord merges overrides by channel id).
+        userGuildSettingsStore.handlePartialUpdate(
+            UserGuildSettings.Partial(guild_id = effectiveGuildId, channel_overrides = currentOverrides)
+        )
         scope.launch {
-            guildApi.updateUserGuildSettings(guildId, UserGuildSettings.Partial(channel_overrides = currentOverrides))
+            val ok = guildApi.updateUserGuildSettings(
+                guildId,
+                UserGuildSettings.Partial(channel_overrides = listOf(newOverride))
+            )
+            if (!ok) {
+                previous?.let {
+                    userGuildSettingsStore.handlePartialUpdate(
+                        UserGuildSettings.Partial(guild_id = effectiveGuildId, channel_overrides = it.channel_overrides)
+                    )
+                }
+                errorStore.pushError("Couldn't save channel visibility.")
+            }
         }
     }
 
@@ -344,7 +405,7 @@ class GuildStore(
     fun markCategoryAsRead(categoryId: String) {
         val channel = allGuildChannels.value[categoryId] ?: return
         val guildId = channel.guild_id ?: return
-        markGuildAsRead(guildId)
+        markGuildsAsRead(listOf(guildId), "category", categoryId)
     }
 
     fun isFolderUnread(folder: GuildFolder): Boolean {
@@ -361,10 +422,15 @@ class GuildStore(
         }
     }
 
+    fun isChannelMuted(guildId: String?, channelId: String): Boolean =
+        userGuildSettingsStore.isChannelMuted(guildId, channelId)
+
     fun isGuildUnread(guildId: String): Boolean {
         if (userGuildSettingsStore.isGuildMuted(guildId)) return false
         return allGuildChannels.value.values.any { 
-            it.guild_id == guildId && !userGuildSettingsStore.isChannelMuted(it.guild_id, it.id) && readStateStore.isUnread(it) 
+            // Threads arrive from THREAD_LIST_SYNC without read states; counting them kept servers unread forever.
+            it.guild_id == guildId && it.type != 4 && it.type !in 10..12 && !userGuildSettingsStore.isChannelMuted(it.guild_id, it.id) &&
+                readStateStore.isUnread(it) && canViewChannel(it)
         }
     }
 

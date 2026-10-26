@@ -21,7 +21,8 @@ class GuildEventHandler(
         "CHANNEL_CREATE", "CHANNEL_UPDATE", "CHANNEL_DELETE",
         "DM_CREATE",
         "THREAD_CREATE", "THREAD_UPDATE", "THREAD_DELETE", "THREAD_LIST_SYNC",
-        "GUILD_MEMBERS_CHUNK"
+        "GUILD_MEMBERS_CHUNK",
+        "GUILD_ROLE_CREATE", "GUILD_ROLE_UPDATE", "GUILD_ROLE_DELETE"
     )
 
     override fun handleEvent(type: String, data: JsonElement?) {
@@ -35,7 +36,24 @@ class GuildEventHandler(
             "CHANNEL_UPDATE", "THREAD_UPDATE" -> handleChannelUpdate(data)
             "CHANNEL_DELETE", "THREAD_DELETE" -> handleChannelDelete(data)
             "THREAD_LIST_SYNC" -> handleThreadListSync(data)
+            "GUILD_ROLE_CREATE", "GUILD_ROLE_UPDATE" -> handleRoleUpsert(data)
+            "GUILD_ROLE_DELETE" -> handleRoleDelete(data)
         }
+    }
+
+    // Roles drive channel visibility and colors; without these, a role change made while the
+    // app runs (onboarding picks, a mod granting access) never reached the permission checks.
+    private fun handleRoleUpsert(data: JsonElement) {
+        val event = runCatching { json.decodeFromJsonElement<me.lampu.lampcord.shared.model.GuildRoleUpdate>(data) }.getOrNull() ?: return
+        entityStore.updateGuildRoles(event.guild_id) { roles ->
+            val index = roles.indexOfFirst { it.id == event.role.id }
+            if (index == -1) roles + event.role else roles.toMutableList().also { it[index] = event.role }
+        }
+    }
+
+    private fun handleRoleDelete(data: JsonElement) {
+        val event = runCatching { json.decodeFromJsonElement<me.lampu.lampcord.shared.model.GuildRoleDelete>(data) }.getOrNull() ?: return
+        entityStore.updateGuildRoles(event.guild_id) { roles -> roles.filterNot { it.id == event.role_id } }
     }
 
     private fun handleGuildMembersChunk(data: JsonElement) {
