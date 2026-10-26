@@ -42,6 +42,23 @@ jobs:
           key: debug-native-arm64-${{ hashFiles('native/voice/**', 'androidApp/build.gradle.kts') }}
           restore-keys: debug-native-arm64-
 
+      # Same cached key as the release workflow, so debug and release builds update over each other.
+      - name: Restore signing key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: lampcord-test-signing-key-v1
+
+      - name: Create signing key if missing
+        shell: bash
+        run: |
+          mkdir -p ~/.android
+          if [ ! -f ~/.android/debug.keystore ]; then
+            keytool -genkeypair -v -keystore ~/.android/debug.keystore -storepass android \
+              -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
       # Only arm64-v8a: native voice code is compiled once instead of four times.
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --no-daemon -PvoiceAbis=arm64-v8a
