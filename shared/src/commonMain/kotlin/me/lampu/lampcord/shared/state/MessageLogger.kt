@@ -27,7 +27,7 @@ class MessageLogger(
     }
 
     private companion object {
-        val RETENTION = kotlin.time.Duration.parse("7d")
+        val RETENTION = with(kotlin.time.Duration) { 7.days }
     }
 
     fun logMessage(message: Message) {

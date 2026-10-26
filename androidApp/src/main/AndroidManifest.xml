@@ -33,6 +33,13 @@
         android:theme="@style/Theme.Lampcord">
 
         <activity
+            android:name=".CrashReporter$CrashActivity"
+            android:exported="false"
+            android:process=":crash"
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:excludeFromRecents="true" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:allowEmbedded="true"
