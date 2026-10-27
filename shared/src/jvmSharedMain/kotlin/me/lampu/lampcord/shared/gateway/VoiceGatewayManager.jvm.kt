@@ -163,6 +163,7 @@ actual class VoiceGatewayManager actual constructor(private val client: HttpClie
                                                 })
                                             }
                                             2 -> ready(data)
+                                            3 -> send(3, buildJsonObject { put("t", System.currentTimeMillis()); put("seq_ack", sequence) })
                                             4 -> {
                                                 if (mediaStarted) throw VoiceFailure("Unexpected voice session replacement")
                                                 requireE2EE(data["dave_protocol_version"]?.jsonPrimitive?.intOrNull ?: 0)
@@ -421,6 +422,10 @@ actual class VoiceGatewayManager actual constructor(private val client: HttpClie
                     val packet = ByteBuffer.allocate(74).putShort(1).putShort(70).putInt(ssrc).array()
                     socket?.send(DatagramPacket(packet, packet.size))
                 }
+                if (secure && tick % 5 == 0) {
+                    val packet = synchronized(lock) { packets?.encrypt(OPUS_SILENCE) }
+                    packet?.let { socket?.send(DatagramPacket(it, it.size)) }
+                }
                 val cutoff = System.nanoTime() - 300_000_000L
                 val removed = speaking.entries.removeIf { it.value < cutoff }
                 if (removed || tick % 5 == 0) update()
@@ -431,7 +436,9 @@ actual class VoiceGatewayManager actual constructor(private val client: HttpClie
         fun stopIO() {
             secure = false
             socket?.close()
+            socket = null
             audio?.close()
+            audio = null
         }
 
         fun close() {

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.lampu.lampcord.shared.gateway.GatewayManager
 import me.lampu.lampcord.shared.model.Message
+import me.lampu.lampcord.shared.model.previewText
 import me.lampu.lampcord.shared.state.GuildStore
 import me.lampu.lampcord.shared.state.NavigationStore
 import me.lampu.lampcord.shared.ui.components.messagebody.MessageAttachments
@@ -78,12 +79,17 @@ fun ForwardedMessage(
         }
         
         DiscordMarkdownText(
-            content = msg.content,
+            content = msg.previewText,
             style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp)
         )
 
         if (msg.attachments.isNotEmpty() || msg.embeds.isNotEmpty() || !msg.sticker_items.isNullOrEmpty() || !msg.components.isNullOrEmpty()) {
-            MessageAttachments(msg.attachments, msg.embeds, msg.sticker_items, components = msg.components)
+            MessageAttachments(
+                msg.attachments,
+                msg.embeds,
+                msg.sticker_items,
+                components = msg.components
+            )
         }
 
         val reference = message.message_reference

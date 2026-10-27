@@ -277,6 +277,36 @@ class MessageStore(
         }
     }
 
+    /** Merges a fetched page into the cache, replacing existing messages by id. */
+    fun mergeMessages(channelId: String, newMessages: List<Message>) {
+        val channelMessages = messageCache[channelId]?.toMutableList() ?: mutableListOf()
+        var changed = false
+        newMessages.forEach { msg ->
+            val preprocessed = preprocess(msg)
+            val idx = channelMessages.indexOfFirst { it.id == preprocessed.id }
+            if (idx != -1) {
+                if (channelMessages[idx] != preprocessed) {
+                    channelMessages[idx] = preprocessed
+                    messageLogger.logMessage(preprocessed)
+                    changed = true
+                }
+            } else {
+                channelMessages.add(preprocessed)
+                messageLogger.logMessage(preprocessed)
+                changed = true
+            }
+        }
+        if (changed) {
+            val sorted = channelMessages.sortedByDescending { it.id.toLongOrNull() ?: 0L }
+            messageCache[channelId] = sorted
+            recordAccess(channelId)
+            updateAllMessagesFlow()
+        }
+    }
+
+    fun latestCachedMessageId(channelId: String): String? =
+        messageCache[channelId]?.firstOrNull()?.id
+
     fun handleMessageCreate(message: Message) {
         Logging.d("MessageStore", "Handling MESSAGE_CREATE: ${message.id}")
         val preprocessed = preprocess(message)

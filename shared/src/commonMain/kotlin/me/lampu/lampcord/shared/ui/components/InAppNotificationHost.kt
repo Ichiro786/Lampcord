@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.statusBarsPadding
 import me.lampu.lampcord.shared.settings.Settings
+import me.lampu.lampcord.shared.model.previewText
 import me.lampu.lampcord.shared.state.ChannelNavigator
 import me.lampu.lampcord.shared.state.NotificationStore
 import org.koin.compose.koinInject
@@ -61,7 +62,7 @@ fun InAppNotificationHost(
                 exit = if (Settings.shared.reduceMotion) ExitTransition.None else slideOutVertically { -it } + fadeOut()
             ) {
                 val preview = when {
-                    data.message.content.isNotBlank() -> data.message.content
+                    data.message.previewText.isNotBlank() -> data.message.previewText
                     data.message.attachments.isNotEmpty() -> "Sent an attachment"
                     data.message.sticker_items?.isNotEmpty() == true -> "Sent a sticker"
                     data.message.embeds.isNotEmpty() -> data.message.embeds.first().title ?: "Sent an embed"

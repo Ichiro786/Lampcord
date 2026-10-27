@@ -6,6 +6,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import me.lampu.lampcord.shared.api.CdnUrls
 import me.lampu.lampcord.shared.model.Message
 import me.lampu.lampcord.shared.model.UserGuildSettings
+import me.lampu.lampcord.shared.model.previewText
 import me.lampu.lampcord.shared.notifications.IncomingNotificationData
 import me.lampu.lampcord.shared.notifications.MessageNotifier
 import me.lampu.lampcord.shared.state.EntityStore
@@ -57,7 +58,7 @@ class NotificationEventHandler(
 
         if (author.id == currentUser.id) return
         if (message.type != null && message.type != 0 && message.type != 19) return
-        if (message.content.isBlank() && message.attachments.isEmpty() && message.embeds.isEmpty() && message.sticker_items.isNullOrEmpty()) return
+        if (message.previewText.isBlank() && message.attachments.isEmpty() && message.embeds.isEmpty() && message.sticker_items.isNullOrEmpty()) return
         if (navigationStore.selectedChannel?.id == message.channel_id) return
         if (navigationStore.selectedThread?.id == message.channel_id) return
         if (relationshipStore.relationships.value.any { it.type == 2 && (it.user?.id == author.id || it.user_id == author.id) }) return

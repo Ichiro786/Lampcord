@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import me.lampu.lampcord.shared.api.CdnUrls
 import me.lampu.lampcord.shared.model.Message
+import me.lampu.lampcord.shared.model.previewText
 import me.lampu.lampcord.shared.state.EntityStore
 import me.lampu.lampcord.shared.state.FinderResult
 import me.lampu.lampcord.shared.state.FinderStore
@@ -144,9 +145,9 @@ fun ForwardDialog(
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
-                                if (message.content.isNotEmpty()) {
+                                if (message.previewText.isNotEmpty()) {
                                     Text(
-                                        message.content,
+                                        message.previewText,
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurface,
                                         maxLines = 3,

@@ -5,6 +5,8 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +26,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
@@ -725,6 +728,18 @@ if (it.selection.collapsed) {
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .padding(start = 12.dp, top = 8.dp, bottom = 8.dp)
+                                                .pointerInput(navigationStore.isEmojiPickerVisible) {
+                                                    if (!navigationStore.isEmojiPickerVisible) return@pointerInput
+                                                    awaitEachGesture {
+                                                        // Watch for the press without consuming it: the tap must still
+                                                        // place the cursor, but tapping the input while the emoji panel
+                                                        // is open should dismiss the panel and bring the keyboard back.
+                                                        awaitFirstDown(requireUnconsumed = false)
+                                                        navigationStore.isEmojiPickerVisible = false
+                                                        focusRequester.requestFocus()
+                                                        keyboardController?.show()
+                                                    }
+                                                }
                                                 .focusRequester(focusRequester)
                                                 .onFocusChanged { isFocused = it.isFocused }
                                                 .onPreviewKeyEvent { event ->

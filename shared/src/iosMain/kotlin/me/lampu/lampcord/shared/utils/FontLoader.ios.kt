@@ -9,10 +9,13 @@ actual fun loadFont(
     weight: FontWeight,
     style: FontStyle
 ): Font {
-    // Compose Multiplatform syncs source-set resources into the app bundle under
-    // "compose-resources", while ResourceLoader reads from the bundle root; check both.
-    val bytes = ResourceLoader.readBytes(path)
-        ?: ResourceLoader.readBytes("compose-resources/$path")
-        ?: error("Font resource is missing: $path")
+    // Custom fonts (imported picker files and downloaded theme fonts) are written to the app's
+    // storage directory and addressed by absolute path. Bundled fonts are Compose resources, which
+    // live in the bundle root or under the "compose-resources" directory.
+    val bytes = if (path.startsWith("/")) {
+        readBytes(path)
+    } else {
+        ResourceLoader.readBytes(path) ?: ResourceLoader.readBytes("compose-resources/$path")
+    } ?: error("Font is missing: $path")
     return androidx.compose.ui.text.platform.Font(path, bytes, weight, style)
 }

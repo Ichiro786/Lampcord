@@ -1,6 +1,8 @@
 package me.lampu.lampcord.shared.state
 
 import androidx.compose.runtime.*
+import kotlinx.coroutines.CancellationException
+import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
@@ -20,6 +22,7 @@ import me.lampu.lampcord.shared.model.Onboarding
 import me.lampu.lampcord.shared.model.memberListId
 import me.lampu.lampcord.shared.notifications.MessageNotifier
 import me.lampu.lampcord.shared.settings.Settings
+import me.lampu.lampcord.shared.utils.Logging
 
 class NavigationStore(
     private val channelApi: ChannelApi,
@@ -43,6 +46,8 @@ class NavigationStore(
     val focusChatRequest = _focusChatRequest.asSharedFlow()
 
     private val _chatInteraction = MutableStateFlow<ChatInteraction?>(null)
+
+    private val lastChannelRefreshMillis = mutableMapOf<String, Long>()
 
     /**
      * What the chat view is currently showing, reported by ChatArea. Distinct from
@@ -347,7 +352,12 @@ class NavigationStore(
             // chat to the front instead of silently doing nothing.
             if (explicitlySelected) {
                 isFriendsSelected = false
+                notifier?.dismissChannelNotifications(channel.id)
                 triggerFocusChat()
+                // While the app was backgrounded this channel stayed selected, so messages sent from
+                // another client never came through the gateway and the open chat looked out of date.
+                // Pull the latest page so an explicit re-open (notification tap, DM pick) catches up.
+                refreshChannelMessages(channel)
             }
             return
         }
@@ -419,6 +429,34 @@ class NavigationStore(
                 }
                 messageStore.addMessages(channel.id, channelMessages)
                 channelMessages.firstOrNull()?.let { readStateStore.ackMessage(channel.id, it.id) }
+            }
+        }
+    }
+
+    /** Refetches the newest page for an already-open channel. */
+    private fun refreshChannelMessages(channel: Channel) {
+        val now = Clock.System.now().toEpochMilliseconds()
+        if (now - (lastChannelRefreshMillis[channel.id] ?: 0L) < 5_000L) return
+        lastChannelRefreshMillis[channel.id] = now
+        scope.launch {
+            try {
+                val latest = messageApi.getChannelMessages(channel.id)
+                if (latest.isEmpty()) return@launch
+                latest.forEach { msg ->
+                    msg.author?.let { author ->
+                        msg.member?.let { m ->
+                            userStore.cacheMember(channel.guild_id ?: selectedGuild?.id ?: "", author.id, m)
+                        }
+                    }
+                }
+                messageStore.mergeMessages(channel.id, latest)
+                if (selectedChannel?.id == channel.id && shouldAutoAcknowledge(channel.id)) {
+                    latest.firstOrNull()?.let { readStateStore.ackMessage(channel.id, it.id) }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Logging.w("NavigationStore", "Channel refresh failed for ${channel.id}", e)
             }
         }
     }

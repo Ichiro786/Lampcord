@@ -17,6 +17,7 @@ import me.lampu.lampcord.shared.model.Message
 import me.lampu.lampcord.shared.model.MessageComponent
 import me.lampu.lampcord.shared.model.Poll
 import me.lampu.lampcord.shared.model.StickerItem
+import me.lampu.lampcord.shared.model.collectReferencedAttachments
 import me.lampu.lampcord.shared.state.NavigationStore
 import org.koin.compose.koinInject
 
@@ -50,9 +51,18 @@ fun MessageAttachments(
     message: Message? = null,
     navigationStore: NavigationStore = koinInject()
 ) {
-    val images = attachments.filter { it.isImage() }
-    val videos = attachments.filter { it.isVideo() }
-    val otherFiles = attachments.filter { !it.isImage() && !it.isVideo() }
+    val referencedAttachmentKeys = collectReferencedAttachments(components.orEmpty())
+    // Components V2 messages reference their uploads from media/file components; rendering the raw
+    // attachment list too would duplicate every image.
+    val visibleAttachments = if (referencedAttachmentKeys.isEmpty()) {
+        attachments
+    } else {
+        attachments.filterNot { it.id in referencedAttachmentKeys || it.filename in referencedAttachmentKeys }
+    }
+
+    val images = visibleAttachments.filter { it.isImage() }
+    val videos = visibleAttachments.filter { it.isVideo() }
+    val otherFiles = visibleAttachments.filter { !it.isImage() && !it.isVideo() }
     
     val viewableItems: List<DiscordMedia> = images + videos
 
@@ -135,7 +145,7 @@ fun MessageAttachments(
         }
 
     components?.let {
-        MessageComponentsRow(it)
+        MessageComponentsRow(it, attachments)
     }
 }
 

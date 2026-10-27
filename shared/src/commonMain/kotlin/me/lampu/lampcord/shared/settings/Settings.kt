@@ -21,6 +21,7 @@ class Settings(private val settings: KmpSettings) {
     var syncAppearance by preferenceBoolean("sync_appearance", true)
     var fontScale by preferenceFloat("font_scale", 1.0f)
     var customFontPath by preference("custom_font_path", "")
+    var customFontName by preference("custom_font_name", "")
     var chatBackground by preference("chat_background", "")
     var activeThemeJson by preference("active_theme_json", "")
     var installedThemesJson by preference("installed_themes_json", "[]")

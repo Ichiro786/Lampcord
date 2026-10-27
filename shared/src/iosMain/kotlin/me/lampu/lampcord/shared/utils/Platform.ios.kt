@@ -27,6 +27,7 @@ import platform.posix.fwrite
 import platform.posix.getenv
 import platform.posix.mkdir
 import platform.posix.stat
+import platform.posix.unlink
 
 actual fun getPlatformName(): String = "ios"
 
@@ -100,6 +101,9 @@ actual fun readInternalFile(name: String): String? =
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun checkInternalFileExists(name: String): Boolean = stat(internalFile(name), null) == 0
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun deleteInternalFile(name: String): Boolean = unlink(internalFile(name)) == 0
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun getInternalFilePath(name: String): String = internalFile(name)
