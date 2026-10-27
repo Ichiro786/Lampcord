@@ -15,9 +15,7 @@ class Navigator(
                 val stack = state.backStacks.getValue(topLevelKey)
                 while (stack.size > 1) stack.removeLastOrNull()
             }
-            if (topLevelKey is Screen) {
-                state.topLevelRoute = topLevelKey
-            }
+            state.topLevelRoute = topLevelKey
         } else {
             val stack = state.backStacks[state.topLevelRoute] ?: return
             if (stack.lastOrNull() != route) {

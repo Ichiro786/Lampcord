@@ -344,9 +344,6 @@ fun MessageItem(
                         val dragStart = awaitHorizontalTouchSlopOrCancellation(down.id) { change, _ ->
                             if (change.position.x < down.position.x) {
                                 change.consume()
-                                true
-                            } else {
-                                false
                             }
                         } ?: return@awaitEachGesture
 

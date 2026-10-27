@@ -199,7 +199,7 @@ internal class ApngFrameSource private constructor(
                     canvas.restore()
                 }
 
-                val frameImage = Image.makeFromEncoded(frameStreams[index]) ?: break
+                val frameImage = Image.makeFromEncoded(frameStreams[index])
                 try {
                     if (frameImage.width != frameWidth || frameImage.height != frameHeight) {
 
