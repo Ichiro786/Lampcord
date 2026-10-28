@@ -200,19 +200,25 @@ class GuildStore(
     }
 
     fun unmuteGuild(guildId: String) {
+        val effectiveGuildId = if (guildId == "@me") null else guildId
+        val partial = UserGuildSettings.Partial(guild_id = effectiveGuildId, muted = false, mute_config = null)
+        userGuildSettingsStore.handlePartialUpdate(partial)
         scope.launch {
-            guildApi.updateUserGuildSettings(guildId, UserGuildSettings.Partial(muted = false, mute_config = null))
+            guildApi.updateUserGuildSettings(guildId, partial)
         }
     }
 
     fun muteGuild(guildId: String, duration: Duration?) {
+        val effectiveGuildId = if (guildId == "@me") null else guildId
         val muteConfig = if (duration != null) {
             val endTime = (Clock.System.now() + duration).toString()
             MuteConfig(end_time = endTime)
         } else MuteConfig(end_time = null)
 
+        val partial = UserGuildSettings.Partial(guild_id = effectiveGuildId, muted = true, mute_config = muteConfig)
+        userGuildSettingsStore.handlePartialUpdate(partial)
         scope.launch {
-            guildApi.updateUserGuildSettings(guildId, UserGuildSettings.Partial(muted = true, mute_config = muteConfig))
+            guildApi.updateUserGuildSettings(guildId, partial)
         }
     }
     fun isChannelOptedIn(guildId: String, channelId: String): Boolean {
