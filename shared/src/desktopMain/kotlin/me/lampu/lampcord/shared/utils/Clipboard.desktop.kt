@@ -46,7 +46,9 @@ actual fun getClipboardFiles(): List<Pair<String, ByteArray>> {
     if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
         return readPastedFiles(transferable)
     }
-    return readPastedImage(transferable)?.let(::listOf) ?: emptyList()
+    val image = readPastedImage(transferable)
+    if (image != null) return listOf(image)
+    return readClipboardImageFromCommand() ?: emptyList()
 }
 
 private fun readPastedFiles(transferable: Transferable): List<Pair<String, ByteArray>> {
@@ -68,8 +70,10 @@ private fun readPastedFiles(transferable: Transferable): List<Pair<String, ByteA
 }
 
 private fun readPastedImage(transferable: Transferable): Pair<String, ByteArray>? {
-    for (flavor in IMAGE_FLAVORS) {
+    val flavors = transferable.transferDataFlavors.toList() + IMAGE_FLAVORS
+    for (flavor in flavors.distinct()) {
         if (!transferable.isDataFlavorSupported(flavor)) continue
+        if (!flavor.mimeType.startsWith("image/")) continue
         try {
             when (val data = transferable.getTransferData(flavor)) {
                 is Image -> return IMAGE_NAME to encodePng(data.toBufferedImage())
@@ -78,6 +82,29 @@ private fun readPastedImage(transferable: Transferable): Pair<String, ByteArray>
             }
         } catch (e: Exception) {
             Logging.e(TAG, "Could not read a pasted image as ${flavor.mimeType}", e)
+        }
+    }
+    return null
+}
+
+private fun readClipboardImageFromCommand(): List<Pair<String, ByteArray>>? {
+    val commands = listOf(
+        listOf("wl-paste", "--type", "image/png"),
+        listOf("wl-paste", "--type", "image/jpeg"),
+        listOf("xclip", "-selection", "clipboard", "-t", "image/png", "-o"),
+        listOf("xclip", "-selection", "clipboard", "-t", "image/jpeg", "-o"),
+    )
+    for (command in commands) {
+        try {
+            val process = ProcessBuilder(command).start()
+            val bytes = process.inputStream.readBytes()
+            val exit = process.waitFor()
+            if (exit == 0 && bytes.isNotEmpty()) {
+                val name = if (command.contains("jpeg")) "pasted_image.jpg" else IMAGE_NAME
+                return listOf(name to bytes)
+            }
+        } catch (e: Exception) {
+            Logging.d(TAG, "Clipboard command unavailable: ${command.joinToString(" ")}")
         }
     }
     return null
