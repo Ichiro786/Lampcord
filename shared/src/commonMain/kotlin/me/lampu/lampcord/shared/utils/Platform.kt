@@ -41,6 +41,8 @@ expect fun readInternalFile(name: String): String?
 
 expect fun checkInternalFileExists(name: String): Boolean
 
+expect fun deleteInternalFile(name: String): Boolean
+
 expect fun getInternalFilePath(name: String): String
 
 expect fun showToast(text: String)

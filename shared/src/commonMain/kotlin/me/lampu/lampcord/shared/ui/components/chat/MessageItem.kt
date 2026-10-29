@@ -71,6 +71,7 @@ import me.lampu.lampcord.shared.api.MessageApi
 import me.lampu.lampcord.shared.model.Emoji
 import me.lampu.lampcord.shared.model.Message
 import me.lampu.lampcord.shared.model.getDisplayUrl
+import me.lampu.lampcord.shared.model.previewText
 import me.lampu.lampcord.shared.state.ChannelNavigator
 import me.lampu.lampcord.shared.state.EmojiStore
 import me.lampu.lampcord.shared.state.GuildStore
@@ -251,7 +252,7 @@ fun MessageItem(
             }, group = "Secondary"))
         }
 
-        items.add(ContextMenuItem("Copy Text", Icons.Filled.ContentCopy, onClick = { setClipboardText(message.content) }, group = "Content"))
+        items.add(ContextMenuItem("Copy Text", Icons.Filled.ContentCopy, onClick = { setClipboardText(message.previewText) }, group = "Content"))
         items.add(ContextMenuItem("Copy Link", Icons.Filled.Link, onClick = {
             val guildId = message.guild_id ?: navigationStore.selectedGuild?.id ?: "@me"
             val channelId = message.channel_id
@@ -356,9 +357,6 @@ fun MessageItem(
                         val dragStart = awaitHorizontalTouchSlopOrCancellation(down.id) { change, _ ->
                             if (change.position.x < down.position.x) {
                                 change.consume()
-                                true
-                            } else {
-                                false
                             }
                         } ?: return@awaitEachGesture
 

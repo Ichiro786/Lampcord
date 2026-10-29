@@ -82,6 +82,10 @@ actual fun checkInternalFileExists(name: String): Boolean {
     return java.io.File(getAppStoragePath(), name).exists()
 }
 
+actual fun deleteInternalFile(name: String): Boolean {
+    return java.io.File(getAppStoragePath(), name).delete()
+}
+
 actual fun getInternalFilePath(name: String): String {
     return java.io.File(getAppStoragePath(), name).absolutePath
 }

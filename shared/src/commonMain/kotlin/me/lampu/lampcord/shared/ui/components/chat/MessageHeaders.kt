@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import me.lampu.lampcord.shared.model.Message
 import me.lampu.lampcord.shared.model.MessageInteraction
+import me.lampu.lampcord.shared.model.previewText
 import me.lampu.lampcord.shared.state.MessageStore
 import me.lampu.lampcord.shared.state.NavigationStore
 import me.lampu.lampcord.shared.state.SettingsStore
@@ -314,7 +315,7 @@ fun ReplyBar(
         Spacer(modifier = Modifier.width(4.dp))
 
         val replyContent = when {
-            referencedMessage.content.isNotBlank() -> referencedMessage.content
+            referencedMessage.previewText.isNotBlank() -> referencedMessage.previewText
             referencedMessage.attachments.isNotEmpty() -> "Click to see attachment"
             referencedMessage.embeds.isNotEmpty() -> "Click to see embed"
             else -> "Original message"

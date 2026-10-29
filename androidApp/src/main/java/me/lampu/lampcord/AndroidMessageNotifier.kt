@@ -15,6 +15,7 @@ import me.lampu.lampcord.shared.notifications.IncomingNotificationData
 import me.lampu.lampcord.shared.notifications.MessageNotifier
 import me.lampu.lampcord.shared.notifications.NotificationPushType
 import me.lampu.lampcord.shared.notifications.isDirectMessageChannel
+import me.lampu.lampcord.shared.model.previewText
 import me.lampu.lampcord.shared.settings.Settings
 import me.lampu.lampcord.shared.state.NotificationStore
 import me.lampu.lampcord.shared.state.UserStore
@@ -187,7 +188,7 @@ class AndroidMessageNotifier(
         if (!Settings.shared.showMessagePreview) return context.getString(R.string.notification_preview_hidden)
         val message = data.message
         return when {
-            message.content.isNotBlank() -> message.content
+            message.previewText.isNotBlank() -> message.previewText
             message.attachments.isNotEmpty() -> context.getString(R.string.notification_preview_attachment)
             message.sticker_items?.isNotEmpty() == true -> context.getString(R.string.notification_preview_sticker)
             message.embeds.isNotEmpty() -> context.getString(R.string.notification_preview_embed)

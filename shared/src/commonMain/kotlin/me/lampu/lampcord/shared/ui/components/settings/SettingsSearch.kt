@@ -161,8 +161,6 @@ private fun SettingsSearchResultRow(
         bottomEnd = if (isLast) cornerRadius else reducedRadius,
     )
     
-    val iconTones = rememberSettingsIconTones()
-    val (iconTint, iconContainerColor) = iconTones[entry.toneName] ?: iconTones.getValue("neutral")
     val path = listOfNotNull(entry.screen, entry.section).distinct().joinToString(" / ")
 
     Surface(
@@ -175,17 +173,12 @@ private fun SettingsSearchResultRow(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                modifier = Modifier.size(32.dp).clip(CircleShape).background(iconContainerColor),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = entry.icon,
-                    contentDescription = null,
-                    tint = iconTint,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
+            Icon(
+                imageVector = entry.icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(24.dp),
+            )
 
             Spacer(modifier = Modifier.width(16.dp))
 

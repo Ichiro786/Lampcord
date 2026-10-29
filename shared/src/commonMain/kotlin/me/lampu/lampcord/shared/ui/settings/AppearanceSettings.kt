@@ -33,6 +33,7 @@ import me.lampu.lampcord.shared.ui.components.HsvColorPicker
 import me.lampu.lampcord.shared.ui.components.settings.*
 import me.lampu.lampcord.shared.ui.icons.Icons
 import me.lampu.lampcord.shared.utils.FilePicker
+import me.lampu.lampcord.shared.utils.importCustomFont
 import org.koin.compose.koinInject
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -324,8 +325,9 @@ fun AppearanceSettingsContent(
                                 FilePicker(
                                     show = showFontPicker,
                                     onFileSelected = { files ->
-                                        files.firstOrNull()?.let { (path, _) ->
-                                            settingsStore.customFontPath = path
+                                        files.firstOrNull()?.let { (name, bytes) ->
+                                            settingsStore.customFontPath = importCustomFont(name, bytes)
+                                            settingsStore.customFontName = name
                                         }
                                         showFontPicker = false
                                     },
@@ -347,7 +349,13 @@ fun AppearanceSettingsContent(
                                         Icon(Icons.Rounded.FolderOpen, null, tint = MaterialTheme.colorScheme.primary)
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(
-                                                if (settingsStore.customFontPath.isEmpty()) "Choose font file" else settingsStore.customFontPath.split("/").last(),
+                                                if (settingsStore.customFontPath.isEmpty()) {
+                                                    "Choose font file"
+                                                } else {
+                                                    settingsStore.customFontName.ifEmpty {
+                                                        settingsStore.customFontPath.split("/").last()
+                                                    }
+                                                },
                                                 style = MaterialTheme.typography.bodyLarge,
                                                 fontWeight = FontWeight.Bold
                                             )
@@ -362,7 +370,10 @@ fun AppearanceSettingsContent(
                                             }
                                         }
                                         if (settingsStore.customFontPath.isNotEmpty()) {
-                                            IconButton(onClick = { settingsStore.customFontPath = "" }) {
+                                            IconButton(onClick = {
+                                                settingsStore.customFontPath = ""
+                                                settingsStore.customFontName = ""
+                                            }) {
                                                 Icon(Icons.Rounded.Close, null)
                                             }
                                         }

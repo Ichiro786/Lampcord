@@ -64,6 +64,7 @@ data class Message(
     val message_snapshots: List<MessageSnapshot>? = null,
     val poll: Poll? = null,
     val components: List<MessageComponent>? = null,
+    val flags: Int? = null,
     val interaction: MessageInteraction? = null,
     val interaction_metadata: MessageInteractionMetadata? = null,
     val thread: Channel? = null,
@@ -73,6 +74,19 @@ data class Message(
     val isDeleted: Boolean = false,
     val oldContent: String? = null
 ) {
+    /** Discord sets `IS_COMPONENTS_V2` (1 << 15) for messages whose layout lives in components. */
+    val isComponentsV2: Boolean get() = ((flags ?: 0) and COMPONENTS_V2_FLAG) != 0
+
+    /** Notification/notification-preview text, falling back to the text displays used by Components V2. */
+    val previewText: String
+        get() = if (content.isNotBlank()) {
+            content
+        } else {
+            val collected = components.orEmpty().flatMap { it.collectText() }.joinToString("\n").trim()
+            if (collected.isNotBlank()) collected
+            else components.orEmpty().flatMap { it.collectFallbackText() }.joinToString("\n").trim()
+        }
+
     fun merge(data: kotlinx.serialization.json.JsonObject, json: kotlinx.serialization.json.Json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }): Message {
         return this.copy(
             content = data["content"]?.jsonPrimitive?.content ?: content,
@@ -81,10 +95,54 @@ data class Message(
             embeds = data["embeds"]?.jsonArray?.map { json.decodeFromJsonElement<Embed>(it) } ?: embeds,
             attachments = data["attachments"]?.jsonArray?.map { json.decodeFromJsonElement<Attachment>(it) } ?: attachments,
             components = data["components"]?.jsonArray?.map { json.decodeFromJsonElement<MessageComponent>(it) } ?: components,
+            flags = data["flags"]?.jsonPrimitive?.contentOrNull?.toIntOrNull() ?: flags,
             poll = data["poll"]?.let { json.decodeFromJsonElement<Poll>(it) } ?: poll
         )
     }
 }
+
+private const val COMPONENTS_V2_FLAG = 1 shl 15
+
+/** Every text display reachable from a component, including nested containers and sections. */
+fun MessageComponent.collectText(): List<String> = buildList {    content?.takeIf { it.isNotBlank() }?.let { add(it) }
+    components?.forEach { addAll(it.collectText()) }
+    accessory?.let { addAll(it.collectText()) }
+}
+
+/** Fallback preview text from labels, names, and descriptions. */
+fun MessageComponent.collectFallbackText(): List<String> = buildList {
+    label?.takeIf { it.isNotBlank() }?.let { add(it) }
+    name?.takeIf { it.isNotBlank() }?.let { add(it) }
+    description?.takeIf { it.isNotBlank() }?.let { add(it) }
+    content?.takeIf { it.isNotBlank() }?.let { add(it) }
+    items?.forEach { item -> item.description?.takeIf { it.isNotBlank() }?.let { add(it) } }
+    components?.forEach { addAll(it.collectFallbackText()) }
+    accessory?.let { addAll(it.collectFallbackText()) }
+}
+
+/**
+ * Attachment ids/filenames referenced by Components V2 media, thumbnail and file components.
+ *
+ * In a Components V2 message clients only render attachments that a component explicitly points
+ * at, so the plain attachment list has to skip these to avoid showing each one twice.
+ */
+fun collectReferencedAttachments(components: List<MessageComponent>): Set<String> {
+    val keys = mutableSetOf<String>()
+
+    fun collect(component: MessageComponent) {
+        component.media?.attachmentKey()?.let { keys.add(it) }
+        component.file?.attachmentKey()?.let { keys.add(it) }
+        component.items.orEmpty().forEach { item -> item.media.attachmentKey()?.let { keys.add(it) } }
+        component.components.orEmpty().forEach { collect(it) }
+        component.accessory?.let { collect(it) }
+    }
+
+    components.forEach { collect(it) }
+    return keys
+}
+
+private fun UnfurledMediaItem.attachmentKey(): String? =
+    attachment_id ?: url.takeIf { it.startsWith("attachment://") }?.removePrefix("attachment://")
 
 @Serializable
 data class AllowedMentions(
@@ -121,6 +179,17 @@ data class SnapshotMessage(
     val sticker_items: List<StickerItem>? = null,
     val components: List<MessageComponent>? = null
 )
+
+val SnapshotMessage.isComponentsV2: Boolean get() = ((flags ?: 0) and COMPONENTS_V2_FLAG) != 0
+
+val SnapshotMessage.previewText: String
+    get() = if (content.isNotBlank()) {
+        content
+    } else {
+        val collected = components.orEmpty().flatMap { it.collectText() }.joinToString("\n").trim()
+        if (collected.isNotBlank()) collected
+        else components.orEmpty().flatMap { it.collectFallbackText() }.joinToString("\n").trim()
+    }
 
 @Serializable
 data class Poll(
@@ -160,6 +229,7 @@ data class PollAnswerCount(
 @Serializable
 data class MessageComponent(
     val type: Int,
+    val id: Int? = null,
     val components: List<MessageComponent>? = null,
     val style: Int? = null,
     val label: String? = null,
@@ -170,7 +240,42 @@ data class MessageComponent(
     val placeholder: String? = null,
     val min_values: Int? = null,
     val max_values: Int? = null,
-    val options: List<SelectMenuOption>? = null
+    val options: List<SelectMenuOption>? = null,
+    // Components V2 layout/content fields.
+    val content: String? = null,
+    val media: UnfurledMediaItem? = null,
+    val items: List<MediaGalleryItem>? = null,
+    val accessory: MessageComponent? = null,
+    val accent_color: Int? = null,
+    val spoiler: Boolean? = null,
+    val divider: Boolean? = null,
+    val spacing: Int? = null,
+    val file: UnfurledMediaItem? = null,
+    val name: String? = null,
+    val size: Int? = null,
+    val description: String? = null
+)
+
+@Serializable
+data class UnfurledMediaItem(
+    val url: String = "",
+    val proxy_url: String? = null,
+    val height: Int? = null,
+    val width: Int? = null,
+    val placeholder: String? = null,
+    val content_type: String? = null,
+    val flags: Int? = null,
+    val attachment_id: String? = null
+) {
+    val isAnimated: Boolean get() = ((flags ?: 0) and 1) != 0
+}
+
+@Serializable
+data class MediaGalleryItem(
+    val media: UnfurledMediaItem = UnfurledMediaItem(),
+    val description: String? = null,
+    val spoiler: Boolean? = null,
+    val id: Int? = null
 )
 
 @Serializable

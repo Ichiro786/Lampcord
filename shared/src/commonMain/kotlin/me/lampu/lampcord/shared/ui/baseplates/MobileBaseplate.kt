@@ -1040,12 +1040,13 @@ private fun MainBaseplateContent(
                                             Text(
                                                 text = if (activeChannel.type == 3) {
                                                     if (activeChannel.name?.isNotBlank() == true) {
-                                                        activeChannel.name!!
+                                                        activeChannel.name
                                                     } else {
                                                         val recipients = activeChannel.recipients?.mapNotNull { allUsers[it.id] ?: it }
                                                             ?: activeChannel.recipient_ids?.mapNotNull { allUsers[it] }
                                                             ?: emptyList()
-                                                        val otherRecipients = if (currentUser != null) recipients.filter { it.id != currentUser?.id } else recipients
+                                                        val currentUserId = currentUser?.id
+                                                        val otherRecipients = if (currentUserId != null) recipients.filter { it.id != currentUserId } else recipients
                                                         val displayList = if (otherRecipients.isNotEmpty()) otherRecipients else recipients
                                                         displayList.mapNotNull { it.global_name ?: it.username }
                                                             .joinToString(", ")

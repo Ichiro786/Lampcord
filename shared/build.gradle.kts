@@ -77,9 +77,10 @@ kotlin {
         namespace = "me.lampu.lampcord.shared"
         compileSdk = 37
         minSdk = 24
-        // The KMP Android library plugin leaves Android resources off by default, and Compose
-        // Multiplatform resources ride on them: without this, composeResources/** never reach
-        // the APK and the first stringResource() throws MissingResourceException at launch.
+        // Compose Multiplatform packages its strings and other resources as Android
+        // assets. The KMP library plugin disables Android resource processing by default,
+        // which silently drops those assets from the AAR/APK: every string lookup then
+        // crashes at runtime with MissingResourceException (e.g. values/*.commonMain.cvr).
         androidResources {
             enable = true
         }

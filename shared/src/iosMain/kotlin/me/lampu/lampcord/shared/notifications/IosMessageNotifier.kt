@@ -22,6 +22,7 @@ import platform.UserNotifications.UNNotificationRequest
 import platform.UserNotifications.UNNotificationSound
 import platform.UserNotifications.UNUserNotificationCenter
 import me.lampu.lampcord.shared.settings.Settings
+import me.lampu.lampcord.shared.model.previewText
 import me.lampu.lampcord.shared.state.NotificationStore
 import me.lampu.lampcord.shared.utils.Logging
 
@@ -126,7 +127,7 @@ class IosMessageNotifier(
         if (!Settings.shared.showMessagePreview) return "New message"
         val message = data.message
         return when {
-            message.content.isNotBlank() -> message.content
+            message.previewText.isNotBlank() -> message.previewText
             message.attachments.isNotEmpty() -> "Sent an attachment"
             message.sticker_items?.isNotEmpty() == true -> "Sent a sticker"
             message.embeds.isNotEmpty() -> "Sent an embed"

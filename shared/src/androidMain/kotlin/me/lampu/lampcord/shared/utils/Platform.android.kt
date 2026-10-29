@@ -258,6 +258,10 @@ actual fun checkInternalFileExists(name: String): Boolean {
     return java.io.File(AndroidContext.context.filesDir, name).exists()
 }
 
+actual fun deleteInternalFile(name: String): Boolean {
+    return java.io.File(AndroidContext.context.filesDir, name).delete()
+}
+
 actual fun getInternalFilePath(name: String): String {
     return java.io.File(AndroidContext.context.filesDir, name).absolutePath
 }
