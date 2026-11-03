@@ -10,6 +10,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -33,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Dp
@@ -51,6 +54,7 @@ import me.lampu.lampcord.shared.utils.Logging
 import me.lampu.lampcord.shared.api.ProfileBoard
 import me.lampu.lampcord.shared.api.ProfileBoardApi
 import org.koin.compose.koinInject
+import kotlin.math.roundToInt
 import androidx.compose.material3.LocalContentColor
 
 import me.lampu.lampcord.shared.ui.components.ShimmerBox
@@ -172,23 +176,49 @@ fun UserProfileDialog(
 ) {
     val popupPosition = profileStore.profilePosition
     val isExpanded = profileStore.isProfileExpanded
-    val cardWidth = if (isExpanded) 450.dp else 300.dp
-    val frameInsets = rememberFrameInsets(profile, profileStore, cardWidth)
+    val reduceMotion = Settings.shared.reduceMotion
     val density = LocalDensity.current
-    val frameInsetXPx = with(density) { frameInsets.horizontal.roundToPx() }
 
-    val anchor = popupPosition
-    val isCentered = anchor == null || isExpanded
-    val placementOffset = if (anchor == null || isExpanded) {
-        IntOffset.Zero
-    } else {
-        IntOffset(
-            x = (if (anchor.x < 500) (anchor.x + 60).toInt() else (anchor.x - 320).toInt()) - frameInsetXPx,
-            y = (anchor.y.toInt() - 100).coerceAtLeast(10)
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val maxWidthPx = with(density) { maxWidth.toPx() }
+        val maxHeightPx = with(density) { maxHeight.toPx() }
+        val marginPx = with(density) { 12.dp.toPx() }
+        val availableCardWidth = minOf(
+            if (isExpanded) 450.dp else 300.dp,
+            (maxWidth - 24.dp).coerceAtLeast(200.dp)
         )
-    }
+        val availableCardHeight = (maxHeight - 24.dp).coerceAtLeast(180.dp)
+        val cardWidthPx = with(density) { availableCardWidth.toPx() }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+        var cardHeightPx by remember(profile?.user?.id, isExpanded) {
+            mutableIntStateOf(with(density) { 420.dp.roundToPx() })
+        }
+
+        val anchor = popupPosition
+        val isCentered = anchor == null || isExpanded
+        val openRight = !isCentered && anchor.x < maxWidthPx / 2f
+
+        val placementOffset = if (isCentered) {
+            IntOffset(
+                x = ((maxWidthPx - cardWidthPx) / 2f).roundToInt()
+                    .coerceAtLeast(marginPx.roundToInt()),
+                y = ((maxHeightPx - cardHeightPx) / 2f).roundToInt()
+                    .coerceAtLeast(marginPx.roundToInt())
+            )
+        } else {
+            val preferredX = if (openRight) {
+                anchor.x + with(density) { 60.dp.toPx() }
+            } else {
+                anchor.x - cardWidthPx - with(density) { 20.dp.toPx() }
+            }
+            val maxX = (maxWidthPx - cardWidthPx - marginPx).coerceAtLeast(marginPx)
+            val x = preferredX.coerceIn(marginPx, maxX)
+            val preferredY = anchor.y - with(density) { 80.dp.toPx() }
+            val maxY = (maxHeightPx - cardHeightPx - marginPx)
+                .coerceAtLeast(marginPx)
+            IntOffset(x.roundToInt(), preferredY.roundToInt().coerceIn(marginPx.roundToInt(), maxY.roundToInt()))
+        }
+
         if (profile != null) {
             Box(
                 modifier = Modifier
@@ -202,13 +232,37 @@ fun UserProfileDialog(
             )
         }
 
+        val enter = if (reduceMotion) {
+            EnterTransition.None
+        } else if (isCentered) {
+            fadeIn(tween(180, easing = LinearOutSlowInEasing)) +
+                scaleIn(tween(180, easing = FastOutSlowInEasing), initialScale = 0.94f)
+        } else {
+            slideInHorizontally(
+                animationSpec = tween(220, easing = FastOutSlowInEasing),
+                initialOffsetX = { if (openRight) -it / 3 else it / 3 }
+            ) +
+                fadeIn(tween(160, easing = LinearOutSlowInEasing)) +
+                scaleIn(tween(220, easing = FastOutSlowInEasing), initialScale = 0.96f)
+        }
+        val exit = if (reduceMotion) {
+            ExitTransition.None
+        } else if (isCentered) {
+            fadeOut(tween(140)) + scaleOut(tween(140), targetScale = 0.94f)
+        } else {
+            slideOutHorizontally(
+                animationSpec = tween(160, easing = FastOutSlowInEasing),
+                targetOffsetX = { if (openRight) -it / 4 else it / 4 }
+            ) + fadeOut(tween(120))
+        }
+
         AnimatedVisibility(
             visible = profile != null,
             modifier = Modifier
-                .align(if (isCentered) Alignment.Center else Alignment.TopStart)
+                .align(Alignment.TopStart)
                 .offset { placementOffset },
-            enter = if (me.lampu.lampcord.shared.settings.Settings.shared.reduceMotion) EnterTransition.None else fadeIn(tween(200, easing = LinearOutSlowInEasing)) + scaleIn(tween(200, easing = FastOutSlowInEasing), initialScale = 0.9f),
-            exit = if (me.lampu.lampcord.shared.settings.Settings.shared.reduceMotion) ExitTransition.None else fadeOut(tween(150)) + scaleOut(tween(150), targetScale = 0.9f)
+            enter = enter,
+            exit = exit
         ) {
             if (profile != null) {
                 ProfileCard(
@@ -217,15 +271,14 @@ fun UserProfileDialog(
                     onExpand = { profileStore.isProfileExpanded = true },
                     onDismiss = onDismiss,
                     modifier = Modifier
-                        .padding(
-                            start = frameInsets.horizontal,
-                            end = frameInsets.horizontal,
-                            bottom = frameInsets.bottom
-                        )
                         .then(
-                            if (isExpanded) Modifier.width(450.dp).heightIn(max = 800.dp)
-                            else Modifier.width(300.dp).wrapContentHeight()
+                            if (isExpanded) {
+                                Modifier.width(availableCardWidth).heightIn(max = minOf(800.dp, availableCardHeight))
+                            } else {
+                                Modifier.width(availableCardWidth).heightIn(max = availableCardHeight).wrapContentHeight()
+                            }
                         )
+                        .onSizeChanged { cardHeightPx = it.height }
                 )
             }
         }
@@ -255,6 +308,8 @@ fun ProfileCard(
     bannerContentScale: ContentScale = ContentScale.Crop,
     showBoardTab: Boolean = false,
     showFrameOverlay: Boolean = true,
+    showFrameArt: Boolean = true,
+    showBottomFrame: Boolean = true,
     userStore: UserStore = koinInject(),
     clientProfileStore: ClientProfileStore = koinInject(),
     settingsStore: me.lampu.lampcord.shared.state.SettingsStore = koinInject(),
@@ -282,8 +337,8 @@ fun ProfileCard(
         val frameSku = remember(profile) {
             ProfileCollectibles.frameSku(profile.user_profile, profile.guild_member_profile)
         }
-        val effectProduct = effectSku?.let { profileStore.getEffect(it) }
-        val frameProduct = frameSku?.let { profileStore.getFrame(it) }
+        val effectProduct = if (showFrameOverlay) effectSku?.let { profileStore.getEffect(it) } else null
+        val frameProduct = if (showFrameArt) frameSku?.let { profileStore.getFrame(it) } else null
 
         Column(
             modifier = Modifier
@@ -382,22 +437,21 @@ fun ProfileCard(
             }
         }
 
-        if (showFrameOverlay) {
-            if (effectProduct != null) {
-                ProfileEffectOverlay(
-                    product = effectProduct,
-                    modifier = Modifier.matchParentSize(),
-                    animate = !Settings.shared.reduceMotion
-                )
-            }
+        if (showFrameOverlay && effectProduct != null) {
+            ProfileEffectOverlay(
+                product = effectProduct,
+                modifier = Modifier.matchParentSize(),
+                animate = !Settings.shared.reduceMotion
+            )
+        }
 
-            if (frameProduct != null) {
-                ProfileFrameOverlay(
-                    product = frameProduct,
-                    modifier = Modifier.matchParentSize(),
-                    railTop = railTop
-                )
-            }
+        if (showFrameArt && frameProduct != null) {
+            ProfileFrameOverlay(
+                product = frameProduct,
+                modifier = Modifier.matchParentSize(),
+                railTop = railTop,
+                showBottom = showBottomFrame
+            )
         }
     }
 }

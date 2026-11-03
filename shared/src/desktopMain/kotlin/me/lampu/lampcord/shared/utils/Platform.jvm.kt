@@ -98,9 +98,6 @@ actual fun restartApp() {
     reloadTrigger.value++
 }
 
-// The Evergreen WebView2 runtime registers its version under this client GUID; checked machine-wide (both
-// registry views) and per-user, as Microsoft's distribution guide describes. Read once: installing the
-// runtime while the app is open is rare enough that a restart is fine.
 private val webView2Available: Boolean by lazy {
     val client = "\\Microsoft\\EdgeUpdate\\Clients\\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
     listOf(
@@ -115,9 +112,6 @@ private val webView2Available: Boolean by lazy {
     }
 }
 
-// WebKitGTK is only an optional dependency of the Linux packages (and isn't in the AppImage); without it the
-// web view's native bridge throws UnsatisfiedLinkError from a static initializer. Ask the dynamic loader
-// directly by soname: the unversioned libwebkit2gtk-4.1.so only exists with the -dev package installed.
 private val webKitGtkAvailable: Boolean by lazy {
     runCatching { com.sun.jna.NativeLibrary.getInstance("libwebkit2gtk-4.1.so.0") }.isSuccess
 }
@@ -125,7 +119,7 @@ private val webKitGtkAvailable: Boolean by lazy {
 actual fun isEmbeddedWebViewAvailable(): Boolean = when (getPlatformName()) {
     "windows" -> webView2Available
     "linux" -> webKitGtkAvailable
-    // WKWebView ships with macOS.
+
     else -> true
 }
 

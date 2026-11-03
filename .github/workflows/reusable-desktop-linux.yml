@@ -81,7 +81,7 @@ jobs:
 
       - name: Build Linux AppImage
         shell: bash
-        run: ./gradlew :desktopApp:createAppImageLocal --no-daemon --no-build-cache --no-configuration-cache
+        run: ./gradlew :desktopApp:createAppImageLocal --no-daemon --no-build-cache --no-configuration-cache --configure-on-demand
 
       - name: Collect Linux AppImage
         id: package
@@ -115,22 +115,17 @@ jobs:
           [[ -n "$VERSION_OVERRIDE" ]] && version="$VERSION_OVERRIDE"
 
           ./gradlew :desktopApp:packageUberJarForCurrentOS :desktopApp:createLinuxRuntimeImage \
-            --no-daemon --no-build-cache --no-configuration-cache
+            --no-daemon --no-build-cache --no-configuration-cache --configure-on-demand
 
           jar=$(find desktopApp/build/compose/jars -maxdepth 1 -name '*.jar' -type f | head -n 1)
           [[ -n "$jar" ]] || { echo "No uber jar was produced" >&2; exit 1; }
 
-          # The jlink image is what keeps the packages off the host JRE: the jar alone would
-          # depend on java-runtime and fail on distros shipping a JRE older than the classes.
           runtime="$(pwd)/desktopApp/build/runtime-image"
           [[ -x "$runtime/bin/java" ]] || { echo "No runtime image was produced" >&2; exit 1; }
 
           mkdir -p dist/native
           ./scripts/package_linux.sh --version "$version" --jar "$jar" --runtime "$runtime" --out dist/native
 
-          # Publish the bare jar as well: it is the exact byte set the AUR source tarball
-          # bundles, and a handy artifact in its own right. The upload step below globs
-          # dist/native/*, so leaving it here is enough.
           cp "$jar" "dist/native/lampcord-desktop-linux-x64-${version}.jar"
           ls -1 dist/native
 
@@ -148,21 +143,15 @@ jobs:
           done < gradle.properties
           [[ -n "$VERSION_OVERRIDE" ]] && version="$VERSION_OVERRIDE"
 
-          # The AUR package consumes the uber jar, the same artifact deb and rpm are built
-          # from, rather than renaming an AppImage. That drops fuse2 from the dependency
-          # list and makes all four Linux packages one layout.
           jar="dist/native/lampcord-desktop-linux-x64-${version}.jar"
           if [[ ! -f "$jar" ]]; then
             jar=$(find desktopApp/build/compose/jars -maxdepth 1 -name '*.jar' -type f | head -n 1)
           fi
           test -f "$jar" || { echo "No uber jar was produced" >&2; exit 1; }
 
-          # The AUR package used to pull a jre-openjdk dependency, which only hangs together
-          # while the distro JRE is newer than our classes. Bundle the same jlink image the
-          # deb and rpm carry, so the package installs and runs anywhere.
           if [[ ! -x desktopApp/build/runtime-image/bin/java ]]; then
             ./gradlew :desktopApp:createLinuxRuntimeImage \
-              --no-daemon --no-build-cache --no-configuration-cache
+              --no-daemon --no-build-cache --no-configuration-cache --configure-on-demand
           fi
           test -x desktopApp/build/runtime-image/bin/java || {
             echo "No runtime image was produced" >&2
@@ -170,10 +159,6 @@ jobs:
           }
 
           staging="$(mktemp -d)"
-          # Build the single self-contained source the PKGBUILD references: the jar plus the
-          # launcher, desktop file and both icons. Deterministic (sorted entries, zeroed mtime
-          # and ownership, gzip without a header stamp) so the checksum is stable and the
-          # committed copy reproduces the same bytes where the jar does.
           mkdir -p "$staging/lampcord"
           cp "$jar" "$staging/lampcord/lampcord.jar"
           cp -a desktopApp/build/runtime-image "$staging/lampcord/runtime"
@@ -186,12 +171,8 @@ jobs:
 
           workdir="$staging/lampcord-bin"
           mkdir -p "$workdir"
-          # The PKGBUILD is a single URL source, so only the PKGBUILD ships in the AUR tarball;
-          # the data tarball it points at is uploaded as a separate release asset.
           cp packaging/aur/PKGBUILD "$workdir/"
 
-          # AUR packages are named with a release version, not a tester build version, so an
-          # alpha appVersion would produce a PKGBUILD that no user can ever match to a tag.
           release_version="$version"
           if [[ "$release_version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-a[0-9]+$ ]]; then
             release_version="${BASH_REMATCH[1]}"
@@ -199,8 +180,6 @@ jobs:
 
           asset_tag="v${version}"
           if [[ -z "$VERSION_OVERRIDE" ]]; then
-            # Nightly publishes the tarball on its own staged release, so pin the source there
-            # rather than at a stale rolling tag that varies between runs.
             asset_tag="${STAGING_RELEASE_TAG:-nightly}"
           fi
           sed -i "s|releases/download/v\${pkgver}|releases/download/${asset_tag}|" "$workdir/PKGBUILD"
@@ -228,8 +207,6 @@ jobs:
               handle.write(text)
           PY
 
-          # The checksum must have been substituted, and it has to match the tarball this is
-          # published beside, otherwise makepkg fails for every AUR user.
           if grep -q 'REPLACED_BY_CI' "$workdir/PKGBUILD"; then
             echo "PKGBUILD still contains placeholder checksums" >&2
             exit 1
@@ -242,8 +219,6 @@ jobs:
           mkdir -p dist/aur
           tar -czf "dist/aur/lampcord-bin-${version}-aur.tar.gz" -C "$staging" "lampcord-bin"
           tar -tzf "dist/aur/lampcord-bin-${version}-aur.tar.gz" > /dev/null
-          # The data tarball becomes a release asset next to the checksum, which is what makes
-          # the PKGBUILD source URL resolve.
           cp "$tarball" "dist/aur/"
           ls -1 dist/aur
 

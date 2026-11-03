@@ -15,7 +15,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
-    id("dev.nucleusframework") version "2.6.0-dev-202609281230"
+    id("dev.nucleusframework") version "3.0.0-dev-202610272317"
 }
 
 val appVersion = providers.gradleProperty("appVersion").get()
@@ -54,7 +54,6 @@ kotlin {
 
                 implementation("dev.nucleusframework:nucleus.nucleus-application:${libs.versions.nucleus.get()}")
                 implementation("dev.nucleusframework:nucleus.decorated-window-tao:${libs.versions.nucleus.get()}")
-                implementation("dev.nucleusframework:nucleus.decorated-window-material3:${libs.versions.nucleus.get()}")
                 implementation("dev.nucleusframework:nucleus.notification-common:${libs.versions.nucleus.get()}")
                 implementation("dev.nucleusframework:nucleus.notification-linux:${libs.versions.nucleus.get()}")
                 implementation("dev.nucleusframework:nucleus.notification-macos:${libs.versions.nucleus.get()}")
@@ -72,37 +71,15 @@ kotlin {
 
 tasks.withType<org.gradle.api.tasks.JavaExec>().configureEach {
     workingDir = rootProject.projectDir
-    environment("MALLOC_ARENA_MAX", "4")
-    if (platform == "linux") {
-        environment("MALLOC_MMAP_THRESHOLD_", "131072")
-        environment("LC_NUMERIC", "C")
-        environment("_JAVA_AWT_WM_NONREPARENTING", "1")
-        environment("SKIKO_RENDER_API", "OPENGL")
-        // GDK_BACKEND=wayland breaks AWT and WebKitGTK on X11-only machines, so only force it on a Wayland session.
-        if (System.getenv("XDG_SESSION_TYPE") == "wayland") {
-            if (System.getenv("GDK_BACKEND") == null) {
-                environment("GDK_BACKEND", "wayland")
-            }
-            if (System.getenv("SKIKO_WAYLAND") == null) {
-                environment("SKIKO_WAYLAND", "1")
-            }
-        }
-
-        // WebView fix for black screen / GBM buffer errors on Linux (WebKitGTK)
-        environment("WEBKIT_DISABLE_DMABUF_RENDERER", "1")
-        environment("WEBKIT_DISABLE_COMPOSITING_MODE", "1")
-    }
 }
 
-// Without an .ico the launcher exe keeps the stock Kotlin icon, and Explorer, Task Manager and pinned taskbar
-// entries read the exe's embedded icon rather than the one the window sets at runtime.
 val windowsIconFile = layout.buildDirectory.file("generated/icons/logo.ico")
 
 val generateWindowsIcon by tasks.registering {
     group = "distribution"
     description = "Builds a multi-size logo.ico from logo.png for the Windows launcher and installer."
     val source = file("src/jvmMain/resources/logo.png")
-    // Locals only: the configuration cache can't serialize references back into the build script.
+
     val target = windowsIconFile.get().asFile
     inputs.file(source)
     outputs.file(target)
@@ -124,7 +101,7 @@ val generateWindowsIcon by tasks.registering {
             val size = image.width
             val maskStride = ((size + 31) / 32) * 4
             val buffer = ByteBuffer.allocate(40 + size * size * 4 + maskStride * size).order(ByteOrder.LITTLE_ENDIAN)
-            // BITMAPINFOHEADER; ICO DIBs declare double height to cover the AND mask that follows the pixels.
+
             buffer.putInt(40).putInt(size).putInt(size * 2).putShort(1).putShort(32)
                 .putInt(0).putInt(size * size * 4 + maskStride * size).putInt(0).putInt(0).putInt(0).putInt(0)
             for (y in size - 1 downTo 0) {
@@ -136,17 +113,17 @@ val generateWindowsIcon by tasks.registering {
                     buffer.put(((argb ushr 24) and 0xFF).toByte())
                 }
             }
-            // All-zero AND mask: transparency comes from the 32-bit alpha channel.
+
             return buffer.array()
         }
 
         val original = ImageIO.read(source)
         val entries = listOf(16, 20, 24, 32, 40, 48, 64, 96, 128, 256).map { size ->
-            // Halve in steps before the final resize; a single bicubic pass from 1024px aliases badly at 16-32px.
+
             var image = original
             while (image.width / 2 >= size) image = resize(image, image.width / 2)
             image = resize(image, size)
-            // Small sizes go in as uncompressed DIBs because some shell paths only render PNG entries at 256px.
+
             size to if (size == 256) pngBytes(image) else dibBytes(image)
         }
         val out = ByteArrayOutputStream()
@@ -180,7 +157,6 @@ nucleus.application {
         javaHome = it
     }
     jvmArgs += listOf(
-        "-Dsun.java2d.uiScale.enabled=true",
         "--enable-native-access=ALL-UNNAMED",
         "-Xmx1g",
         "-Dskiko.gpu.resourceCacheLimit=64m"
@@ -198,11 +174,7 @@ nucleus.application {
     }
     nativeDistributions {
         targetFormats(
-            // macOS and Windows still go through electron-builder. The Linux packages do
-            // not: scripts/package_linux.sh wraps the uber jar with dpkg-deb, rpmbuild and
-            // bsdtar instead, which drops electron-builder's Node provisioning from every
-            // Linux run and lets every launcher use the jlink image createLinuxRuntimeImage
-            // builds under /usr/lib/lampcord/runtime.
+
             TargetFormat.Dmg,
             TargetFormat.Nsis,
             TargetFormat.AppImage,
@@ -269,11 +241,6 @@ nucleus.application {
     }
 }
 
-// A JDK image is ~180MB, but the application plugin only links the modules the app really
-// resolves (java.base, java.desktop, java.net.http, jdk.crypto.ec, ...), so the same set,
-// plus --strip-debug, zip-9 and the dropped header/man pages, lands at ~58MB. The packaging
-// scripts hand this image to package_linux.sh and it is installed as /usr/lib/lampcord/runtime,
-// which removes java-runtime from the deb, rpm and AUR dependency lists.
 val runtimeImageDir = layout.buildDirectory.dir("runtime-image")
 
 val createLinuxRuntimeImage by tasks.registering(Exec::class) {
@@ -282,12 +249,10 @@ val createLinuxRuntimeImage by tasks.registering(Exec::class) {
 
     val launcher =
         javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(21)) }
-    // Resolved while the task is configured: the JDK 21 toolchain carries jlink's jmods, so
-    // the image it links reports the same version as the classes the platform module compiles.
+
     val jdkHome = launcher.get().executablePath.asFile.parentFile.parentFile.absolutePath
     executable = File(jdkHome, "bin/java").absolutePath
-    // jlink refuses to write into an existing directory, and a run that dies halfway leaves
-    // one behind, so the leftover goes first.
+
     doFirst { runtimeImageDir.get().asFile.deleteRecursively() }
     args = listOf(
         "-m",
@@ -320,7 +285,7 @@ tasks.register("patchLinuxLauncher") {
     notCompatibleWithConfigurationCache("File operations are not cached.")
     dependsOn("createDistributable")
     onlyIf { platform == "linux" }
-    
+
     val packageAppDir = file("${layout.buildDirectory.get()}/compose/binaries/main/app/Lampcord")
 
     doLast {
@@ -340,10 +305,8 @@ tasks.register("patchLinuxLauncher") {
             return@doLast
         }
 
-        // Rename the real binary
         launcher.renameTo(realBinary)
 
-        // Copy the config file next to the renamed binary AND in lib/app (launcher looks for <binary>.cfg)
         if (cfgFile.exists()) {
             cfgFile.copyTo(newCfgFile, overwrite = true)
             cfgFile.copyTo(libAppDir.resolve("Lampcord.bin.cfg"), overwrite = true)
@@ -452,7 +415,7 @@ exec "${'$'}APPDIR/bin/Lampcord" "${'$'}@"
         appRunFile.setExecutable(true, false)
 
         val appIconFile = file("${appDir.absolutePath}/Lampcord.png")
-        // Try to find an icon
+
         val sourceIcon = file("src/jvmMain/resources/logo.png").takeIf { it.exists() }
             ?: file("../shared/src/commonMain/composeResources/lampcord.shared.generated.resources/drawable/icon.png").takeIf { it.exists() }
             ?: file("${layout.buildDirectory.get()}/compose/default-resources/1.11.1/default-icon-linux.png").takeIf { it.exists() }
@@ -463,11 +426,10 @@ exec "${'$'}APPDIR/bin/Lampcord" "${'$'}@"
             themedIcon.parentFile.mkdirs()
             sourceIcon.copyTo(themedIcon, overwrite = true)
         } else {
-            // Create a dummy if still not found to prevent appimagetool failure
+
             appIconFile.writeBytes(ByteArray(0))
         }
 
-        // Create symlink so that $APPDIR/resources points to lib/app/resources
         val resourcesLink = file("${appDir.absolutePath}/resources")
         if (!resourcesLink.exists()) {
             Files.createSymbolicLink(

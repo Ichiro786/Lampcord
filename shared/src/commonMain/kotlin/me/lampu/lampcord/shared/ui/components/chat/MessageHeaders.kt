@@ -47,6 +47,7 @@ import me.lampu.lampcord.shared.ui.components.DiscordMarkdownText
 import me.lampu.lampcord.shared.ui.components.ClanTagView
 import me.lampu.lampcord.shared.ui.components.UserTagView
 import me.lampu.lampcord.shared.utils.DateTimeUtils
+import me.lampu.lampcord.shared.utils.getPlatformName
 import me.lampu.lampcord.shared.api.CdnUrls
 import org.koin.compose.koinInject
 import me.lampu.lampcord.shared.ui.kit.clickableCursor
@@ -59,9 +60,23 @@ fun MessageTimestamp(
     color: Color,
     modifier: Modifier = Modifier
 ) {
-    val fullDate = remember(timestamp) { DateTimeUtils.formatFullDate(timestamp) }
     val displayDate = remember(timestamp) { DateTimeUtils.formatTimestamp(timestamp) }
-    
+    val desktop = getPlatformName() != "android" && getPlatformName() != "ios"
+
+    if (!desktop) {
+        Text(
+            text = displayDate,
+            style = style,
+            color = color,
+            modifier = modifier,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis
+        )
+        return
+    }
+
+    val fullDate = remember(timestamp) { DateTimeUtils.formatFullDate(timestamp) }
     TooltipBox(
         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
             positioning = TooltipAnchorPosition.Above
@@ -78,8 +93,8 @@ fun MessageTimestamp(
                     }
                 } else {
                     Text(fullDate)
+                }
             }
-        }
         },
         state = rememberTooltipState()
     ) {
@@ -111,15 +126,15 @@ fun InteractionHeader(
     ) {
         androidx.compose.foundation.Canvas(
             modifier = Modifier
-                .width(36.dp) 
+                .width(36.dp)
                 .fillMaxHeight()
         ) {
             val cornerRadius = 8.dp.toPx()
             val gutterX = 20.dp.toPx()
             val targetY = size.height / 2f
-            
+
             val path = androidx.compose.ui.graphics.Path().apply {
-                moveTo(gutterX, size.height + 8.dp.toPx()) 
+                moveTo(gutterX, size.height + 8.dp.toPx())
                 lineTo(gutterX, targetY + cornerRadius)
                 quadraticTo(
                     gutterX, targetY,
@@ -144,7 +159,7 @@ fun InteractionHeader(
             val user = interaction.user ?: return@remember null
             val gId = guildId ?: navigationStore.selectedGuild?.id
             val member = if (gId != null) userStore.getMember(gId, user.id) else null
-            
+
             if (gId != null && member?.avatar != null) {
                 CdnUrls.getMemberAvatarUrl(gId, user.id, member.avatar, user.avatar, 48)
             } else {
@@ -174,7 +189,7 @@ fun InteractionHeader(
         )
 
         Spacer(modifier = Modifier.width(4.dp))
-        
+
         Text(
             text = "used",
             style = MaterialTheme.typography.labelSmall,
@@ -220,23 +235,23 @@ fun ReplyBar(
             }
             .clickableCursor(
                 interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                indication = null // Removed the highlight indication
+                indication = null
             ) {
-                messageStore.scrollToMessageId = referencedMessage.id
+                messageStore.jumpToMessage(referencedMessage.channel_id, referencedMessage.id)
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
         androidx.compose.foundation.Canvas(
             modifier = Modifier
-                .width(36.dp) 
+                .width(36.dp)
                 .fillMaxHeight()
         ) {
             val cornerRadius = 8.dp.toPx()
-            val gutterX = 18.dp.toPx() // Moved gutter slightly right (was 16dp, original 20dp)
+            val gutterX = 18.dp.toPx()
             val targetY = size.height / 2f
-            
+
             val path = androidx.compose.ui.graphics.Path().apply {
-                moveTo(gutterX, size.height + 8.dp.toPx()) 
+                moveTo(gutterX, size.height + 8.dp.toPx())
                 lineTo(gutterX, targetY + cornerRadius)
                 quadraticTo(
                     gutterX, targetY,
@@ -247,7 +262,7 @@ fun ReplyBar(
 
             drawPath(
                 path = path,
-                color = if (isHovered) Color.White else lineColor, // Whiter indicator on hover
+                color = if (isHovered) Color.White else lineColor,
                 style = androidx.compose.ui.graphics.drawscope.Stroke(
                     width = 1.5.dp.toPx(),
                     cap = androidx.compose.ui.graphics.StrokeCap.Round
@@ -262,7 +277,7 @@ fun ReplyBar(
             val guildId = referencedMessage.guild_id ?: navigationStore.selectedGuild?.id
             val member = referencedMessage.member ?: (if (guildId != null) userStore.getMember(guildId, author.id) else null)
             val memberAvatar = member?.avatar
-            
+
             if (guildId != null && memberAvatar != null) {
                 CdnUrls.getMemberAvatarUrl(guildId, author.id, memberAvatar, author.avatar, 48)
             } else {

@@ -19,9 +19,20 @@ class VoiceProtocolTest {
             val tampered = first.copyOf().also { it[12] = (it[12].toInt() xor 1).toByte() }
             assertNull(receiver.decrypt(tampered))
             assertContentEquals(opus, receiver.decrypt(second)!!.frame)
-            assertContentEquals(opus, receiver.decrypt(first)!!.frame) // Out of order is allowed.
-            assertNull(receiver.decrypt(first)) // Authenticated replay is not.
+            assertContentEquals(opus, receiver.decrypt(first)!!.frame)
+            assertContentEquals(opus, receiver.decrypt(first)!!.frame)
             for (size in 0..first.size) receiver.decrypt(first.copyOf(size))
+
+            val paddedHeader = ByteBuffer.allocate(12).put(0xa0.toByte()).put(120).putShort(9).putInt(1920).putInt(43).array()
+            val paddedPayload = opus + byteArrayOf(0, 2)
+            val paddedNonce = ByteArray(if (aes) 12 else 24).also { it[3] = 9 }
+            val paddedCiphertext = NativeVoice.aead(true, aes, key, paddedNonce, paddedHeader, paddedPayload)!!
+            val paddedPacket = paddedHeader + paddedCiphertext + paddedNonce.copyOf(4)
+            assertContentEquals(opus, receiver.decrypt(paddedPacket)!!.frame)
+
+            val packetStats = receiver.takeStats()
+            assertTrue(packetStats.authFailed > 0)
+            assertTrue(packetStats.nonceRepeats > 0)
 
             val header = ByteBuffer.allocate(20).put(0xb1.toByte()).put(120).putShort(7).putInt(960)
                 .putInt(43).putInt(123).putShort(0xbede.toShort()).putShort(1).array()
@@ -42,9 +53,15 @@ class VoiceProtocolTest {
         val native = NativeVoice.create("1234123412341234", "1234567890")
         try {
             assertTrue(NativeVoice.init(native, 1).isNotEmpty())
+            assertEquals(0L, NativeVoice.decryptFailures())
+            assertEquals(0, NativeVoice.transition(native, 0, false))
+            assertEquals(1, NativeVoice.transition(native, 7, true))
+            assertEquals(1, NativeVoice.transition(native, 7, false))
+            assertEquals(1, NativeVoice.transition(native, 7, false))
+            assertEquals(0, NativeVoice.transition(native, 8, false))
             val frame = NativeVoice.encode(native, ShortArray(1920), false)
             assertTrue(frame.isNotEmpty())
-            assertNull(NativeVoice.encrypt(native, 42, frame)) // No MLS group, no audio transmission.
+            assertNull(NativeVoice.encrypt(native, 42, frame))
             assertNull(NativeVoice.decrypt(native, "5678567856785678", frame))
             assertFailsWith<IllegalStateException> { NativeVoice.init(native, 0) }
             assertFailsWith<IllegalStateException> { NativeVoice.encode(native, ShortArray(10), false) }
@@ -53,6 +70,7 @@ class VoiceProtocolTest {
         val jitter = VoicePlayout()
         val start = 1_000_000_000L
         jitter.offer(65535, byteArrayOf(1), start)
+        jitter.offer(65535, byteArrayOf(9), start + 1_000_000)
         jitter.offer(1, byteArrayOf(3), start + 40_000_000)
         jitter.offer(0, byteArrayOf(2), start + 20_000_000)
         val decoded = mutableListOf<Int?>()

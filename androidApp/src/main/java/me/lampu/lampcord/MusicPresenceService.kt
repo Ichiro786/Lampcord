@@ -18,7 +18,7 @@ class MusicPresenceService : NotificationListenerService(), KoinComponent {
 
     private val gatewayManager: GatewayManager by inject()
     private lateinit var mediaSessionManager: MediaSessionManager
-    
+
     private val controllerCallbacks = mutableMapOf<MediaController, MediaController.Callback>()
 
     override fun onListenerConnected() {
@@ -107,10 +107,13 @@ class MusicPresenceService : NotificationListenerService(), KoinComponent {
 
         val activity = Activity(
             name = appName,
-            type = 2, // Listening
+            type = 2,
             details = title,
             state = artist,
-            assets = album?.let { ActivityAssets(large_text = it) },
+            assets = ActivityAssets(
+                large_text = album,
+                large_image = if (appName == "Spotify") "spotify:${activeController.packageName}" else null
+            ),
             timestamps = if (duration > 0) {
                 ActivityTimestamps(start = stableStart, end = stableStart + duration)
             } else null

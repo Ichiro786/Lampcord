@@ -45,7 +45,7 @@ val coreModule = module {
     single {
         CoroutineScope(
             SupervisorJob() +
-                Dispatchers.Main +
+                Dispatchers.Default +
                 CoroutineExceptionHandler { _, throwable ->
                     Logging.e("SharedScope", "Uncaught exception in shared coroutine scope", throwable)
                 }
@@ -146,6 +146,7 @@ val storeModule = module {
     single { ApplicationStore(get(), get()) }
     single { TokenStore(json = get()) }
     single { SettingsStore(userApi = get()) }
+    single { FavoritesStore(json = get()) }
     single { ThemeStore(scope = get()) }
     single {
         NavigationStore(

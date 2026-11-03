@@ -9,7 +9,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.dp
 
-// Status glyphs ported verbatim from Discord's Android XML vectors (discord-jadx res/drawable-anydpi-v24/ic_status_*_16dp.xml and res/drawable/ic_mobile.xml).
 object StatusIcons {
     val Online: ImageVector by lazy {
         statusVector(

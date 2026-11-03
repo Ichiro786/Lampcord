@@ -54,7 +54,7 @@ fun ChangelogSheet(
                 )
             }
             if (notes.isBlank()) {
-                Text("No release notes were published.", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(Res.string.lampcord_settings_no_release_notes), style = MaterialTheme.typography.bodyMedium)
             } else {
                 Text(notes, style = MaterialTheme.typography.bodyMedium)
             }

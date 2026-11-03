@@ -11,7 +11,7 @@ import kotlinx.serialization.json.JsonPrimitive
 class ReadStateStore(private val channelApi: ChannelApi) {
     private val _readStates = MutableStateFlow<Map<String, ReadState>>(emptyMap())
     val readStates: StateFlow<Map<String, ReadState>> = _readStates.asStateFlow()
-    
+
     private val mentionedMessageIds = mutableMapOf<String, MutableSet<String>>()
     private val _recentIds = MutableStateFlow<Map<String, String>>(emptyMap())
     val recentIds: StateFlow<Map<String, String>> = _recentIds.asStateFlow()
@@ -41,10 +41,6 @@ class ReadStateStore(private val channelApi: ChannelApi) {
             states[state.id] = state
         }
 
-        // READY only carries read positions for channels Discord already tracks, so channels
-        // read on this device can be missing from it entirely. Without the locally kept
-        // baseline those channels fall back to "no read state", which reads as unread and
-        // comes back on every launch.
         localAcks.forEach { (channelId, ackedId) ->
             val acked = ackedId.toLongOrNull() ?: return@forEach
             val remote = states[channelId]?.lastMessageId()?.toLongOrNull() ?: 0L
@@ -123,7 +119,7 @@ class ReadStateStore(private val channelApi: ChannelApi) {
             message.mentions.any { it.id == currentUserId } ||
             message.mention_roles.any { myRoles.contains(it) }
         )
-        
+
         if (hasMention) {
             val state = _readStates.value[message.channel_id]
             val ackedId = state?.lastMessageId() ?: "0"
@@ -201,7 +197,6 @@ class ReadStateStore(private val channelApi: ChannelApi) {
         return true
     }
 
-    /** Applies confirmed acknowledgements without issuing another REST request. */
     fun applyAcknowledgements(readStates: Map<String, String>) {
         val validStates = readStates.filterValues { it.toLongOrNull()?.let { id -> id > 0L } == true }
         if (validStates.isEmpty()) return
@@ -214,10 +209,6 @@ class ReadStateStore(private val channelApi: ChannelApi) {
         }
     }
 
-    /**
-     * The newest message we know about in a channel, combining the channel's
-     * own last_message_id with the ids of messages seen over the gateway.
-     */
     fun mostRecentMessageId(channel: Channel): String? {
         val channelMsgId = channel.lastMessageId()?.toLongOrNull() ?: 0L
         val recentMsgId = _recentIds.value[channel.id]?.toLongOrNull() ?: 0L

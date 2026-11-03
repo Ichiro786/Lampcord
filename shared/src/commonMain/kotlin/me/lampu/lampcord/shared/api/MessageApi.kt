@@ -224,10 +224,6 @@ class MessageApi(private val rest: RestClient) {
         }
     }
 
-    /**
-     * Fetches the window of messages centred on [messageId]. A message link can point at
-     * something the client has never loaded, so navigating to it has to pull the page in.
-     */
     suspend fun getMessagesAround(channelId: String, messageId: String, limit: Int = 50): List<Message> {
         return try {
             val response = rest.httpClient.get("${rest.apiBase}/channels/$channelId/messages") {

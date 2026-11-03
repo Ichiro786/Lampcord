@@ -1,5 +1,9 @@
 package me.lampu.lampcord.shared.ui.settings
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.screenshare_source
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -146,7 +150,7 @@ fun AppearanceSettingsContent(
                     }
                 ),
                 Material3SettingsItem(
-                    title = { Text("Source") },
+                    title = { Text(stringResource(Res.string.screenshare_source)) },
                     description = {
                         Column(modifier = Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             Row(

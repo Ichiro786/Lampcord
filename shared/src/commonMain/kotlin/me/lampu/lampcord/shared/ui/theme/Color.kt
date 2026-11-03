@@ -72,7 +72,6 @@ val DiscordYellow = Color(0xFFF0B232)
 val DiscordRed = Color(0xFFF23F43)
 val DiscordGray = Color(0xFF80848E)
 
-// Legacy Discord 126.21 Colors
 val DiscordClassicBackground = Color(0xFF36393F)
 val DiscordClassicSidebar = Color(0xFF2F3136)
 val DiscordClassicGuildRail = Color(0xFF202225)

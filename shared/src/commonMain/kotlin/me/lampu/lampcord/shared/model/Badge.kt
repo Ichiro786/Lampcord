@@ -7,7 +7,7 @@ data class CustomBadge(
     val id: String,
     val name: String,
     val description: String? = null,
-    val icon: String? = null // URL to icon
+    val icon: String? = null
 )
 
 @Serializable

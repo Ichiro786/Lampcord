@@ -22,7 +22,6 @@ object Logging {
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-    // Logging must never block the thread that is logging.
     private val incoming = Channel<LogEntry>(
         capacity = 1024,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
@@ -57,7 +56,7 @@ object Logging {
         val buffer = ArrayDeque<LogEntry>()
 
         while (true) {
-            // Block receive without timeout and clearing buffer before appending prevents data loss.
+
             val entry = incoming.receive()
 
             if (clearRequested) {
@@ -136,7 +135,7 @@ object Logging {
 
     val ktorLogger = object : io.ktor.client.plugins.logging.Logger {
         override fun log(message: String) {
-            // Filter out potentially sensitive data if needed, or just log it Ktor logs can be very verbose, so we log them as Debug by default
+
             d("Ktor", message)
         }
     }

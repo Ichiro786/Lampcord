@@ -16,18 +16,11 @@ import com.materialkolor.PaletteStyle
 import me.lampu.lampcord.shared.ui.theme.rememberPlatformColorScheme
 import me.lampu.lampcord.shared.utils.Logging
 
-/** The resolved theme for a profile, plus the custom profile it was derived from. */
 internal data class ResolvedProfileTheme(
     val theme: ProfileTheme,
     val customProfile: CustomProfile?,
 )
 
-/**
- * Resolves the colours a profile is themed from.
- *
- * The compact card and the full desktop view both need this so the view's backdrop can fade into
- * exactly the colours the card itself uses.
- */
 @Composable
 internal fun rememberProfileTheme(
     profile: UserProfile,
@@ -39,11 +32,11 @@ internal fun rememberProfileTheme(
         val user = profile.user
         val guildMeta = profile.guild_member_profile
         val userMeta = profile.user_profile
-    
+
         val decoded3y3 = remember(profile, settingsStore.profile3y3) {
             if (!settingsStore.profile3y3) return@remember null
             val bio = profile.guild_member_profile?.bio ?: profile.user_profile?.bio ?: profile.user.bio
-            bio?.let { 
+            bio?.let {
                 val decoded = Profile3y3.decode(it)
                 if (decoded != null) {
                     Logging.d("Profile3y3", "Decoded 3y3 for ${user.username}: $decoded")
@@ -52,13 +45,13 @@ internal fun rememberProfileTheme(
             }?.let {
                 try {
                     kotlinx.serialization.json.Json.decodeFromString<me.lampu.lampcord.shared.model.CustomProfile>(it)
-                } catch (e: Exception) { 
+                } catch (e: Exception) {
                     Logging.e("Profile3y3", "Failed to parse 3y3 JSON for ${user.username}", e)
-                    null 
+                    null
                 }
             }
         }
-    
+
         val customProfiles by clientProfileStore.customProfiles.collectAsState()
         val localOverrides by clientProfileStore.localOverrides.collectAsState()
         val localBanner = localOverrides[user.id]?.banner?.takeIf { it.isNotEmpty() }
@@ -89,7 +82,7 @@ internal fun rememberProfileTheme(
                 val accent = customProfile?.accent_color ?: guildMeta?.accent_color ?: userMeta?.accent_color ?: user.accent_color
                 if (accent != null) listOf(accent) else null
             }
-        
+
             base?.let { colors ->
                 if (colors.size >= 2) colors else {
                     val c = colors[0]
@@ -100,7 +93,7 @@ internal fun rememberProfileTheme(
         }
 
         val isDark = colorScheme.surface.luminance() < 0.5f
-    
+
         val profileSeed = remember(themeColors) {
             themeColors?.get(0)?.let { Color(it or 0xFF000000.toInt()) } ?: colorScheme.primary
         }
@@ -116,7 +109,7 @@ internal fun rememberProfileTheme(
             if (themeColors != null && themeColors.size >= 2) {
                 val primary = themeColors[0]
                 val accent = themeColors[1]
-            
+
                 val (h1, s1, l1) = ModernProfileColors.rgbToHsl(primary)
                 val (h2, s2, l2) = ModernProfileColors.rgbToHsl(accent)
 
@@ -135,7 +128,7 @@ internal fun rememberProfileTheme(
                 } else {
                     Color(ModernProfileColors.hslToRgb(h2, s2, (l2 * 0.65).coerceIn(0.0, 1.0)))
                 }
-            
+
                 val b1 = if (isLightMode) {
                     Color(ModernProfileColors.hslToRgb(h1, (s1 * 1.15).coerceIn(0.0, 1.0), (l1 * 0.8).coerceIn(0.0, 1.0)))
                 } else {
@@ -164,7 +157,7 @@ internal fun rememberProfileTheme(
                 }
                 val cardS = (s1 * 0.85).coerceIn(0.0, 1.0)
                 val cardColor = Color(ModernProfileColors.hslToRgb(h1, cardS, cardL))
-            
+
                 ProfileTheme(
                     backgroundBrush = Brush.verticalGradient(0.0f to bg1, 0.35f to bg1, 1.0f to bg2),
                     outerBorderBrush = Brush.verticalGradient(listOf(b1, b2)),
@@ -185,7 +178,7 @@ internal fun rememberProfileTheme(
                 val primary = colorScheme.primary
                 val surface = colorScheme.surfaceContainer
                 val onSurface = colorScheme.onSurface
-            
+
                 ProfileTheme(
                     backgroundBrush = Brush.verticalGradient(listOf(surface, colorScheme.surface)),
                     outerBorderBrush = Brush.verticalGradient(listOf(onSurface.copy(alpha = 0.2f), onSurface.copy(alpha = 0.1f))),

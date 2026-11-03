@@ -11,7 +11,7 @@ class MemberListStore(
     private val userStore: UserStore,
     private val presenceStore: PresenceStore
 ) {
-    // Member lists are cached per (guildId, listId) and kept alive across guild switches, matching discord-jadx's StoreChannelMembers. Only logout clears them.
+
     private val guildCaches = mutableMapOf<String, MutableMap<String, MemberListCacheEntry>>()
     private val guildCacheOrder = mutableListOf<String>()
 
@@ -29,11 +29,11 @@ class MemberListStore(
 
     fun getOnlineCount(guildId: String): Int = guildOnlineCounts[guildId] ?: 0
     fun getMemberCount(guildId: String): Int = guildMemberCounts[guildId] ?: 0
-    
+
     private var currentGuildId: String? = null
     private var currentListId: String? = null
     private var lastRanges: List<List<Int>> = emptyList()
-    
+
     val memberListRowCount get() = memberListItems.size
 
     private class MemberListCacheEntry(
@@ -71,9 +71,9 @@ class MemberListStore(
         val guild = selectionStore.selectedGuild ?: return
         val thread = selectionStore.selectedThread
         val channel = selectionStore.selectedChannel ?: return
-        
+
         if (ranges.isNotEmpty()) lastRanges = ranges
-        
+
         if (thread != null) {
             gatewayManager.sendLazyRequest(guild.id, thread.id, thread.id, ranges, isThread = true)
         } else {
@@ -82,7 +82,6 @@ class MemberListStore(
         }
     }
 
-    // Re-send the subscription for the current channel after a reconnect. A fresh gateway session starts with no server-side subscriptions, so the previously cached list would otherwise go stale.
     fun resubscribe() {
         val guild = selectionStore.selectedGuild ?: return
         val thread = selectionStore.selectedThread
@@ -98,7 +97,7 @@ class MemberListStore(
 
     fun setExpectedId(guildId: String, id: String, initialSize: Int) {
         if (currentGuildId == guildId && currentListId == id) return
-        
+
         val previousGuildId = currentGuildId
         val previousListId = currentListId
         if (previousGuildId != null && previousListId != null) {
@@ -143,7 +142,6 @@ class MemberListStore(
             MemberListCacheEntry(mutableListOf(), mutableMapOf(), update.online_count, update.member_count)
         }
 
-        // Members and presences are collected first and pushed to their stores in one batch each, so a 100 member SYNC costs one map copy instead of one per member.
         val members = ArrayList<Pair<String, Member>>(diagnosticItems)
         val presences = ArrayList<PresenceUpdate>(diagnosticItems)
         fun collect(item: MemberListListItem) {
@@ -160,7 +158,6 @@ class MemberListStore(
             )
         }
 
-        // One snapshot apply for the whole update instead of one per row write.
         Snapshot.withMutableSnapshot {
             if (isCurrent) {
                 update.online_count?.let { onlineCount = it }

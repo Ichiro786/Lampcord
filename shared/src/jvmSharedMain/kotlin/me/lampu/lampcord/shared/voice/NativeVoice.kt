@@ -22,13 +22,15 @@ internal object NativeVoice {
     external fun externalSender(handle: Long, payload: ByteArray)
     external fun proposals(handle: Long, payload: ByteArray, users: Array<String>): ByteArray?
     external fun commit(handle: Long, payload: ByteArray, users: Array<String>, transition: Int, welcome: Boolean): Int
-    external fun transition(handle: Long, id: Int, prepare: Boolean)
+    external fun transition(handle: Long, id: Int, prepare: Boolean): Int
     external fun removeUser(handle: Long, user: String)
     external fun authenticator(handle: Long): ByteArray
     external fun encode(handle: Long, pcm: ShortArray, denoise: Boolean): ByteArray
     external fun encrypt(handle: Long, ssrc: Int, opus: ByteArray): ByteArray?
     external fun decrypt(handle: Long, user: String, frame: ByteArray): ByteArray?
     external fun decode(handle: Long, user: String, opus: ByteArray?): ShortArray?
+    external fun decryptFailures(): Long
+    external fun decryptSuccesses(): Long
     external fun aead(encrypt: Boolean, aes: Boolean, key: ByteArray, nonce: ByteArray, header: ByteArray, payload: ByteArray): ByteArray?
 }
 

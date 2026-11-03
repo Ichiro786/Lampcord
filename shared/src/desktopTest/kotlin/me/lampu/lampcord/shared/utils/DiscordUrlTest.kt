@@ -75,7 +75,7 @@ class DiscordUrlTest {
             "https://discord.com.attacker.net/channels/1/2/3",
             "https://discord.com@evil.com/channels/1/2/3",
             "https://discord.com:8080/channels/1/2/3",
-            // Backslashes are how parsers get tricked into swapping host and path.
+
             "https://discord.com\\@evil.com/channels/1/2/3",
             "javascript:alert(1)//discord.com/channels/1/2/3",
             "file:///channels/1/2/3",

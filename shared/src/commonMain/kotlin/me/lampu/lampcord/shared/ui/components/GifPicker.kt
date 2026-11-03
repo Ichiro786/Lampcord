@@ -102,7 +102,7 @@ fun GifPicker(
             ) {
                 items(
                     items = gifResults,
-                    // Keep the painter attached to the GIF rather than to a recycled grid slot or the current scroll index.
+
                     key = { gif ->
                         "${gif.url}|${gif.src}|${gif.gifSrc}|${gif.preview}"
                     }
@@ -253,13 +253,11 @@ private fun GifPreviewImage(
     videoFallback: String? = null,
 ) {
     val context = CoilLocalContext.current
-    // Keyed on the candidate list so switching Reduce Motion or hover resets the fallback position instead of
-    // leaving it past the end of a shorter list.
+
     var candidateIndex by remember(candidates) { mutableIntStateOf(0) }
     var stillsExhausted by remember(candidates) { mutableStateOf(false) }
     val imageUrl = candidates.getOrNull(candidateIndex)
-    // Video-only GIFs (Tenor categories, many favorites) have no image to decode, so the last resort for a
-    // still preview is the video's first frame, decoded paused.
+
     val stillVideoUrl = if (!animated && (stillsExhausted || imageUrl == null)) videoFallback else null
 
     if (stillVideoUrl != null) {
@@ -286,7 +284,7 @@ private fun GifPreviewImage(
                 .data(imageUrl)
                 .memoryCacheKey("gif-preview:$imageUrl#${if (animated) "animated" else "still"}")
                 .coilCrossfade(false)
-                // Still candidates end with the original GIF, which must render as its first frame.
+
                 .apply { extras[ALLOW_ANIMATION_KEY] = animated }
                 .build(),
             contentDescription = contentDescription,
@@ -315,8 +313,7 @@ private fun staticImageCandidates(vararg urls: String?): List<String> {
             "${'$'}1false"
         )
     }.filter { url ->
-        // Discord's media proxy honours animated=false and returns the first frame even when the proxied
-        // path ends in .gif, so that rewrite is a real still rather than a guess.
+
         !isAnimatedMediaUrl(url) || isProxiedStill(url)
     }.distinct()
 
@@ -328,8 +325,7 @@ private fun staticImageCandidates(vararg urls: String?): List<String> {
             )
             val isAnimatedMedia = isAnimatedMediaUrl(staticUrl)
             if (staticUrl != url && !isAnimatedMedia) add(staticUrl)
-            // Hosts other than Tenor and Discord's CDN answer a guessed rendition that doesn't exist with a
-            // "content unavailable" placeholder image instead of an error, which would be shown as the preview.
+
             if (!supportsGuessedStills(staticUrl)) return@buildList
 
             val mediaSuffix = animatedMediaSuffix(staticUrl)
@@ -358,7 +354,7 @@ private fun isProxiedStill(url: String): Boolean =
     isDiscordMediaProxy(url) && url.contains(Regex("""[?&]animated=false""", RegexOption.IGNORE_CASE))
 
 private fun supportsGuessedStills(url: String): Boolean {
-    // A proxied URL embeds the origin host in its path, so check what it actually points at.
+
     val origin = url.substringAfter("/external/", url)
     if (origin.contains("klipy.com", ignoreCase = true)) return false
     return origin.contains("tenor.com", ignoreCase = true) ||
@@ -369,8 +365,6 @@ private fun supportsGuessedStills(url: String): Boolean {
 private fun gifStaticCandidates(gif: Gif): List<String> =
     stillCandidates(gif.preview, gif.gifSrc, gif.src)
 
-// Guessed static renditions first, then the original GIF/WebP decoded without animation: Tenor in particular
-// often has no static rendition at all, and without this fallback the preview stays empty.
 private fun stillCandidates(vararg urls: String?): List<String> {
     val originals = urls.filterNotNull().map(String::trim).filter(String::isNotBlank)
     return (staticImageCandidates(*urls) + originals.filterNot(::isVideoMediaUrl)).distinct()

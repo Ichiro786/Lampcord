@@ -41,23 +41,18 @@ class BadgeStore(
         scope.launch {
             try {
                 val lampcordResponse: BadgeMapping = httpClient.get("https://raw.githubusercontent.com/lampcord/badges/main/badges.json").body()
-                
+
                 _lampcordBadges.value = BadgeMapping(
                     badges = _lampcordBadges.value.badges + lampcordResponse.badges,
                     users = _lampcordBadges.value.users + lampcordResponse.users,
                     roles = _lampcordBadges.value.roles + lampcordResponse.roles
                 )
             } catch (e: Exception) {
-                // Ignore if fetch fails, keep local
+
             }
         }
     }
 
-    /**
-     * Badges granted directly to [userId], plus any granted to the guild roles in [roleIds].
-     * Order follows the mapping and duplicates are dropped, so a badge held both directly and
-     * through a role is only rendered once.
-     */
     fun getUserBadges(userId: String, roleIds: Collection<String> = emptyList()): List<CustomBadge> {
         val mapping = lampcordBadges.value
         val badgeIds = LinkedHashSet<String>()

@@ -1,13 +1,16 @@
 package me.lampu.lampcord.shared.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,6 +31,7 @@ import me.lampu.lampcord.shared.state.PresenceStore
 import me.lampu.lampcord.shared.state.RelationshipStore
 import me.lampu.lampcord.shared.state.SettingsStore
 import me.lampu.lampcord.shared.state.UserStore
+import me.lampu.lampcord.shared.ui.LocalCurrentUser
 import me.lampu.lampcord.shared.ui.components.members.MemberGroupItem
 import me.lampu.lampcord.shared.ui.components.members.MemberHeader
 import me.lampu.lampcord.shared.ui.components.members.MemberItem
@@ -48,10 +52,13 @@ fun MemberList(
     presenceStore: PresenceStore = koinInject(),
     settingsStore: SettingsStore = koinInject(),
     relationshipStore: RelationshipStore = koinInject(),
-    header: @Composable (() -> Unit)? = null
+    header: @Composable (() -> Unit)? = null,
+    overlapping: Boolean = false,
+    onBack: (() -> Unit)? = null
 ) {
     val scrollState = rememberLazyListState()
     var isHovered by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableStateOf(MemberListTab.MEMBERS) }
 
     val activeChannel = navigationStore.selectedThread ?: navigationStore.selectedChannel
     val isDm = activeChannel?.type == 1 || activeChannel?.type == 3
@@ -77,9 +84,8 @@ fun MemberList(
             }
     }
 
-    val presences = presenceStore.presences.collectAsState()
     val relationshipTypes = relationshipStore.relationshipTypes.collectAsState()
-    val currentUser by userStore.currentUser.collectAsState()
+    val currentUser = LocalCurrentUser.current
     val currentUserId = currentUser?.id
     val userSettings = settingsStore.userSettings
     val currentUserStatus = userSettings?.status
@@ -93,7 +99,7 @@ fun MemberList(
             currentUserId = currentUserId,
             currentUserStatus = currentUserStatus,
             developerMode = developerMode,
-            presences = presences,
+            presenceStore = presenceStore,
             relationshipTypes = relationshipTypes,
             animate = !isTouch && !reduceMotion,
             isTouch = isTouch,
@@ -132,7 +138,7 @@ fun MemberList(
                 contentPadding = PaddingValues(top = 8.dp, bottom = 52.dp)
             ) {
                 stickyHeader {
-                    MemberHeader(activeChannel)
+                    MemberHeader(activeChannel, onBack = onBack, overlapping = overlapping)
                 }
                 item {
                     Text(
@@ -210,8 +216,21 @@ fun MemberList(
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                     contentPadding = PaddingValues(bottom = 52.dp)
                 ) {
-                    stickyHeader {
-                        activeChannel?.let { MemberHeader(it) }
+                    if (overlapping) {
+                        stickyHeader {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.surface)
+                            ) {
+                                activeChannel?.let { MemberHeader(it, onBack = onBack, overlapping = true) }
+                                MemberListTabs(selectedTab) { selectedTab = it }
+                            }
+                        }
+                    } else {
+                        stickyHeader {
+                            activeChannel?.let { MemberHeader(it, onBack = onBack, overlapping = false) }
+                        }
                     }
                     if (header != null) {
                         stickyHeader {
@@ -224,40 +243,46 @@ fun MemberList(
                         }
                     }
 
-                    val rows = memberListStore.memberListItems
-                    val liveCount = rows.size
-                    if (liveCount == 0) {
-                        items(20) {
-                            MemberSkeleton()
+                    if (overlapping && selectedTab != MemberListTab.MEMBERS) {
+                        item {
+                            EmptyMemberTab(selectedTab)
                         }
                     } else {
-                        items(
-                            count = liveCount,
-                            key = { index ->
-                                val item = rows.getOrNull(index)
-                                val baseId = item?.member?.userId() ?: item?.group?.id
-                                if (baseId != null) {
-                                    baseId
-                                } else {
-                                    // A row can be transiently empty while the store repopulates, so only those fall back to the index.
-                                    "pending-$index"
+                        val rows = memberListStore.memberListItems
+                        val liveCount = rows.size
+                        if (liveCount == 0) {
+                            items(20) {
+                                MemberSkeleton()
+                            }
+                        } else {
+                            items(
+                                count = liveCount,
+                                key = { index ->
+                                    val item = rows.getOrNull(index)
+                                    val baseId = item?.member?.userId() ?: item?.group?.id
+                                    if (baseId != null) {
+                                        baseId
+                                    } else {
+
+                                        "pending-$index"
+                                    }
+                                },
+                                contentType = { index ->
+                                    val item = rows.getOrNull(index)
+                                    when {
+                                        item?.member != null -> 0
+                                        item?.group != null -> 1
+                                        else -> 2
+                                    }
                                 }
-                            },
-                            contentType = { index ->
+                            ) { index ->
                                 val item = rows.getOrNull(index)
                                 when {
-                                    item?.member != null -> 0
-                                    item?.group != null -> 1
-                                    else -> 2
-                                }
-                            }
-                        ) { index ->
-                            val item = rows.getOrNull(index)
-                            when {
-                                item?.member != null -> MemberItem(item.member, env)
-                                item?.group != null -> MemberGroupItem(item.group)
-                                else -> {
-                                    MemberSkeleton()
+                                    item?.member != null -> MemberItem(item.member, env)
+                                    item?.group != null -> MemberGroupItem(item.group)
+                                    else -> {
+                                        MemberSkeleton()
+                                    }
                                 }
                             }
                         }
@@ -271,5 +296,57 @@ fun MemberList(
                 )
             }
         }
+    }
+}
+
+private enum class MemberListTab(val label: String) {
+    MEMBERS("Members"),
+    MEDIA("Media"),
+    PINS("Pins"),
+    THREADS("Threads"),
+    LINKS("Links"),
+    FILES("Files")
+}
+
+@Composable
+private fun MemberListTabs(selected: MemberListTab, onSelect: (MemberListTab) -> Unit) {
+    PrimaryScrollableTabRow(
+        selectedTabIndex = selected.ordinal,
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.primary,
+        edgePadding = 12.dp,
+        divider = {}
+    ) {
+        MemberListTab.entries.forEach { tab ->
+            Tab(
+                selected = selected == tab,
+                onClick = { onSelect(tab) },
+                selectedContentColor = MaterialTheme.colorScheme.primary,
+                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = {
+                    Text(
+                        text = tab.label,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = if (selected == tab) FontWeight.SemiBold else FontWeight.Medium
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptyMemberTab(tab: MemberListTab) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "No ${tab.label.lowercase()} yet.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

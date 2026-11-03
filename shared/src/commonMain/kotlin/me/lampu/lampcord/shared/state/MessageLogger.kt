@@ -3,11 +3,16 @@ package me.lampu.lampcord.shared.state
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.lampu.lampcord.shared.database.MessageDao
 import me.lampu.lampcord.shared.database.MessageEntity
 import me.lampu.lampcord.shared.model.Message
+import me.lampu.lampcord.shared.utils.getCurrentTimeMillis
+import kotlin.time.Instant
+
+private const val LOG_RETENTION_MILLIS = 90L * 24 * 60 * 60 * 1000
 
 class MessageLogger(
     private val json: Json,
@@ -20,6 +25,9 @@ class MessageLogger(
             try {
                 val cutoff = kotlin.time.Clock.System.now() - RETENTION
                 messageDao.pruneUnremarkable(cutoff.toString())
+                messageDao.deleteOlderThan(
+                    Instant.fromEpochMilliseconds(getCurrentTimeMillis() - LOG_RETENTION_MILLIS).toString()
+                )
             } catch (e: Exception) {
                 me.lampu.lampcord.shared.utils.Logging.e("MessageLogger", "Pruning logged messages failed", e)
             }
@@ -95,27 +103,29 @@ class MessageLogger(
     }
 
     suspend fun getLoggedMessages(channelId: String): List<Message> {
-        return try {
-            val entities = messageDao.getMessagesForChannel(channelId)
-            entities.map { entity ->
-                val base = try {
-                    json.decodeFromString<Message>(entity.jsonPayload)
-                } catch (e: Exception) {
-                    // Fallback reconstruction if JSON is corrupted
-                    Message(
-                        id = entity.id,
-                        channel_id = entity.channelId,
-                        content = entity.content,
-                        timestamp = entity.timestamp
+        return withContext(Dispatchers.Default) {
+            try {
+                val entities = messageDao.getMessagesForChannel(channelId)
+                entities.map { entity ->
+                    val base = try {
+                        json.decodeFromString<Message>(entity.jsonPayload)
+                    } catch (e: Exception) {
+
+                        Message(
+                            id = entity.id,
+                            channel_id = entity.channelId,
+                            content = entity.content,
+                            timestamp = entity.timestamp
+                        )
+                    }
+                    base.copy(
+                        isDeleted = entity.isDeleted,
+                        oldContent = entity.oldContent
                     )
                 }
-                base.copy(
-                    isDeleted = entity.isDeleted,
-                    oldContent = entity.oldContent
-                )
+            } catch (e: Exception) {
+                emptyList()
             }
-        } catch (e: Exception) {
-            emptyList()
         }
     }
 }

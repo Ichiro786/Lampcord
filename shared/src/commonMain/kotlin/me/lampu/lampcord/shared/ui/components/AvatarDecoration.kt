@@ -21,7 +21,6 @@ import me.lampu.lampcord.shared.api.CdnUrls
 import me.lampu.lampcord.shared.utils.getPlatformName
 import me.lampu.lampcord.shared.ui.components.ImageLoadState
 
-/** Decorations overhang the avatar, so the decode hint must be the scaled size. */
 private const val DECORATION_SCALE = 1.2f
 
 private val DECORATION_CDN_SIZES = intArrayOf(96, 128, 160, 240, 320, 480)
@@ -49,7 +48,7 @@ fun AvatarWithDecoration(
         }.distinct()
     }
     var avatarCandidateIndex by remember(avatarCandidates) { mutableStateOf(0) }
-    // Decode straight to the drawn size instead of the CDN size.
+
     val sizePx = with(LocalDensity.current) { size.roundToPx() }
 
     Box(modifier = modifier.size(size)) {
@@ -77,7 +76,6 @@ fun AvatarWithDecoration(
             }
         }
 
-        // Decorations are animated APNGs. The same APNG is shown statically (first frame) when not hovered, and animates while hovered/visible. This keeps the colors identical in both states.
         if (decorationData != null) {
             val shouldAnimate = animated && (isHovered || forceAnimate)
             val decorationPx = (sizePx * DECORATION_SCALE).toInt()

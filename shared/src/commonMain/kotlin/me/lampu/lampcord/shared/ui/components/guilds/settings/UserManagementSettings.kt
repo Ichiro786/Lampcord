@@ -1,5 +1,9 @@
 package me.lampu.lampcord.shared.ui.components.guilds.settings
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.unban
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -233,7 +237,7 @@ fun ServerBans(guild: Guild, guildApi: GuildApi = koinInject()) {
                                     ),
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
-                                    Text("Unban")
+                                    Text(stringResource(Res.string.unban))
                                 }
                             }
                         }

@@ -15,7 +15,8 @@ import kotlinx.serialization.json.Json
 import me.lampu.lampcord.shared.api.httpClientEngine
 import me.lampu.lampcord.shared.utils.getCurrentTimeMillis
 
-private const val API_BASE = "https://api.github.com/repos/l6t9/Lampcord"
+// This fork checks its own releases, so the app only offers builds published from Ichiro786/Lampcord.
+private const val API_BASE = "https://api.github.com/repos/Ichiro786/Lampcord"
 private const val MAX_ASSET_BYTES = 512L * 1024 * 1024
 private const val CHECK_INTERVAL_MILLIS = 60L * 60 * 1000
 
@@ -42,7 +43,7 @@ class UpdateManager(
     private val client: HttpClient,
     private val json: Json,
     private val currentVersion: () -> String,
-    /** Null on platforms with nothing to update from, such as iOS. */
+
     private val target: UpdateTarget?,
     private val now: () -> Long = { getCurrentTimeMillis() },
 ) {
@@ -81,15 +82,12 @@ class UpdateManager(
             return@withLock UpdateState.UpToDate(now()).also { mutableState.value = it }
         }
 
-        val candidates = release.assets.filter { target.matchesName(it) }
-        val asset = target.installerExtension
-            ?.let { suffix -> candidates.firstOrNull { it.name.endsWith(suffix, ignoreCase = true) } }
-            ?: candidates.firstOrNull()
+        val asset = release.bestAsset(target)
         if (asset == null) {
             return@withLock fail("No ${target.extension} build in ${release.tagName}", release)
         }
 
-        val offered = release.assetVersion(asset, target) ?: release.version
+        val offered = release.offeredVersion(asset, target)
         if (!SemanticVersion.isNewer(offered, currentVersion())) {
             return@withLock UpdateState.UpToDate(now()).also { mutableState.value = it }
         }
@@ -152,18 +150,29 @@ class UpdateManager(
         }
     }
 
-    private suspend fun fetchRelease(channel: UpdateChannel): GitHubRelease? {
-        val url = when (channel) {
-            UpdateChannel.STABLE -> "$API_BASE/releases/latest"
-            UpdateChannel.NIGHTLY -> "$API_BASE/releases/tags/${channel.tag}"
+    private suspend fun fetchRelease(channel: UpdateChannel): GitHubRelease? =
+        when (channel) {
+            UpdateChannel.STABLE -> fetchLatestStable()
+            UpdateChannel.NIGHTLY -> fetchLatestNightly()
         }
-        val body = client.get(url) {
+
+    private suspend fun fetchLatestStable(): GitHubRelease? {
+        val release = json.decodeFromString<GitHubRelease>(get("$API_BASE/releases/latest"))
+        return release.takeIf { !it.draft }
+    }
+
+    private suspend fun fetchLatestNightly(): GitHubRelease? {
+        val target = target ?: return null
+        val releases = json.decodeFromString<List<GitHubRelease>>(get("$API_BASE/releases?per_page=100"))
+        return releases.latestNightlyFor(target)
+    }
+
+    private suspend fun get(url: String): String =
+        client.get(url) {
             header("Accept", "application/vnd.github+json")
             header("X-GitHub-Api-Version", "2022-11-28")
             header("User-Agent", "Lampcord/${currentVersion()}")
         }.bodyAsText()
-        return json.decodeFromString<GitHubRelease>(body).takeIf { !it.draft }
-    }
 
     private fun fail(reason: String, release: GitHubRelease?): UpdateState =
         UpdateState.Failed(reason, release).also { mutableState.value = it }

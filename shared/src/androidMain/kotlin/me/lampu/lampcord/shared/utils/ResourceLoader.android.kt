@@ -20,7 +20,6 @@ actual object ResourceLoader {
             }
         } ?: return null
 
-        // A missing or truncated resource must not propagate: callers treat null as "no asset".
         return try {
             stream.use { it.readBytes() }
         } catch (_: Exception) {

@@ -1,6 +1,17 @@
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
-
 package me.lampu.lampcord.shared.ui.components
+
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.deafen
+import me.lampu.lampcord.shared.generated.resources.mute
+import me.lampu.lampcord.shared.generated.resources.save
+import me.lampu.lampcord.shared.generated.resources.settings
+import me.lampu.lampcord.shared.generated.resources.status_dnd
+import me.lampu.lampcord.shared.generated.resources.status_idle
+import me.lampu.lampcord.shared.generated.resources.status_invisible
+import me.lampu.lampcord.shared.generated.resources.status_online
+import org.jetbrains.compose.resources.stringResource
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.spring
@@ -257,7 +268,7 @@ fun AccountPanel(
                             ) {
                                 Icon(
                                     imageVector = if (isMuted) Icons.Filled.MicOff else Icons.Rounded.Mic,
-                                    contentDescription = "Mute",
+                                    contentDescription = stringResource(Res.string.mute),
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -283,7 +294,7 @@ fun AccountPanel(
                             ) {
                                 Icon(
                                     imageVector = if (isDeafened) Icons.Filled.HeadsetOff else Icons.Rounded.Headphones,
-                                    contentDescription = "Deafen",
+                                    contentDescription = stringResource(Res.string.deafen),
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -313,7 +324,7 @@ fun AccountPanel(
                         menuContent = {
                             DropdownMenuItem(
                                 modifier = Modifier.handCursor(),
-                                text = { Text("Settings") },
+                                text = { Text(stringResource(Res.string.settings)) },
                                 onClick = { navigationStore.isSettingsVisible = true },
                                 leadingIcon = { Icon(Icons.Rounded.Settings, null) }
                             )
@@ -359,7 +370,7 @@ fun AccountPanel(
 
                 DropdownMenuItem(
                     modifier = Modifier.handCursor(),
-                    text = { Text("Settings") },
+                    text = { Text(stringResource(Res.string.settings)) },
                     onClick = {
                         showStatusMenu = false
                         navigationStore.isSettingsVisible = true
@@ -374,7 +385,7 @@ fun AccountPanel(
                     text = { Row(verticalAlignment = Alignment.CenterVertically) {
                         StatusIndicator(status = "online", size = 12.dp, borderWidth = 0.dp)
                         Spacer(Modifier.width(8.dp))
-                        Text("Online")
+                        Text(stringResource(Res.string.status_online))
                     }},
                     onClick = {
                         scope.launch { presenceStore.updateStatus("online") }
@@ -386,7 +397,7 @@ fun AccountPanel(
                     text = { Row(verticalAlignment = Alignment.CenterVertically) {
                         StatusIndicator(status = "idle", size = 12.dp, borderWidth = 0.dp)
                         Spacer(Modifier.width(8.dp))
-                        Text("Idle")
+                        Text(stringResource(Res.string.status_idle))
                     }},
                     onClick = {
                         scope.launch { presenceStore.updateStatus("idle") }
@@ -398,7 +409,7 @@ fun AccountPanel(
                     text = { Row(verticalAlignment = Alignment.CenterVertically) {
                         StatusIndicator(status = "dnd", size = 12.dp, borderWidth = 0.dp)
                         Spacer(Modifier.width(8.dp))
-                        Text("Do Not Disturb")
+                        Text(stringResource(Res.string.status_dnd))
                     }},
                     onClick = {
                         scope.launch { presenceStore.updateStatus("dnd") }
@@ -410,7 +421,7 @@ fun AccountPanel(
                     text = { Row(verticalAlignment = Alignment.CenterVertically) {
                         StatusIndicator(status = "invisible", size = 12.dp, borderWidth = 0.dp)
                         Spacer(Modifier.width(8.dp))
-                        Text("Invisible")
+                        Text(stringResource(Res.string.status_invisible))
                     }},
                     onClick = {
                         scope.launch { presenceStore.updateStatus("invisible") }
@@ -527,7 +538,7 @@ fun CustomStatusDialog(
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 )
             ) {
-                Text("Save")
+                Text(stringResource(Res.string.save))
             }
         },
         dismissButton = {
@@ -542,7 +553,7 @@ fun CustomStatusDialog(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         },
         shape = MaterialTheme.shapes.extraLarge,

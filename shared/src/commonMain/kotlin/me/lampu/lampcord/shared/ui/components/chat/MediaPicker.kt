@@ -1,5 +1,12 @@
 package me.lampu.lampcord.shared.ui.components.chat
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.create_thread
+import me.lampu.lampcord.shared.generated.resources.done
+import me.lampu.lampcord.shared.generated.resources.retry
+import me.lampu.lampcord.shared.generated.resources.thread_name
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
@@ -97,7 +104,7 @@ fun MediaPicker(
     val reduceMotion = Settings.shared.reduceMotion
     var selectedTab by remember { mutableStateOf(0) }
     var showSystemFilePicker by remember { mutableStateOf(false) }
-    
+
     val scope = rememberCoroutineScope()
     var isToolbarVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -200,7 +207,7 @@ private fun MediaPickerContent(
     messageStore: MessageStore = koinInject()
 ) {
     val tabs = listOf("Images", "Files", "Camera", "Thread", "Poll")
-    
+
     var mediaList by remember { mutableStateOf<List<LocalMedia>>(emptyList()) }
     var fileList by remember { mutableStateOf<List<LocalMedia>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -216,7 +223,7 @@ private fun MediaPickerContent(
 
     LaunchedEffect(selectedTab, permissionRequested) {
         if (!permissionRequested) return@LaunchedEffect
-        
+
         isLoading = true
         try {
             if (selectedTab == 0 && mediaList.isEmpty()) {
@@ -262,7 +269,7 @@ private fun MediaPickerContent(
                 onClick = onDismiss,
                 modifier = Modifier.align(Alignment.CenterEnd).padding(top = if (isMobile) 0.dp else 8.dp)
             ) {
-                Text("Done")
+                Text(stringResource(Res.string.done))
             }
         }
 
@@ -274,7 +281,7 @@ private fun MediaPickerContent(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("Permission denied", color = MaterialTheme.colorScheme.error)
                                 Button(onClick = { permissionRequested = false }) {
-                                    Text("Retry")
+                                    Text(stringResource(Res.string.retry))
                                 }
                             }
                         }
@@ -296,7 +303,7 @@ private fun MediaPickerContent(
                         ) {
                             items(mediaList, key = { it.id }) { media ->
                                 val isSelected = messageStore.pendingFiles.any { it.name == media.name }
-                                
+
                                 Box(
                                     modifier = Modifier
                                         .aspectRatio(1f)
@@ -375,7 +382,7 @@ private fun MediaPickerContent(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("Permission denied", color = MaterialTheme.colorScheme.error)
                                 Button(onClick = { permissionRequested = false }) {
-                                    Text("Retry")
+                                    Text(stringResource(Res.string.retry))
                                 }
                             }
                         }
@@ -403,7 +410,7 @@ private fun MediaPickerContent(
                             items(fileList.size, key = { fileList[it].id }) { index ->
                                 val file = fileList[index]
                                 val isSelected = messageStore.pendingFiles.any { it.name == file.name }
-                                
+
                                 FileItem(
                                     file = file,
                                     isSelected = isSelected,
@@ -430,12 +437,12 @@ private fun MediaPickerContent(
                             Icon(Icons.Rounded.Devices, null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
                             Spacer(Modifier.height(24.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                Button(onClick = { /* Launch Camera Photo */ }) {
+                                Button(onClick = {  }) {
                                     Icon(Icons.Filled.PhotoCamera, null, modifier = Modifier.size(18.dp))
                                     Spacer(Modifier.width(8.dp))
                                     Text("Take Photo")
                                 }
-                                Button(onClick = { /* Launch Camera Video */ }) {
+                                Button(onClick = {  }) {
                                     Icon(Icons.Filled.VideoCall, null, modifier = Modifier.size(18.dp))
                                     Spacer(Modifier.width(8.dp))
                                     Text("Record Video")
@@ -454,18 +461,18 @@ private fun MediaPickerContent(
                         OutlinedTextField(
                             value = threadName,
                             onValueChange = { threadName = it },
-                            label = { Text("Thread Name") },
+                            label = { Text(stringResource(Res.string.thread_name)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
                         Spacer(Modifier.height(16.dp))
                         Button(
-                            onClick = { 
+                            onClick = {
                                 onDismiss()
                             },
                             enabled = threadName.isNotBlank()
                         ) {
-                            Text("Create Thread")
+                            Text(stringResource(Res.string.create_thread))
                         }
                     }
                 }
@@ -523,7 +530,7 @@ private fun MediaPickerContent(
                         item {
                             val canPost = pollQuestion.isNotBlank() && pollAnswers.count { it.isNotBlank() } >= 2
                             Button(
-                                onClick = { 
+                                onClick = {
                                     val poll = Poll(
                                         question = PollMedia(text = pollQuestion),
                                         answers = pollAnswers.filter { it.isNotBlank() }.mapIndexed { idx, text ->
@@ -618,7 +625,7 @@ private fun formatDuration(durationMs: Long): String {
     val seconds = (durationMs / 1000) % 60
     val minutes = (durationMs / (1000 * 60)) % 60
     val hours = (durationMs / (1000 * 60 * 60))
-    
+
     return if (hours > 0) {
         "${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
     } else {
@@ -664,9 +671,9 @@ private fun FileItem(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Spacer(Modifier.width(16.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = file.name,
@@ -681,7 +688,7 @@ private fun FileItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Filled.Check,
@@ -714,7 +721,7 @@ private fun PickerTabItem(
 ) {
     val color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
     val backgroundColor = if (isSelected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
-    
+
     Box(
         modifier = Modifier
             .size(width = 48.dp, height = 40.dp)

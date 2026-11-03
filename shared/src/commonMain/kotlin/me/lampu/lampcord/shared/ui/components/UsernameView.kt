@@ -69,8 +69,6 @@ object DisplayNameCatalog {
         else -> null
     }
 
-    // A font that cannot be loaded (e.g. a platform without a bundled asset) must fall back to
-    // the default rather than abort during composition.
     private fun loadFontFamily(path: String): FontFamily? =
         runCatching { FontFamily(loadFont(path)) }.getOrNull()
 
@@ -122,8 +120,8 @@ fun UsernameView(
     val letterSpacing = DisplayNameCatalog.getLetterSpacing(style?.font_id)
 
     val useStyleColors = !ignoreColors && !styleColors.isNullOrEmpty()
-    
-    val animateGradient = !Settings.shared.reduceMotion && getPlatformName() != "windows" && roleGradient != null && roleGradient.size > 1
+
+    val animateGradient = !Settings.shared.reduceMotion && getPlatformName() != "windows" && !ignoreEffects && roleGradient != null && roleGradient.size > 1
     val animValue = if (animateGradient) {
         val infiniteTransition = rememberInfiniteTransition(label = "usernameGradient")
         val value by infiniteTransition.animateFloat(
@@ -142,14 +140,14 @@ fun UsernameView(
 
     val brush = remember(useStyleColors, styleColors, roleGradient, animValue) {
         if (roleGradient != null && roleGradient.size > 1) {
-            val offset = animValue * 200f // 2x the period
-            
+            val offset = animValue * 200f
+
             val animatedColors = when {
                 roleGradient.size >= 3 -> listOf(roleGradient[0], roleGradient[1], roleGradient[2], roleGradient[0])
                 roleGradient.size == 2 -> listOf(roleGradient[0], roleGradient[1], roleGradient[0])
                 else -> roleGradient
             }
-            
+
             Brush.linearGradient(
                 colors = animatedColors,
                 start = Offset(offset - 200f, 0f),
@@ -172,7 +170,7 @@ fun UsernameView(
     } else {
         color
     }
-    
+
     val effectBaseColor = if (roleGradient != null && roleGradient.isNotEmpty()) {
         roleGradient.first()
     } else if (useStyleColors && !styleColors.isNullOrEmpty()) {

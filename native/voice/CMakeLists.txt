@@ -22,20 +22,19 @@ set(REQUIRE_BORINGSSL ON CACHE BOOL "" FORCE)
 set(MLS_CXX_NAMESPACE mlspp CACHE STRING "" FORCE)
 set(MLS_EXPORT_NAMESPACE MLSPP CACHE STRING "" FORCE)
 
-# BoringSSL uses NASM on Windows.
 if(WIN32 AND CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64|x86_64|amd64|x86|i[3-6]86")
     find_program(NASM nasm REQUIRED)
 endif()
 
 include(FetchContent)
-# A pinned source bundle of Discord libdave, MLSpp and BoringSSL. No prebuilt crypto binaries.
+
 FetchContent_Declare(dave_deps
     URL https://codeload.github.com/KyokoBot/libdave-jvm/tar.gz/ce725965eb81e4878b474da226ea7cb0053f6cf9
     URL_HASH SHA256=1b1aed8297f54f02a37c5be536fc31202a235a6bd2b93b65b8804c999c8eab11
     SOURCE_SUBDIR unused)
 FetchContent_MakeAvailable(dave_deps)
 set(DEPS "${dave_deps_SOURCE_DIR}/natives")
-# Disable P-256 ADX on Windows/MinGW to avoid missing symbols.
+
 set(p256 "${DEPS}/boringssl/third_party/fiat/p256_64.h")
 file(READ "${p256}" p256_source)
 if(NOT p256_source MATCHES "OPENSSL_WINDOWS")
@@ -45,7 +44,7 @@ if(NOT p256_source MATCHES "OPENSSL_WINDOWS")
         p256_source "${p256_source}")
     file(WRITE "${p256}" "${p256_source}")
 endif()
-# The bundle's package configs assume they are at the project root.
+
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/packages")
 foreach(package OpenSSL MLSPP)
     file(READ "${DEPS}/cmake/${package}Config.cmake" config)
@@ -55,13 +54,17 @@ foreach(package OpenSSL MLSPP)
 endforeach()
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
 set(nlohmann_json_DIR "${DEPS}/json-cpp")
-# Android's sysroot-only find_path must not hide this bundled host-side source path.
+
 set(BORINGSSL_INCLUDE_DIR "${DEPS}/boringssl/include" CACHE PATH "" FORCE)
 add_subdirectory("${DEPS}/boringssl" boringssl EXCLUDE_FROM_ALL)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # GCC's -Warray-bounds fires on BoringSSL's AES-GCM-SIV code with -Werror.
+    target_compile_options(crypto PRIVATE -Wno-array-bounds)
+endif()
 add_subdirectory("${DEPS}/mlspp" mlspp EXCLUDE_FROM_ALL)
 add_subdirectory("${DEPS}/libdave/cpp" libdave EXCLUDE_FROM_ALL)
 if(ANDROID)
-    # libdave's Android public interface uses JNIEnv without including its declaration.
+
     target_compile_options(libdave PRIVATE -include jni.h)
 endif()
 
@@ -72,15 +75,11 @@ FetchContent_Declare(opus
     URL_HASH SHA256=9480e329e989f70d69886ded470c7f8cfe6c0667cc4196d4837ac9e668fb7404)
 FetchContent_MakeAvailable(opus)
 
-# Pin rnnoise to the stable master branch head. Note: do NOT use the main
-# branch, it is a rewrite that needs a generated rnnoise_data.h.
 FetchContent_Declare(rnnoise
     URL https://codeload.github.com/xiph/rnnoise/tar.gz/6cbfd53eb348a8d394e0757b4025c6ded34eb2b6
     URL_HASH SHA256=5900832175a507e1ee5d4d596ff2c2b3a4eb66c59d2a12d33095c79e673e953d)
 FetchContent_MakeAvailable(rnnoise)
 
-# rnnoise master is C99 and MSVC rejects its VLAs and bare M_PI. Patch the
-# pinned sources at configure time (MSVC only, other toolchains unchanged).
 if(MSVC)
     function(msvc_patch_rnnoise src old new)
         file(READ "${src}" content)
@@ -94,7 +93,7 @@ if(MSVC)
     msvc_patch_rnnoise("${rnnoise_SOURCE_DIR}/src/denoise.c"
         "#include <math.h>"
         "#include <math.h>\n#ifndef M_PI\n#define M_PI 3.14159265358979323846\n#endif")
-    # Fixed sizes: len<=PITCH_FRAME_SIZE(960), max_pitch<=PITCH_MAX_PERIOD(768).
+
     msvc_patch_rnnoise("${rnnoise_SOURCE_DIR}/src/celt_lpc.c"
         "   opus_val16 xx[n];"
         "   opus_val16 xx[864];")
@@ -123,7 +122,7 @@ set(RNNOISE_SOURCES
 add_library(rnnoise_static STATIC ${RNNOISE_SOURCES})
 target_include_directories(rnnoise_static PUBLIC "${rnnoise_SOURCE_DIR}/include")
 target_compile_definitions(rnnoise_static PRIVATE HAVE_CONFIG_H)
-# RNNoise expects a config.h. We can provide a minimal one or just define the needed macros.
+
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/config.h" "
 #define PACKAGE_NAME \"rnnoise\"
 #define PACKAGE_VERSION \"0.1\"
@@ -139,7 +138,7 @@ if(NOT ANDROID)
     target_include_directories(lampcord_voice PRIVATE ${JNI_INCLUDE_DIRS})
     add_executable(voice_check EXCLUDE_FROM_ALL voice_check.cpp "${DEPS}/libdave/cpp/test/external_sender.cpp")
     target_include_directories(voice_check PRIVATE ${JNI_INCLUDE_DIRS} "${DEPS}/libdave/cpp/test" "${DEPS}/libdave/cpp/src")
-    target_link_libraries(voice_check PRIVATE libdave opus OpenSSL::Crypto MLSPP::mlspp)
+    target_link_libraries(voice_check PRIVATE libdave opus OpenSSL::Crypto MLSPP::mlspp rnnoise_static)
 else()
     target_link_options(lampcord_voice PRIVATE "-Wl,-z,max-page-size=16384")
 endif()
@@ -153,7 +152,6 @@ foreach(config Release Debug RelWithDebInfo MinSizeRel)
         RUNTIME_OUTPUT_DIRECTORY_${upper} "${CMAKE_CURRENT_BINARY_DIR}/out")
 endforeach()
 
-# Include dependency notices with both the desktop and Android distributions.
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/licenses")
 configure_file("${DEPS}/libdave/LICENSE" "licenses/libdave.txt" COPYONLY)
 configure_file("${DEPS}/mlspp/LICENSE" "licenses/mlspp.txt" COPYONLY)

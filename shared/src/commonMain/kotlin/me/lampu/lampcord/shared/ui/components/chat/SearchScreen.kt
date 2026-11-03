@@ -1,5 +1,11 @@
 package me.lampu.lampcord.shared.ui.components.chat
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.back
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_clear
+import me.lampu.lampcord.shared.generated.resources.search
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -181,7 +187,7 @@ private fun SearchScreenContent(
                 },
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.back))
                     }
                 },
                 actions = {
@@ -191,7 +197,7 @@ private fun SearchScreenContent(
                             searchStore.searchResults.clear()
                             autocompleteStore.clear(isSearch = true)
                         }) {
-                            Icon(Icons.Filled.Close, contentDescription = "Clear")
+                            Icon(Icons.Filled.Close, contentDescription = stringResource(Res.string.lampcord_settings_clear))
                         }
                     }
                 }
@@ -327,11 +333,9 @@ private fun SearchScreenContent(
                                     if (guild != null) {
                                         navigationStore.selectGuild(guild) { gatewayManager.sendSubscription(it) }
                                     }
-                                    if (channel != null) {
-                                        navigationStore.selectChannel(channel, explicitlySelected = true)
-                                        messageStore.scrollToMessageId = message.id
-                                        onDismiss()
-                                    }
+                                    navigationStore.selectChannelById(message.channel_id, explicitlySelected = true)
+                                    messageStore.jumpToMessage(message.channel_id, message.id)
+                                    onDismiss()
                                 }
 
                                 Column(
@@ -411,7 +415,7 @@ private fun SearchScreenContent(
                     .navigationBarsPadding()
                     .imePadding(),
                 icon = { Icon(Icons.Filled.Search, null) },
-                text = { Text("Search") },
+                text = { Text(stringResource(Res.string.search)) },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )

@@ -36,15 +36,10 @@ jobs:
   build:
     name: iOS
     runs-on: macos-15
-    # The archive step alone has been observed at 46 minutes, so the old 60 minute ceiling
-    # cancelled the job mid-link. Kept well clear of GitHub's 6 hour hard limit.
+
     timeout-minutes: 120
     env:
-      # Kotlin/Native's linker runs inside the Gradle daemon, so this is the heap that has to
-      # survive the framework link. The fixed 4 GB in gradle.properties is nowhere near
-      # enough. Scaling to the runner leaves room for the Kotlin daemon and the linker's own
-      # native allocations, and capping workers stops a second native compilation from
-      # competing for the same memory. Overrides gradle.properties for this job only.
+
       GRADLE_OPTS: >-
         -Dorg.gradle.jvmargs="-XX:MaxRAMPercentage=60.0 -XX:MaxMetaspaceSize=512m -XX:+UseParallelGC -Dkotlin.daemon.jvm.options=-XX:MaxRAMPercentage=12.0 -XX:+UseParallelGC"
       ORG_GRADLE_PROJECT_org.gradle.workers.max: "2"
@@ -56,10 +51,7 @@ jobs:
           persist-credentials: false
 
       - name: Restore Kotlin/Native toolchain
-        # Kotlin/Native keeps its compiler distribution, LLVM and sysroot in ~/.konan, which
-        # is outside GRADLE_USER_HOME and so was not covered by the Gradle cache. Every run
-        # was re-downloading and re-extracting roughly a gigabyte of LLVM before it could
-        # compile anything. Keyed on the Kotlin version so a bump invalidates it.
+
         uses: actions/cache@v4
         with:
           path: ~/.konan
@@ -96,28 +88,14 @@ jobs:
           echo "Static Swift validation passed."
 
       - name: Compile the shared module for iOS
-        # Skipped whenever a device IPA is being built. The Xcode build phase links the
-        # Release device framework, so in that mode nothing consumes the debug simulator
-        # framework and linking it here is ~10 minutes of work with no consumer.
+
         if: ${{ !inputs.build-ipa }}
         shell: bash
         run: |
-          # Only the simulator framework is needed here. The device framework is linked by the
-          # Xcode build phase for the configuration being built: Release for --ipa, and the
-          # simulator app uses this same debug simulator framework. Nothing ever builds a Debug
-          # device configuration, so linking one cost minutes per run for no consumer.
-          # No --no-daemon: the Kotlin docs list org.gradle.daemon=false as a stale
-          # workaround that disables a performance feature. Keeping the daemon lets this step,
-          # the test step and the framework link inside the Xcode build phase share one JVM
-          # instead of forking a fresh single-use daemon per invocation.
-          # org.gradle.workers.max above is what actually bounds memory.
-          ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64
+          ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64 --configure-on-demand
 
       - name: Run iOS tests
-        # Skipped for IPA builds. The archive already spends ~46 minutes linking the device
-        # framework, and these tests boot a simulator and compile the simulator test binary
-        # first, which is what pushed the combined job past its ceiling. The simulator
-        # framework they exercise is not the one the IPA ships, so they do not gate it.
+
         if: ${{ !inputs.build-ipa }}
         shell: bash
         run: |
@@ -127,7 +105,7 @@ jobs:
           devices = json.load(sys.stdin)["devices"]
           print(next(device["udid"] for runtime, items in devices.items() if ".iOS-" in runtime for device in items if device["name"].startswith("iPhone")))')
           xcrun simctl bootstatus "$device" -b
-          ./gradlew :shared:iosSimulatorArm64Test --device "$device"
+          ./gradlew :shared:iosSimulatorArm64Test --device "$device" --configure-on-demand
 
       - name: Shut down iOS simulator
         if: always()

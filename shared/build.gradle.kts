@@ -42,7 +42,13 @@ val generatedUpdateDir = layout.buildDirectory.dir("generated/update")
 val generateAppVersion = tasks.register("generateAppVersion") {
     val appVersion = providers.gradleProperty("appVersion").get()
     val nightlyBuild = providers.gradleProperty("nightlyBuild").orNull?.toIntOrNull() ?: 0
-    val version = if (nightlyBuild > 0) "$appVersion-nightly.$nightlyBuild" else appVersion
+    // Fork releases (Ichiro786/Lampcord) carry their CI run number so every build is newer than the last.
+    val forkBuild = providers.gradleProperty("forkBuild").orNull?.toIntOrNull() ?: 0
+    val version = when {
+        nightlyBuild > 0 -> "$appVersion-nightly.$nightlyBuild"
+        forkBuild > 0 -> "$appVersion-fork.$forkBuild"
+        else -> appVersion
+    }
     val output = generatedUpdateDir.map { it.file("me/lampu/lampcord/shared/update/AppVersion.kt") }
     inputs.property("version", version)
     inputs.property("nightlyBuild", nightlyBuild.toString())
@@ -77,15 +83,12 @@ kotlin {
         namespace = "me.lampu.lampcord.shared"
         compileSdk = 37
         minSdk = 24
-        // Compose Multiplatform packages its strings and other resources as Android
-        // assets. The KMP library plugin disables Android resource processing by default,
-        // which silently drops those assets from the AAR/APK: every string lookup then
-        // crashes at runtime with MissingResourceException (e.g. values/*.commonMain.cvr).
+
         androidResources {
             enable = true
         }
     }
-    
+
     jvm("desktop")
 
     listOf(
@@ -101,13 +104,7 @@ kotlin {
         }
         it.binaries.framework {
             baseName = "Shared"
-            // Dynamic, not static. A static framework has to merge every dependency klib into a
-            // single binary and run whole-program LTO over the result, and that pass is what
-            // exhausts the heap: it died in DevirtualizationAnalysis, then again in
-            // RemoveRedundantCallsToStaticInitializersPhase, after burning 16 minutes each time.
-            // Nothing links against Shared statically - the Xcode build phase calls
-            // embedAndSignAppleFrameworkForXcode, which embeds and signs the dylib either way -
-            // so this is purely a linker-cost decision.
+
             isStatic = false
             binaryOption("bundleId", "me.lampcord.shared")
         }
@@ -120,7 +117,7 @@ kotlin {
             exclude(group = "org.jetbrains.skiko", module = "skiko")
         }
     }
-    
+
     sourceSets {
         val jvmSharedMain by creating {
             dependsOn(commonMain.get())
@@ -146,28 +143,28 @@ kotlin {
             implementation(libs.compose.material3.adaptive.navigation.suite)
             implementation(libs.compose.ui)
             implementation(libs.compose.components.resources)
-            
+
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
-            
+
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.ktor.client.websockets)
             implementation(libs.ktor.client.logging)
-            
+
             api(libs.koin.core)
             implementation(libs.koin.compose)
-            
+
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.settings.no.arg)
-            
+
             api(libs.androidx.navigation3.runtime)
 
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
-            
+
             implementation(libs.materialKolor)
             implementation(libs.qrcode.kotlin)
 
@@ -181,7 +178,7 @@ kotlin {
                 implementation(kotlin("test-junit"))
             }
         }
-        
+
         getByName("iosMain") {
             dependencies {
                 implementation(libs.ktor.client.darwin)
@@ -202,13 +199,13 @@ kotlin {
                 implementation(libs.androidx.navigation3.ui)
             }
         }
-        
+
         getByName("desktopMain") {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(libs.tianscar.imageio.apng)
                 implementation("dev.nucleusframework:nucleus.system-color:${libs.versions.nucleus.get()}")
-                
+
                 implementation("io.ktor:ktor-server-core:${libs.versions.ktor.get()}")
                 implementation("io.ktor:ktor-server-netty:${libs.versions.ktor.get()}")
                 implementation("io.ktor:ktor-server-websockets:${libs.versions.ktor.get()}")

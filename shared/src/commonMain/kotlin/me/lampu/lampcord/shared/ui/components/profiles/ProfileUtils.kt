@@ -75,7 +75,7 @@ fun UserBadges(userId: String, badges: List<ProfileBadge>, roleIds: Collection<S
 fun getConnectionIcon(type: String, name: String? = null): ImageVector {
     val normalizedType = type.lowercase()
     if (normalizedType == "website" || normalizedType == "domain") return Icons.Rounded.Language
-    
+
     if (name != null && name.contains(".") && !name.contains(" ")) return Icons.Rounded.Language
 
     return when (normalizedType) {
@@ -90,10 +90,10 @@ fun getConnectionIcon(type: String, name: String? = null): ImageVector {
         "youtube" -> IconsBrand.Youtube
         "instagram" -> IconsBrand.Instagram
         "telegram" -> IconsBrand.Telegram
-        "battlenet" -> IconsBrand.BuyMeACoffee // Placeholder
-        "facebook" -> Icons.Rounded.Public // Placeholder
-        "mastodon" -> Icons.Rounded.Public // Placeholder
-        "tiktok" -> Icons.Rounded.Public // Placeholder
+        "battlenet" -> IconsBrand.BuyMeACoffee
+        "facebook" -> Icons.Rounded.Public
+        "mastodon" -> Icons.Rounded.Public
+        "tiktok" -> Icons.Rounded.Public
         else -> Icons.Rounded.Link
     }
 }
@@ -118,7 +118,7 @@ fun getConnectionUrl(type: String, name: String, id: String): String? {
         } else null
         "website", "domain" -> if (name.startsWith("http")) name else "https://$name"
         else -> {
-            // Fallback: If it looks like a URL or a domain, try to link it
+
             if (name.startsWith("http")) {
                 name
             } else if (name.contains(".") && !name.contains(" ")) {
@@ -199,7 +199,7 @@ object ModernProfileColors {
 }
 
 object Profile3y3 {
-    private const val HEADER = "\uDB40\uDC33\uDB40\uDC79\uDB40\uDC33" // "3y3" in tags
+    private const val HEADER = "\uDB40\uDC33\uDB40\uDC79\uDB40\uDC33"
 
     fun encode(data: String): String {
         val sb = StringBuilder(HEADER)
@@ -228,7 +228,7 @@ object Profile3y3 {
             }
             i += if (charCount(codePoint) > 1) 2 else 1
         }
-        
+
         val result = sb.toString()
         return if (result.isEmpty()) null else result
     }
@@ -236,7 +236,7 @@ object Profile3y3 {
     fun strip(input: String): String {
         val startIndex = input.indexOf(HEADER)
         if (startIndex == -1) return input
-        
+
         var endIndex = startIndex + HEADER.length
         while (endIndex < input.length) {
             val codePoint = input.codePointAt(endIndex)
@@ -246,12 +246,12 @@ object Profile3y3 {
                 break
             }
         }
-        
+
         return input.removeRange(startIndex, endIndex)
     }
 
     private fun charCount(codePoint: Int): Int = if (codePoint >= 0x10000) 2 else 1
-    
+
     private fun String.codePointAt(index: Int): Int {
         val high = this[index]
         if (high.isHighSurrogate() && index + 1 < this.length) {
@@ -262,7 +262,7 @@ object Profile3y3 {
         }
         return high.code
     }
-    
+
     private fun StringBuilder.appendCodePoint(codePoint: Int): StringBuilder {
         if (codePoint <= 0xFFFF) {
             append(codePoint.toChar())

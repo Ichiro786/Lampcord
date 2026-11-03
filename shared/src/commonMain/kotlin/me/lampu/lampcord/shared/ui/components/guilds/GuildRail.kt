@@ -1,5 +1,9 @@
 package me.lampu.lampcord.shared.ui.components.guilds
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.home
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -175,8 +179,10 @@ fun GuildRail(
         contentPadding = PaddingValues(vertical = 8.dp)
     ) {
         item {
-            val isHomeSelected = navigationStore.selectedGuild == null
-            
+            val favoritesVisible = me.lampu.lampcord.shared.settings.Settings.shared.favoritesServerEnabled
+            val isHomeSelected = navigationStore.selectedGuild == null &&
+                !(navigationStore.isFavoritesSelected && favoritesVisible)
+
             val totalDmMentions = remember(privateChannels, readStates) {
                 privateChannels.sumOf { readStateStore.getMentionCount(it.id) }
             }
@@ -200,7 +206,7 @@ fun GuildRail(
                         ) {
                             Icon(
                                 imageVector = Icons.Brand.DiscordRounded,
-                                contentDescription = "Home",
+                                contentDescription = stringResource(Res.string.home),
                                 modifier = Modifier.size(28.dp)
                             )
                         }
@@ -239,13 +245,44 @@ fun GuildRail(
             )
         }
 
+        if (me.lampu.lampcord.shared.settings.Settings.shared.favoritesServerEnabled) {
+            item(key = "favorites-server") {
+                ExpressiveTooltip(
+                    anchorPosition = TooltipAnchorPosition.End,
+                    content = tooltipText("Favorites"),
+                    anchor = {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.graphicsLayer(clip = false)) {
+                            RegularGuildItem(
+                                isSelected = navigationStore.isFavoritesSelected,
+                                isMonogram = true,
+                                onClick = {
+                                    navigationStore.selectFavorites()
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                },
+                                selectedColor = MaterialTheme.colorScheme.primary,
+                                unselectedColor = MaterialTheme.colorScheme.surfaceVariant,
+                                monogramSelectedColor = MaterialTheme.colorScheme.onPrimary,
+                                monogramUnselectedColor = MaterialTheme.colorScheme.primary
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Star,
+                                    contentDescription = "Favorites",
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+        }
+
         items(railEntries, key = { it.key }) { entry ->
             val folder = entry.folder
             val guild = entry.guild
             if (guild != null) {
                 GuildIcon(
                     guild = guild,
-                    isSelected = navigationStore.selectedGuild?.id == guild.id,
+                    isSelected = !navigationStore.isFavoritesSelected && navigationStore.selectedGuild?.id == guild.id,
                     arrangeMode = canArrange,
                     isDragging = draggingKey == entry.key,
                     dragOffset = dragOffsetPx,
@@ -266,7 +303,7 @@ fun GuildRail(
                     if (singletonGuild != null) {
                         GuildIcon(
                             guild = singletonGuild,
-                            isSelected = navigationStore.selectedGuild?.id == singletonGuild.id,
+                            isSelected = !navigationStore.isFavoritesSelected && navigationStore.selectedGuild?.id == singletonGuild.id,
                             onClick = {
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                 navigationStore.selectGuild(singletonGuild) { gatewayManager.sendSubscription(it) }

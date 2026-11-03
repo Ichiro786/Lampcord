@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.lampu.lampcord.shared.api.AuthApi
 import me.lampu.lampcord.shared.gateway.GatewayManager
 import me.lampu.lampcord.shared.gateway.VoiceGatewayManager
@@ -55,13 +56,15 @@ class SessionManager(
 
     init {
         scope.launch {
-            // Never let a single malformed event kill the collector.
+
             gatewayManager.events.collect { payload ->
                 try {
                     if (payload.op == -1 && payload.t == "AUTH_FAILED") {
                         logout(Settings.shared.discordToken)
                     } else {
-                        gatewayHandler.handleGatewayEvent(payload)
+                        withContext(Dispatchers.Default) {
+                            gatewayHandler.handleGatewayEvent(payload)
+                        }
                     }
                 } catch (e: kotlin.coroutines.cancellation.CancellationException) {
                     throw e
@@ -148,12 +151,12 @@ class SessionManager(
         return authApi.login(LoginRequest(email, pass), fingerprint)
     }
 
-    suspend fun verifyMFA(ticket: String, code: String, type: String): Boolean {
+    suspend fun verifyMFA(ticket: String, code: String, type: String): LoginResponse? {
         val fingerprint = authApi.getFingerprint() ?: ""
         val res = authApi.loginMFA(MFALoginRequest(ticket, code), fingerprint, type)
-        return if (res?.token != null) {
+        if (res?.token != null) {
             connect(res.token)
-            true
-        } else false
+        }
+        return res
     }
 }

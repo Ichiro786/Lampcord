@@ -15,7 +15,6 @@ import androidx.compose.ui.semantics.Role
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.handCursor(): Modifier = pointerHoverIcon(PointerIcon.Hand)
 
-// Compose Multiplatform's `clickable` never sets a pointer icon, so on desktop the cursor
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.clickableCursor(
     enabled: Boolean = true,
@@ -87,7 +86,6 @@ fun Modifier.combinedClickableCursor(
         onClick = onClick
     )
 
-// square behind them on desktop hover. Use this where the target is an image rather than
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Modifier.pointerClickable(

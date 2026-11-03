@@ -1,5 +1,13 @@
 package me.lampu.lampcord.shared.ui.settings
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.add
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.delete
+import me.lampu.lampcord.shared.generated.resources.edit
+import me.lampu.lampcord.shared.generated.resources.save
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -245,13 +253,13 @@ fun ThemeSettingsItem(
                                 ) {
                                     Icon(Icons.Rounded.Edit, null, modifier = Modifier.size(16.dp))
                                     Spacer(Modifier.width(8.dp))
-                                    Text("Edit", style = MaterialTheme.typography.labelMedium)
+                                    Text(stringResource(Res.string.edit), style = MaterialTheme.typography.labelMedium)
                                 }
                             },
                             menuContent = { menuState ->
                                 DropdownMenuItem(
                                     modifier = Modifier.handCursor(),
-                                    text = { Text("Edit") },
+                                    text = { Text(stringResource(Res.string.edit)) },
                                     leadingIcon = { Icon(Icons.Rounded.Edit, null) },
                                     onClick = { onEdit(); menuState.dismiss() }
                                 )
@@ -274,13 +282,13 @@ fun ThemeSettingsItem(
                                 ) {
                                     Icon(Icons.Rounded.Delete, null, modifier = Modifier.size(16.dp))
                                     Spacer(Modifier.width(8.dp))
-                                    Text("Delete", style = MaterialTheme.typography.labelMedium)
+                                    Text(stringResource(Res.string.delete), style = MaterialTheme.typography.labelMedium)
                                 }
                             },
                             menuContent = { menuState ->
                                 DropdownMenuItem(
                                     modifier = Modifier.handCursor(),
-                                    text = { Text("Delete") },
+                                    text = { Text(stringResource(Res.string.delete)) },
                                     leadingIcon = { Icon(Icons.Rounded.Delete, null) },
                                     onClick = { onDelete(); menuState.dismiss() }
                                 )
@@ -328,7 +336,7 @@ fun ThemeEditorScreen(
                         themeStore.updateTheme(theme)
                         onBack()
                     }) {
-                        Text("Save", fontWeight = FontWeight.Bold)
+                        Text(stringResource(Res.string.save), fontWeight = FontWeight.Bold)
                     }
                 }
             )
@@ -509,7 +517,7 @@ fun ColorMapEditor(title: String, colors: Map<String, JsonElement>, onUpdate: (M
                         modifier = Modifier.fillMaxWidth()
                     )
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                        TextButton(onClick = { showAddDialog = false }) { Text("Cancel") }
+                        TextButton(onClick = { showAddDialog = false }) { Text(stringResource(Res.string.cancel)) }
                         Button(
                             onClick = {
                                 if (newKey.isNotBlank()) {
@@ -527,7 +535,7 @@ fun ColorMapEditor(title: String, colors: Map<String, JsonElement>, onUpdate: (M
                                 contentColor = MaterialTheme.colorScheme.onPrimary
                             )
                         ) {
-                            Text("Add")
+                            Text(stringResource(Res.string.add))
                         }
                     }
                 }

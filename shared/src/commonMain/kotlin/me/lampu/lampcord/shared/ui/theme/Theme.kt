@@ -43,6 +43,7 @@ fun LampcordTheme(
         ThemePaletteStyle.EXPRESSIVE -> PaletteStyle.Expressive
         ThemePaletteStyle.RAINBOW -> PaletteStyle.Rainbow
         ThemePaletteStyle.FRUIT_SALAD -> PaletteStyle.FruitSalad
+        ThemePaletteStyle.CONTENT -> PaletteStyle.Content
         ThemePaletteStyle.MONOCHROME -> PaletteStyle.Monochrome
         ThemePaletteStyle.NEUTRAL -> PaletteStyle.Neutral
     }
@@ -53,14 +54,14 @@ fun LampcordTheme(
         paletteStyle = materialPaletteStyle,
         useMaterialYou = useMaterialYou && useDynamicColor
     )
-    
+
     val colorScheme = remember(baseColorScheme, pureBlack, useDarkTheme, themeStore.activeThemes, Settings.shared.transparencyMode) {
         var scheme = if (useDarkTheme && pureBlack) {
             baseColorScheme.pureBlack()
         } else {
             baseColorScheme
         }
-        
+
         if (themeStore.activeThemes.isNotEmpty()) {
             scheme = scheme.copy(
                 primary = themeStore.resolveColor("primary", scheme) ?: scheme.primary,
@@ -117,20 +118,18 @@ fun LampcordTheme(
         }
     }
 
-    // Reduced motion also applies to theme changes. Keeping the scheme direct avoids a cross-fade when the user changes appearance settings.
     val animatedColorScheme = if (Settings.shared.reduceMotion) {
         colorScheme
     } else {
         animateColorScheme(colorScheme = colorScheme)
     }
-    
+
     val themeFontPath = themeStore.themeFontPath
     val finalFontOption = if (!themeFontPath.isNullOrEmpty()) FontOption.CUSTOM else appFont
     val finalFontPath = if (!themeFontPath.isNullOrEmpty()) themeFontPath else customFontPath
-    
+
     val font = rememberAppFontFamily(finalFontOption, finalFontPath)
 
-    // Remember Typography to avoid invalidating readers on every frame during color scheme animations.
     val typography = remember(font, fontScale) { LampcordTypography(font, scale = fontScale) }
 
     MaterialExpressiveTheme(

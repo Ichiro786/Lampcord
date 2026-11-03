@@ -1,5 +1,11 @@
 package me.lampu.lampcord.shared.ui.components
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.color_picker_presets
+import me.lampu.lampcord.shared.generated.resources.reset
+import me.lampu.lampcord.shared.generated.resources.select
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
@@ -206,7 +212,7 @@ fun HsvColorPicker(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = { /* Presets TODO */ }) {
-                Text("Presets")
+                Text(stringResource(Res.string.color_picker_presets))
             }
 
             TextButton(onClick = {
@@ -215,14 +221,14 @@ fun HsvColorPicker(
                 saturation = resetHsv[1]
                 value = resetHsv[2]
             }) {
-                Text("Reset")
+                Text(stringResource(Res.string.reset))
             }
 
             Button(
                 onClick = { onColorSelected(currentColor) },
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Select")
+                Text(stringResource(Res.string.select))
             }
         }
     }

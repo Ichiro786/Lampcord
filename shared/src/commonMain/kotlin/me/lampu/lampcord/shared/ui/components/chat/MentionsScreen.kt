@@ -1,5 +1,10 @@
 package me.lampu.lampcord.shared.ui.components.chat
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.back
+import me.lampu.lampcord.shared.generated.resources.mentions
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,10 +54,10 @@ fun MentionsScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             LargeTopAppBar(
-                title = { Text("Mentions") },
+                title = { Text(stringResource(Res.string.mentions)) },
                 navigationIcon = {
                     IconButton(onClick = { navigationStore.isMentionsSelected = false }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.back))
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -87,11 +92,11 @@ fun MentionsScreen(
                                     if (guild != null) {
                                         navigationStore.selectGuild(guild) { gatewayManager.sendSubscription(it) }
                                     }
-                                    navigationStore.selectChannel(targetChan, explicitlySelected = true)
-                                    messageStore.scrollToMessageId = message.id
+                                    navigationStore.selectChannelById(targetChan.id, explicitlySelected = true)
+                                    messageStore.jumpToMessage(targetChan.id, message.id)
                                 } else {
                                     channelNavigator.navigateToChannel(message.channel_id, message.guild_id)
-                                    messageStore.scrollToMessageId = message.id
+                                    messageStore.jumpToMessage(message.channel_id, message.id)
                                 }
                             }
                     ) {

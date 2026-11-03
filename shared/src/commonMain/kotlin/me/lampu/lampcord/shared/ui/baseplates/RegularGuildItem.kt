@@ -34,7 +34,7 @@ fun RegularGuildItem(
     modifier: Modifier = Modifier,
     selectedColor: Color = Color.Transparent,
     unselectedColor: Color = Color.Transparent,
-    monogramSelectedColor: Color = Color.Transparent,   // These monogram color variables are also responsible for the colors of the DM/home icon in the top left.
+    monogramSelectedColor: Color = Color.Transparent,
     monogramUnselectedColor: Color = Color.Transparent,
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -54,33 +54,32 @@ fun RegularGuildItem(
         label = "indicatorFraction",
         animationSpec = if (reduceMotion) snap() else spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
     )
-    
+
     val indicatorAlpha by animateFloatAsState(
         targetValue = if (isSelected || (isUnread && !isMuted) || showHoverIndicator) 1f else 0f,
         label = "indicatorAlpha",
         animationSpec = if (reduceMotion) snap() else spring()
     )
-    
+
     val backgroundColor by animateColorAsState(
         if (isSelected || isHovered) selectedColor else unselectedColor,
         label = "backgroundColor",
         animationSpec = if (reduceMotion) snap() else spring()
     )
 
-    // Foreground color is for guild items that don't have a set icon, like the home/DMs button, servers without icons, etc.
     val monogramColor by animateColorAsState(
         if (isSelected || isHovered) monogramSelectedColor else monogramUnselectedColor,
         label = "monogramColor",
         animationSpec = if (reduceMotion) snap() else spring()
     )
-    
+
     val cornerRadius by animateFloatAsState(
         targetValue = if (isSelected || isHovered) 16f else 24f,
         label = "cornerRadius",
         animationSpec = if (reduceMotion) snap() else spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
     )
     val shape = RoundedCornerShape(cornerRadius.dp)
-    
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -94,7 +93,7 @@ fun RegularGuildItem(
         contentAlignment = Alignment.Center
     ) {
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            // Indicator - Fixed to avoid clipping on mobile
+
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterStart)

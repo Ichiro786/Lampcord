@@ -144,11 +144,73 @@ class UpdateAssetTest {
             )
             assertEquals(StoreOutcome.DigestMismatch, noDigest)
 
-            // A rejected download must not leave anything behind to be mistaken for a build.
             assertFalse(File(fileNameFor(version, UpdateTarget.LINUX)).exists())
         } finally {
             UpdateStorage.open(version, UpdateTarget.LINUX).abort()
         }
+    }
+
+    @Test
+    fun `the nightly feed picks the newest build that has a downloadable asset`() {
+        val older = GitHubRelease(
+            tagName = "v1.0.4-nightly.150",
+            prerelease = true,
+            assets = listOf(asset("lampcord-android-1.0.4-nightly.150.apk")),
+        )
+        val skipped = GitHubRelease(
+            tagName = "v1.0.4-nightly.154",
+            prerelease = true,
+            assets = emptyList(),
+        )
+        val newest = GitHubRelease(
+            tagName = "v1.0.4-nightly.155",
+            prerelease = true,
+            assets = listOf(asset("lampcord-android-1.0.4-nightly.155.apk")),
+        )
+        val stable = GitHubRelease(
+            tagName = "v1.0.5",
+            prerelease = false,
+            assets = listOf(asset("lampcord-android-1.0.5.apk")),
+        )
+        val draft = GitHubRelease(
+            tagName = "v1.0.4-nightly.156",
+            draft = true,
+            prerelease = true,
+            assets = listOf(asset("lampcord-android-1.0.4-nightly.156.apk")),
+        )
+
+        val feed = listOf(newest, skipped, stable, draft, older)
+        assertEquals(newest, feed.latestNightlyFor(UpdateTarget.ANDROID))
+    }
+
+    @Test
+    fun `the newest asset wins when a release carries more than one build`() {
+        val release = GitHubRelease(
+            tagName = "nightly",
+            prerelease = true,
+            assets = listOf(
+                asset("lampcord-android-1.0.1.apk"),
+                asset("lampcord-android-1.0.2-nightly.130.apk"),
+            ),
+        )
+
+        assertEquals(
+            "lampcord-android-1.0.2-nightly.130.apk",
+            release.bestAsset(UpdateTarget.ANDROID)?.name,
+        )
+        assertEquals(
+            "1.0.2-nightly.130",
+            release.offeredVersion(release.bestAsset(UpdateTarget.ANDROID)!!, UpdateTarget.ANDROID),
+        )
+    }
+
+    @Test
+    fun `a versioned release tag beats a versionless asset name`() {
+        val release = GitHubRelease(tagName = "v1.0.4-nightly.155", prerelease = true)
+        val desktop = asset("lampcord-desktop-linux-x64-1.0.4.AppImage")
+
+        assertEquals("1.0.4", release.assetVersion(desktop, UpdateTarget.LINUX))
+        assertEquals("1.0.4-nightly.155", release.offeredVersion(desktop, UpdateTarget.LINUX))
     }
 
     @Test

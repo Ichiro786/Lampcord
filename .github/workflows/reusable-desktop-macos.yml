@@ -31,7 +31,7 @@ jobs:
   package:
     name: macOS
     runs-on: macos-15
-    # Cold runner, cold Gradle cache, then a full jpackage run including the DMG.
+
     timeout-minutes: 45
     steps:
       - name: Check out repository
@@ -67,7 +67,8 @@ jobs:
             :desktopApp:packageReleaseDmg \
             --no-daemon \
             --no-build-cache \
-            --no-configuration-cache
+            --no-configuration-cache \
+            --configure-on-demand
 
       - name: Verify macOS app bundle
         shell: bash
@@ -84,8 +85,6 @@ jobs:
           dmg=$(find desktopApp/build/compose/binaries/main-release/dmg -maxdepth 1 -name '*.dmg' -type f | head -n 1)
           [[ -n "$dmg" ]] || fail "no DMG was produced"
 
-          # Verify the bundle inside the image rather than an intermediate build directory,
-          # so the assertions describe what users actually receive.
           mount_point=$(mktemp -d)
           trap 'hdiutil detach "$mount_point" -quiet >/dev/null 2>&1 || true' EXIT
           hdiutil attach "$dmg" -mountpoint "$mount_point" -nobrowse -readonly -quiet \
@@ -96,9 +95,6 @@ jobs:
 
           echo "bundle: $app"
           echo "--- Contents ---"
-          # Top level only. Contents/app holds hundreds of jars, and piping a deep find into
-          # head kills it with SIGPIPE, which set -o pipefail would turn into a build failure.
-          # sed reads the whole stream, so truncating with it is safe.
           find "$app/Contents" -maxdepth 1
           echo "--- Contents/runtime ---"
           find "$app/Contents/runtime" -maxdepth 4 2>/dev/null | sed -n '1,40p'

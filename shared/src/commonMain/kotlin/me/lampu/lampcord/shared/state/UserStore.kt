@@ -1,5 +1,8 @@
 package me.lampu.lampcord.shared.state
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,6 +20,15 @@ class UserStore {
 
     private val _members = MutableStateFlow<Map<String, Map<String, Member>>>(emptyMap())
     val members: StateFlow<Map<String, Map<String, Member>>> = _members.asStateFlow()
+
+    private val memberStates = mutableMapOf<String, MutableState<Member?>>()
+
+    private fun memberKey(guildId: String, userId: String): String = "$guildId\u0000$userId"
+
+    fun memberState(guildId: String, userId: String): State<Member?> =
+        memberStates.getOrPut(memberKey(guildId, userId)) {
+            mutableStateOf(_members.value[guildId]?.get(userId))
+        }
 
     fun setCurrentUser(user: User?, raw: JsonObject? = null) {
         Logging.i("UserStore", "Setting current user: ${user?.username} (${user?.id})")
@@ -72,6 +84,9 @@ class UserStore {
             }
             current + (guildId to guildMembers)
         }
+        members.forEach { (userId, _) ->
+            memberStates[memberKey(guildId, userId)]?.value = _members.value[guildId]?.get(userId)
+        }
         val users = ArrayList<Pair<User, JsonObject?>>(members.size)
         members.forEachIndexed { i, (_, member) ->
             member.user?.let { users.add(it to (raws?.getOrNull(i)?.get("user") as? JsonObject)) }
@@ -109,12 +124,17 @@ class UserStore {
         _members.update { current ->
             if (!current.containsKey(guildId)) current else current - guildId
         }
+        memberStates.keys
+            .filter { it.startsWith("$guildId\u0000") }
+            .forEach { memberStates.remove(it)?.value = null }
     }
 
     fun clear() {
         _users.value = emptyMap()
         _members.value = emptyMap()
         _currentUser.value = null
+        memberStates.values.forEach { it.value = null }
+        memberStates.clear()
     }
 
     fun getCurrentMember(guildId: String?): Member? {

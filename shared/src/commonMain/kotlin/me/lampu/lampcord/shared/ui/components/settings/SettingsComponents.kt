@@ -1,5 +1,9 @@
 package me.lampu.lampcord.shared.ui.components.settings
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.back
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -247,21 +251,28 @@ val platform = remember { me.lampu.lampcord.shared.utils.getPlatformName() }
     val isMobile = platform == "android" || platform == "ios"
 
     if (!isMobile) {
-        Column(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = modifier.fillMaxSize()) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.back))
                 }
                 Spacer(Modifier.width(8.dp))
                 Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             }
-            content()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                content()
+            }
         }
         return
     }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    
+
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = MaterialTheme.colorScheme.surface,
@@ -271,7 +282,7 @@ val platform = remember { me.lampu.lampcord.shared.utils.getPlatformName() }
                 title = { Text(title) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -293,8 +304,7 @@ val platform = remember { me.lampu.lampcord.shared.utils.getPlatformName() }
                             .verticalScroll(scrollState)
                     } else Modifier
                 )
-                // contentWindowInsets is zero so the page draws edge to edge; pad inside the scroll instead so the
-                // last setting can scroll clear of the system navigation bar.
+
                 .navigationBarsPadding()
                 .padding(vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),

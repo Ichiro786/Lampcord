@@ -1,5 +1,10 @@
 package me.lampu.lampcord.shared.ui.components.guilds
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.mute
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.*
@@ -113,13 +118,13 @@ fun MuteServerDialog(
                             colors = ButtonDefaults.filledTonalButtonColors(),
                             modifier = Modifier.weight(1f).fillMaxHeight()
                         ) {
-                            Text("Cancel")
+                            Text(stringResource(Res.string.cancel))
                         }
                     },
                     menuContent = { menuState ->
                         DropdownMenuItem(
                             modifier = Modifier.handCursor(),
-                            text = { Text("Cancel") },
+                            text = { Text(stringResource(Res.string.cancel)) },
                             onClick = { 
                                 onDismiss()
                                 menuState.dismiss() 
@@ -137,13 +142,13 @@ fun MuteServerDialog(
                             ),
                             modifier = Modifier.weight(1f).fillMaxHeight()
                         ) {
-                            Text("Mute")
+                            Text(stringResource(Res.string.mute))
                         }
                     },
                     menuContent = { menuState ->
                         DropdownMenuItem(
                             modifier = Modifier.handCursor(),
-                            text = { Text("Mute") },
+                            text = { Text(stringResource(Res.string.mute)) },
                             onClick = { 
                                 onConfirm(selectedOption)
                                 menuState.dismiss() 

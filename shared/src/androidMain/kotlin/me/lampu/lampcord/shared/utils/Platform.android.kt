@@ -121,8 +121,7 @@ actual suspend fun getLocalMedia(): List<LocalMedia> = withContext(Dispatchers.I
 actual suspend fun getLocalFiles(): List<LocalMedia> = withContext(Dispatchers.IO) {
     val fileList = mutableListOf<LocalMedia>()
     val context = AndroidContext.context
-    
-    // 1. Replicate Discord 126.21's broad MediaStore.Files search
+
     try {
         val projection = arrayOf(
             MediaStore.Files.FileColumns._ID,
@@ -132,7 +131,6 @@ actual suspend fun getLocalFiles(): List<LocalMedia> = withContext(Dispatchers.I
             MediaStore.Files.FileColumns.DATA
         )
 
-        // Discord 126.21 doesn\u0027t filter out media types in its main query, it just queries MediaStore.Files.getContentUri("external")
         context.contentResolver.query(
             MediaStore.Files.getContentUri("external"),
             projection,
@@ -152,10 +150,9 @@ actual suspend fun getLocalFiles(): List<LocalMedia> = withContext(Dispatchers.I
                 val size = cursor.getLong(sizeColumn)
                 val mimeType = cursor.getString(mimeTypeColumn) ?: "application/octet-stream"
                 val data = if (dataColumn != -1) cursor.getString(dataColumn) else null
-                
+
                 if (data != null && java.io.File(data).isDirectory) continue
 
-                // Avoid duplicates of images/videos already in the media tab
                 val isMedia = mimeType.startsWith("image/") || mimeType.startsWith("video/")
                 if (isMedia) continue
 
@@ -170,7 +167,6 @@ actual suspend fun getLocalFiles(): List<LocalMedia> = withContext(Dispatchers.I
         }
     } catch (e: Exception) { }
 
-    // 2. Manual recursive crawl of high-yield folders if list is small (fallback)
     if (fileList.size < 50) {
         val searchDirs = listOfNotNull(
             android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS),
@@ -206,11 +202,11 @@ actual suspend fun getLocalFiles(): List<LocalMedia> = withContext(Dispatchers.I
         }
     }
 
-    fileList.sortWith(compareByDescending { 
+    fileList.sortWith(compareByDescending {
         if (it.uri.startsWith("file://")) {
             java.io.File(android.net.Uri.parse(it.uri).path ?: "").lastModified()
         } else {
-            Long.MAX_VALUE 
+            Long.MAX_VALUE
         }
     })
 
@@ -338,7 +334,6 @@ actual suspend fun downloadToDownloads(url: String, filename: String): Boolean =
         return@withContext false
     }
 
-    // Match Discord 126.21 sanitization precisely
     val title = filename.ifBlank { uri.lastPathSegment } ?: "file"
     val sanitizedTitle = title.replace(Regex("[/\\\\]"), "_")
 
@@ -365,7 +360,7 @@ actual suspend fun downloadToDownloads(url: String, filename: String): Boolean =
 
     val deferred = kotlinx.coroutines.CompletableDeferred<Boolean>()
     var downloadId = -1L
-    
+
     val filter = android.content.IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
     val receiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: android.content.Intent?) {
@@ -405,7 +400,7 @@ actual suspend fun downloadToDownloads(url: String, filename: String): Boolean =
             withContext(Dispatchers.Main) { try { ctx.unregisterReceiver(receiver) } catch (_: Exception) {} }
             false
         } else {
-            // Discord 126.21 patience: up to 10 minutes for a download
+
             withTimeoutOrNull(600000L) {
                 deferred.await()
             } ?: run {
@@ -477,7 +472,7 @@ actual fun openDownloadsFolderAndSelect(filename: String) {
         try {
             ctx.startActivity(intent)
         } catch (e: Exception) {
-            // fallback: open downloads directory with generic view
+
             val i2 = android.content.Intent(android.content.Intent.ACTION_GET_CONTENT)
             i2.setDataAndType(uri, "*/*")
             i2.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -486,5 +481,4 @@ actual fun openDownloadsFolderAndSelect(filename: String) {
     } catch (_: Exception) {}
 }
 
-// Android System WebView ships with the OS.
 actual fun isEmbeddedWebViewAvailable(): Boolean = true

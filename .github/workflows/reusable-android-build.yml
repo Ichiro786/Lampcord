@@ -62,8 +62,7 @@ jobs:
   build:
     name: APK
     runs-on: ubuntu-latest
-    # A cold runner installs the NDK and CMake, then builds four ABIs of native
-    # voice code before R8 minifies. That does not fit in 15 minutes.
+
     timeout-minutes: 45
     steps:
       - name: Check out repository
@@ -100,12 +99,8 @@ jobs:
 
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      # Gradle's build cache does not cover CMake/ninja output, and the voice library is
-      # built for four ABIs. Caching the CMake tree lets ninja skip the compile on warm runs.
-      # Keyed on the native sources plus the NDK and CMake versions, since a toolchain bump
-      # invalidates every object file.
       - name: Restore native build tree
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: androidApp/.cxx
           key: android-native-${{ runner.os }}-${{ inputs.variant }}-ndk27.2.12479018-cmake3.22.1-${{ hashFiles('native/voice/**', 'androidApp/build.gradle.kts') }}
@@ -158,8 +153,6 @@ jobs:
             task=":androidApp:assembleRelease"
             extra_args=(--no-configuration-cache)
             extra_args+=(-x :androidApp:lintVitalRelease)
-            # x86 and x86_64 only exist so the app installs on desktop emulators. Shipping
-            # them doubles the native build for ABIs no real device uses.
             extra_args+=(-PvoiceAbis=arm64-v8a,armeabi-v7a)
           else
             task=":androidApp:assembleDebug"
@@ -193,10 +186,6 @@ jobs:
           fi
           echo "path=$output" >> "$GITHUB_OUTPUT"
 
-      # Compose Multiplatform ships its strings as Android assets. The AGP 9 KMP library
-      # plugin disables Android resource processing by default, which silently drops those
-      # assets from the APK and makes every localized string crash at runtime. Nightly 150
-      # shipped like that, so fail the build instead of another release.
       - name: Verify Compose resources are packaged
         shell: bash
         env:
@@ -221,9 +210,6 @@ jobs:
           test -x "${apksigners[-1]}" || { echo "apksigner was not found" >&2; exit 1; }
           "${apksigners[-1]}" verify --verbose --print-certs "$APK_PATH"
 
-      # A stable release once shipped versionCode 1 forever, so the installer rejected every
-      # subsequent update (and refused stable over any nightly). Assert the APK carries the
-      # versionCode the build script computes, so a regression cannot ship silently.
       - name: Verify APK versionCode
         if: inputs.variant == 'release'
         shell: bash

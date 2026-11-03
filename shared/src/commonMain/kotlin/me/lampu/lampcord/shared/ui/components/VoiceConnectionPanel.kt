@@ -1,5 +1,10 @@
 package me.lampu.lampcord.shared.ui.components
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.close
+import me.lampu.lampcord.shared.generated.resources.decline
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.*
@@ -67,7 +72,7 @@ fun VoiceConnectionPanel(voiceStore: VoiceStore = koinInject(), userStore: UserS
                 Text("Keys are ephemeral for this call. Matching codes verify the group; they do not establish someone's real-world identity.", style = MaterialTheme.typography.bodySmall)
             }
         },
-        confirmButton = { TextButton(onClick = { showVerification = false }) { Text("Close") } }
+        confirmButton = { TextButton(onClick = { showVerification = false }) { Text(stringResource(Res.string.close)) } }
     )
     if (showScreenshareDialog) AlertDialog(
         onDismissRequest = { showScreenshareDialog = false },
@@ -104,14 +109,14 @@ fun VoiceCallDialogs(voiceStore: VoiceStore = koinInject(), guildStore: GuildSto
             title = { Text("Incoming voice call") },
             text = { Text(voiceChannelName(channel, userStore) + if (voiceStore.activeChannel != null) "\nAnswering will end your current call." else "") },
             confirmButton = { TextButton(onClick = { join(channel, false) }) { Text("Answer") } },
-            dismissButton = { TextButton(onClick = { voiceStore.declineCall(id) }) { Text("Decline") } }
+            dismissButton = { TextButton(onClick = { voiceStore.declineCall(id) }) { Text(stringResource(Res.string.decline)) } }
         )
     }
     voiceStore.error?.let { message ->
         AlertDialog(
             onDismissRequest = { voiceStore.error = null },
             title = { Text("Voice call") }, text = { Text(message) },
-            confirmButton = { TextButton(onClick = { voiceStore.error = null }) { Text("Close") } }
+            confirmButton = { TextButton(onClick = { voiceStore.error = null }) { Text(stringResource(Res.string.close)) } }
         )
     }
 }

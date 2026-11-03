@@ -1,5 +1,11 @@
 package me.lampu.lampcord.shared.ui.components.guilds
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.guild_folder_name
+import me.lampu.lampcord.shared.generated.resources.save
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -79,7 +85,7 @@ fun FolderSettingsDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Folder Name") },
+                    label = { Text(stringResource(Res.string.guild_folder_name)) },
                     placeholder = { Text("Folder") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
@@ -146,12 +152,12 @@ fun FolderSettingsDialog(
                     onDismiss()
                 }
             ) {
-                Text("Save")
+                Text(stringResource(Res.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         },
         shape = MaterialTheme.shapes.extraLarge

@@ -65,7 +65,7 @@ enum class Permission(val value: Long) {
 object PermissionHelper {
     fun computeBasePermissions(member: Member, guild: Guild, userId: String? = null): Long {
         val effectiveUserId = userId ?: member.user?.id
-        if (guild.owner_id != null && guild.owner_id == effectiveUserId) return -1L // All permissions
+        if (guild.owner_id != null && guild.owner_id == effectiveUserId) return -1L
 
         val everyoneRole = guild.roles.find { it.id == guild.id }
         var permissions = everyoneRole?.permissions?.toULongOrNull()?.toLong() ?: 0L
@@ -124,16 +124,16 @@ object PermissionHelper {
     fun hasPermission(member: Member, guild: Guild, channel: Channel?, permission: Permission, userId: String? = null): Boolean {
         val effectiveUserId = userId ?: member.user?.id
         if (guild.owner_id == effectiveUserId) return true
-        
+
         var permissions = computeBasePermissions(member, guild, effectiveUserId)
         if (permissions == -1L) return true
-        
+
         if (channel != null) {
             permissions = computeOverwrites(permissions, member, guild, channel, effectiveUserId)
         }
-        
+
         if (permissions == -1L) return true
-        
+
         return (permissions and permission.value) != 0L
     }
 
@@ -141,7 +141,6 @@ object PermissionHelper {
         return hasPermission(member, guild, channel, Permission.VIEW_CHANNEL, userId)
     }
 
-    // Returns whether the current user may create a message in this channel. Threads use their dedicated permission and locked threads additionally require MANAGE_THREADS.
     fun canSendMessages(member: Member, guild: Guild, channel: Channel, userId: String? = null): Boolean {
         val isThread = channel.type == 10 || channel.type == 11 || channel.type == 12
         if (!isThread) {
@@ -156,10 +155,10 @@ object PermissionHelper {
     fun isChannelPrivate(guild: Guild, channel: Channel): Boolean {
         if (channel.guild_id == null) return false
         val overwrites = channel.permission_overwrites ?: return false
-        
+
         val everyoneOverwrite = overwrites.find { it.id == guild.id } ?: return false
         val deny = everyoneOverwrite.denyString().toULongOrNull()?.toLong() ?: 0L
-        
+
         return (deny and Permission.VIEW_CHANNEL.value) != 0L
     }
 }

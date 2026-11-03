@@ -28,7 +28,7 @@ class GatewayEventDispatcher(
     fun dispatch(payload: GatewayPayload) {
         val type = payload.t ?: return
         handlerMap[type]?.forEach { handler ->
-            // A single handler must never be able to crash the whole dispatch pipeline.
+
             try {
                 handler.handlePayload(payload)
             } catch (e: kotlin.coroutines.cancellation.CancellationException) {

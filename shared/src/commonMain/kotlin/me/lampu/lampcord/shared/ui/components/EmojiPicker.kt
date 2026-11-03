@@ -1,6 +1,11 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, kotlin.ExperimentalStdlibApi::class)
-
 package me.lampu.lampcord.shared.ui.components
+
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.emoji
+import me.lampu.lampcord.shared.generated.resources.expression_picker_gif
+import me.lampu.lampcord.shared.generated.resources.expression_picker_sticker
+import org.jetbrains.compose.resources.stringResource
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
@@ -73,10 +78,9 @@ fun EmojiPicker(
     userApi: UserApi = koinInject(),
     modifier: Modifier = Modifier,
     onKeyboardClick: (() -> Unit)? = null,
-    // Under the chat input the picker stands in for the keyboard and takes its height. Hosted in a sheet
-    // (reactions) it should fill the sheet instead, or the keyboard height leaves most of it empty.
+
     fillAvailableHeight: Boolean = false,
-    // Reactions only accept emojis, so the GIF and Sticker tabs are hidden when true.
+
     emojisOnly: Boolean = false,
     onEmojiSelected: (Emoji) -> Unit
 ) {
@@ -84,7 +88,7 @@ fun EmojiPicker(
     val reduceMotion = Settings.shared.reduceMotion
     val currentUser by userStore.currentUser.collectAsState()
     val nitro = (currentUser?.premium_type ?: 0) > 0 || Settings.shared.freeNitroEmojis
-    
+
     var categorizedEmojis: Map<String, List<Emoji>> by remember { mutableStateOf(emptyMap<String, List<Emoji>>()) }
     LaunchedEffect(Unit) {
         categorizedEmojis = EmojiLoader.getCategorizedEmojis()
@@ -97,8 +101,7 @@ fun EmojiPicker(
         val customEmojisById = guilds.flatMap { it.emojis }.associateBy { it.id }
         fun emojiFromKey(key: String): Emoji? {
             val trimmed = key.trim()
-            // "<a:name:id>" carries the animation flag in its prefix; the "a:" form below is the
-            // one this file writes, since favorites and frequently used are stored as "name:id".
+
             val fromCode = trimmed.startsWith("<a:")
             val normalized = trimmed.removePrefix("<a:").removePrefix("<:").removeSuffix(">")
             val hasAPrefix = normalized.startsWith("a:") && normalized.drop(2).contains(":")
@@ -177,7 +180,7 @@ fun EmojiPicker(
                 groups.add(EmojiGroup(guild.id, guild.name, guild.emojis, guild.icon?.let { "https://cdn.discordapp.com/icons/${guild.id}/$it.png?size=64" }))
             }
         }
-        
+
         categorizedEmojis.forEach { (category, emojis) ->
             val displayName = when (category) {
                 "people" -> "Smileys & People"
@@ -192,7 +195,7 @@ fun EmojiPicker(
             }
             groups.add(EmojiGroup("standard_$category", displayName, emojis, null))
         }
-        
+
         groups
     }
 
@@ -205,12 +208,12 @@ fun EmojiPicker(
     val showKeyboardButton = false
 
     val imeHeight = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
-    val keyboardHeight = remember(imeHeight) { 
+    val keyboardHeight = remember(imeHeight) {
         if (imeHeight > 0.dp) imeHeight else 360.dp
     }
 
     var searchQuery by remember { mutableStateOf("") }
-    
+
     LaunchedEffect(navigationStore.isEmojiPickerVisible) {
         if (navigationStore.isEmojiPickerVisible && !isMobile) {
             searchFocusRequester.requestFocus()
@@ -242,7 +245,7 @@ fun EmojiPicker(
 
     var selectedGroupIndex by remember(filteredGroups) { mutableStateOf(0) }
 
-    val favoriteKeys = remember { 
+    val favoriteKeys = remember {
         try {
             Json.decodeFromString<List<String>>(Settings.shared.favoriteEmojisJson)
         } catch (e: Exception) { emptyList() }
@@ -265,7 +268,7 @@ fun EmojiPicker(
 
     Surface(
         modifier = if (isMobile && fillAvailableHeight) {
-            // Sheets draw edge to edge (no content insets), so keep the server bar above the system nav bar.
+
             modifier.fillMaxSize().navigationBarsPadding()
         } else if (isMobile) {
             modifier
@@ -294,7 +297,7 @@ fun EmojiPicker(
                             unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ) {
                             Box(Modifier.padding(12.dp)) {
-                                Text("Emoji", style = MaterialTheme.typography.labelLarge, fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal)
+                                Text(stringResource(Res.string.emoji), style = MaterialTheme.typography.labelLarge, fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal)
                             }
                         }
                         Tab(
@@ -304,7 +307,7 @@ fun EmojiPicker(
                             unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ) {
                             Box(Modifier.padding(12.dp)) {
-                                Text("GIFs", style = MaterialTheme.typography.labelLarge, fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal)
+                                Text(stringResource(Res.string.expression_picker_gif), style = MaterialTheme.typography.labelLarge, fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal)
                             }
                         }
                         Tab(
@@ -314,7 +317,7 @@ fun EmojiPicker(
                             unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ) {
                             Box(Modifier.padding(12.dp)) {
-                                Text("Stickers", style = MaterialTheme.typography.labelLarge, fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal)
+                                Text(stringResource(Res.string.expression_picker_sticker), style = MaterialTheme.typography.labelLarge, fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal)
                             }
                         }
                     }
@@ -328,16 +331,16 @@ fun EmojiPicker(
                             .padding(horizontal = 12.dp, vertical = 4.dp)
                             .heightIn(min = 44.dp)
                             .focusRequester(searchFocusRequester),
-                        placeholder = { 
+                        placeholder = {
                             Text(
                                 when (selectedTab) {
                                     0 -> "Find the perfect emoji"
                                     1 -> "Search GIFs (Klipy)"
                                     else -> "Search stickers"
-                                }, 
-                                style = MaterialTheme.typography.bodyMedium, 
+                                },
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                            ) 
+                            )
                         },
                         leadingIcon = { Icon(Icons.Filled.Search, null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)) },
                         trailingIcon = if (searchQuery.isNotEmpty() || showKeyboardButton) {
@@ -434,8 +437,7 @@ fun EmojiPicker(
                                 onQueryChange = { searchQuery = it },
                                 mediaApi = mediaApi,
                                 onGifSelected = { gif ->
-                                    // Send the provider page (tenor.com/view/..., klipy.com/gifs/...) like Discord does:
-                                    // it embeds as a gifv, whereas the raw media URL embeds as a plain video.
+
                                     messageStore.sendMessageDraft(
                                         gif.url.takeIf { it.isNotBlank() }
                                             ?: gif.src.takeIf { it.isNotBlank() }
@@ -467,7 +469,7 @@ fun EmojiPicker(
             }
         }
     }
-    
+
     if (showCloneModal && cloneImageUrl != null) {
         CloneToServerModal(imageUrl = cloneImageUrl!!, defaultName = "emoji", onDismiss = { showCloneModal = false })
     }

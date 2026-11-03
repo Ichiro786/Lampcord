@@ -1,5 +1,9 @@
 package me.lampu.lampcord.shared.ui.components
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.notifications
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,7 +44,7 @@ fun NotificationList(
             color = MaterialTheme.colorScheme.surfaceContainer
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Text("Notifications", style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(Res.string.notifications), style = MaterialTheme.typography.titleSmall)
             }
         }
 

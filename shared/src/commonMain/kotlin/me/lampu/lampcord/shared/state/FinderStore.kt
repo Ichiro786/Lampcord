@@ -97,11 +97,6 @@ class FinderStore(
     }.flowOn(Dispatchers.Default)
         .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    /**
-     * Mirrors Discord: search covers the local cache, and typing a query additionally asks the
-     * gateway to pull matching members of the selected server, so an offline member the client
-     * has never seen still turns up.
-     */
     @OptIn(FlowPreview::class)
     private val memberPrefetch = scope.launch {
         _searchQuery.debounce(900.milliseconds).collect { raw ->

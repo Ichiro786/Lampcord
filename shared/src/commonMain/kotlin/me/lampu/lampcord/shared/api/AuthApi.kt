@@ -45,15 +45,16 @@ class AuthApi(val rest: RestClient) {
             }
 
             val responseBody = response.bodyAsText()
-            if (response.status.isSuccess() || response.status.value == 400 || response.status.value == 401) {
-                rest.json.decodeFromString<LoginResponse>(responseBody)
+            if (response.status.isSuccess()) {
+                runCatching { rest.json.decodeFromString<LoginResponse>(responseBody) }.getOrNull()
             } else {
+                val message = loginErrorMessage(rest, responseBody, response.status.value)
                 Logging.e("Auth", "Login failed with status: ${response.status}, body: $responseBody")
-                null
+                LoginResponse(message = message)
             }
         } catch (e: Exception) {
             Logging.e("Auth", "Error logging in: ${e.message}")
-            null
+            LoginResponse(message = "Could not reach Discord. Check your connection and try again.")
         }
     }
 
@@ -64,16 +65,43 @@ class AuthApi(val rest: RestClient) {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }
+            val responseBody = response.bodyAsText()
             if (response.status.isSuccess()) {
-                response.body<LoginResponse>()
+                runCatching { rest.json.decodeFromString<LoginResponse>(responseBody) }.getOrNull()
             } else {
-                val errorBody = response.bodyAsText()
-                Logging.e("Auth", "MFA failed with status: ${response.status}, body: $errorBody")
-                null
+                Logging.e("Auth", "MFA failed with status: ${response.status}, body: $responseBody")
+                LoginResponse(message = mfaErrorMessage(rest, responseBody, response.status.value))
             }
         } catch (e: Exception) {
             Logging.e("Auth", "Error verifying MFA: ${e.message}")
-            null
+            LoginResponse(message = "Could not reach Discord. Check your connection and try again.")
+        }
+    }
+
+    private fun loginErrorMessage(rest: RestClient, body: String, status: Int): String {
+        val discord = rest.discordError(body)
+        return when {
+            status == 401 -> "Invalid email or password."
+            status == 400 && body.contains("password", ignoreCase = true) -> "Invalid email or password."
+            status == 429 -> "Discord is rate limiting login attempts. Wait a moment and try again."
+            status in 500..599 -> "Discord is having trouble right now (HTTP $status). Try again in a moment."
+            body.contains("captcha", ignoreCase = true) -> "Discord requires a captcha. Try again later."
+            discord?.code == 50035 -> "Invalid email or password."
+            !discord?.message.isNullOrBlank() -> discord.message
+            else -> "Login failed (HTTP $status)."
+        }
+    }
+
+    private fun mfaErrorMessage(rest: RestClient, body: String, status: Int): String {
+        val discord = rest.discordError(body)
+        return when {
+            status == 401 -> "That code is invalid or has expired."
+            status == 429 -> "Discord is rate limiting login attempts. Wait a moment and try again."
+            status in 500..599 -> "Discord is having trouble right now (HTTP $status). Try again in a moment."
+            body.contains("captcha", ignoreCase = true) -> "Discord requires a captcha. Try again later."
+            discord?.code == 50035 -> "That code is invalid or has expired."
+            !discord?.message.isNullOrBlank() -> discord.message
+            else -> "Could not verify that code (HTTP $status)."
         }
     }
 

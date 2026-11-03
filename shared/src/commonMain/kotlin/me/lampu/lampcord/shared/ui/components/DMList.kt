@@ -1,5 +1,9 @@
 package me.lampu.lampcord.shared.ui.components
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.friends
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -82,7 +86,7 @@ fun DMList(
                 ) {
                     Icon(
                         imageVector = if (navigationStore.isFriendsSelected) Icons.Filled.Person else Icons.Rounded.Person,
-                        contentDescription = "Friends",
+                        contentDescription = stringResource(Res.string.friends),
                         tint = if (navigationStore.isFriendsSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )

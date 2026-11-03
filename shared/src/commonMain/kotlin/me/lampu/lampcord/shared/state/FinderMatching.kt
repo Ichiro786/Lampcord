@@ -4,13 +4,6 @@ import me.lampu.lampcord.shared.model.Channel
 import me.lampu.lampcord.shared.model.Member
 import me.lampu.lampcord.shared.model.User
 
-/**
- * The name matching behind the finder.
- *
- * Discord tries a username as a subsequence first, then an exact nickname, then a fuzzy nickname,
- * and drops anything that matches none of the three. The same order decides how each user is
- * labelled, so these rules are shared by the search screen and every picker that reuses it.
- */
 object FinderMatching {
 
     fun aliases(user: User, members: Map<String, Map<String, Member>>): List<String> {
@@ -23,7 +16,6 @@ object FinderMatching {
         return names.distinct()
     }
 
-    /** Null when nothing matched, which is what keeps non-matches out of the result list. */
     fun rank(user: User, aliases: List<String>, query: String): Float? {
         val username = user.username ?: return null
         if (fuzzyMatch(query, username)) return 2f
@@ -49,11 +41,6 @@ object FinderMatching {
         return true
     }
 
-    /**
-     * A DM is named after the person on the other end. Payloads differ in what they carry, so the
-     * embedded recipient is preferred and the id list is the fallback; without either there is
-     * genuinely no name to show.
-     */
     fun dmRecipient(channel: Channel, users: Map<String, User>): User? {
         if (channel.guild_id != null && channel.type != 1 && channel.type != 3) return null
         val embedded = channel.recipients?.firstOrNull()

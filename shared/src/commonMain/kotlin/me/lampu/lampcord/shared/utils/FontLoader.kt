@@ -23,19 +23,11 @@ fun appFontFamily(option: FontOption, customFontPath: String): FontFamily = when
     }
 }
 
-/**
- * Copies a picked font into app storage and returns the path the loader can read.
- *
- * FilePicker only reports the file's display name, never its real path, so persisting that name
- * left [loadFont] looking for a file that does not exist. Storing the bytes and returning the
- * absolute path works on every platform, including when the picked document's URI permission is
- * lost after the picker closes.
- */
 fun importCustomFont(displayName: String, bytes: ByteArray): String {
     val extension = displayName.substringAfterLast('.', "").lowercase()
         .takeIf { it in CUSTOM_FONT_EXTENSIONS } ?: "ttf"
     val fileName = "custom_font.$extension"
-    // Remove any previously imported font so switching extensions does not leave orphan files.
+
     CUSTOM_FONT_EXTENSIONS.forEach { deleteInternalFile("custom_font.$it") }
     writeInternalBytes(fileName, bytes)
     return getInternalFilePath(fileName)

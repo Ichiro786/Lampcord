@@ -16,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,20 +40,20 @@ fun TypingIndicator(
     val typingMap = typingUsers[channelId] ?: return
     val userIds = typingMap.keys.toList()
     if (userIds.isEmpty()) return
-    
+
     val names = userIds.take(4).map { id ->
          val member = navigationStore.selectedGuild?.let { userStore.getMember(it.id, id) }
          val userFromStore = userStore.getUser(id)
          val userFromChannel = navigationStore.selectedChannel?.recipients?.find { it.id == id }
-         
-         member?.nick 
-         ?: userFromStore?.global_name 
-         ?: userFromStore?.username 
+
+         member?.nick
+         ?: userFromStore?.global_name
+         ?: userFromStore?.username
          ?: userFromChannel?.global_name
          ?: userFromChannel?.username
          ?: "Someone"
     }
-    
+
     val text = when (names.size) {
         1 -> "${names[0]} is typing\u2026"
         2 -> "${names[0]} and ${names[1]} are typing\u2026"
@@ -62,7 +63,7 @@ fun TypingIndicator(
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceContainerLow
+        color = Color.Transparent
     ) {
         Row(
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
@@ -84,7 +85,7 @@ fun TypingIndicator(
 
 @Composable
 fun TypingDots(modifier: Modifier = Modifier) {
-    // Keep the typing indicator visible without a continuously animated clock on Windows.
+
     if (getPlatformName() == "windows" || Settings.shared.reduceMotion) {
         Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
             repeat(3) {

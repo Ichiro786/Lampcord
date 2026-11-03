@@ -1,5 +1,12 @@
 package me.lampu.lampcord.shared.ui.components.guilds.settings
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.form_label_hoist_description
+import me.lampu.lampcord.shared.generated.resources.reset
+import me.lampu.lampcord.shared.generated.resources.role_color
+import me.lampu.lampcord.shared.generated.resources.save_changes
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -132,7 +139,7 @@ fun RoleEditor(role: DiscordRole, guild: Guild, guildApi: GuildApi = koinInject(
                 }
                 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Role Color", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(Res.string.role_color), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Box(
                         modifier = Modifier
                             .size(48.dp)
@@ -145,7 +152,7 @@ fun RoleEditor(role: DiscordRole, guild: Guild, guildApi: GuildApi = koinInject(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text("Display separately", style = MaterialTheme.typography.bodyLarge)
-                        Text("Display role members separately from online members", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(Res.string.form_label_hoist_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     ExpressiveSwitch(checked = draftHoist, onCheckedChange = { draftHoist = it })
                 }
@@ -208,7 +215,7 @@ fun RoleEditor(role: DiscordRole, guild: Guild, guildApi: GuildApi = koinInject(
                         draftMentionable = role.mentionable
                         draftPermissions = role.permissions
                     }) {
-                        Text("Reset")
+                        Text(stringResource(Res.string.reset))
                     }
                     Button(
                         onClick = {
@@ -224,7 +231,7 @@ fun RoleEditor(role: DiscordRole, guild: Guild, guildApi: GuildApi = koinInject(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43B581))
                     ) {
-                        Text("Save Changes")
+                        Text(stringResource(Res.string.save_changes))
                     }
                 }
             }

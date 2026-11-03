@@ -1,5 +1,10 @@
 package me.lampu.lampcord.shared.ui.components.guilds
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.leave_server
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -76,13 +81,13 @@ fun LeaveServerDialog(
                             colors = ButtonDefaults.filledTonalButtonColors(),
                             modifier = Modifier.weight(1f).fillMaxHeight()
                         ) {
-                            Text("Cancel")
+                            Text(stringResource(Res.string.cancel))
                         }
                     },
                     menuContent = { menuState ->
                         DropdownMenuItem(
                             modifier = Modifier.handCursor(),
-                            text = { Text("Cancel") },
+                            text = { Text(stringResource(Res.string.cancel)) },
                             onClick = { 
                                 onDismiss()
                                 menuState.dismiss() 
@@ -104,13 +109,13 @@ fun LeaveServerDialog(
                             ),
                             modifier = Modifier.weight(1f).fillMaxHeight()
                         ) {
-                            Text("Leave Server")
+                            Text(stringResource(Res.string.leave_server))
                         }
                     },
                     menuContent = { menuState ->
                         DropdownMenuItem(
                             modifier = Modifier.handCursor(),
-                            text = { Text("Leave Server") },
+                            text = { Text(stringResource(Res.string.leave_server)) },
                             onClick = { 
                                 onConfirm()
                                 menuState.dismiss() 

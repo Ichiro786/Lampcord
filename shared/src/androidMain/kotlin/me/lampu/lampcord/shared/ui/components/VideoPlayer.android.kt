@@ -128,7 +128,7 @@ actual fun VideoPlayer(
             .background(Color.Black)
             .pointerInput(showControls) {
                 detectTapGestures {
-                    // Without controls (GIFs) a tap is the only way to play or pause, matching desktop.
+
                     if (showControls) {
                         areControlsVisible = !areControlsVisible
                     } else if (exoPlayer.isPlaying) {
@@ -269,9 +269,9 @@ actual fun VideoPlayer(
 
                         VideoSlider(
                             value = progress,
-                            onValueChange = { 
+                            onValueChange = {
                                 isDraggingSlider = true
-                                positionMs = (it * durationMs).toLong() 
+                                positionMs = (it * durationMs).toLong()
                             },
                             onValueChangeFinished = {
                                 isDraggingSlider = false

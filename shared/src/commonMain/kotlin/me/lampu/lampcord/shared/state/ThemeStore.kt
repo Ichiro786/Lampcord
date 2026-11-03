@@ -38,10 +38,10 @@ class ThemeStore(
 
     var activeThemes by mutableStateOf<List<LampcordTheme>>(emptyList())
         private set
-    
+
     var themeFontPath by mutableStateOf<String?>(null)
 
-    private val json = Json { 
+    private val json = Json {
         ignoreUnknownKeys = true
         prettyPrint = true
         isLenient = true
@@ -50,13 +50,13 @@ class ThemeStore(
 
     init {
         loadInstalledThemes()
-        
+
         val savedEnabled = Settings.shared.activeThemeJson
         if (savedEnabled.isNotBlank()) {
             try {
                 enabledThemeNames = json.decodeFromString<Set<String>>(savedEnabled)
             } catch (e: Exception) {
-                // Fallback for old format (single theme JSON)
+
                 try {
                     val oldTheme = json.decodeFromString<LampcordTheme>(savedEnabled)
                     enabledThemeNames = setOf(oldTheme.manifest.name)
@@ -84,7 +84,7 @@ class ThemeStore(
     private fun checkAndDownloadThemeFont(theme: LampcordTheme) {
         val url = (theme.fonts["*"] as? JsonPrimitive)?.contentOrNull
             ?: (theme.fonts["whitney_medium"] as? JsonPrimitive)?.contentOrNull
-        
+
         if (url == null) {
             themeFontPath = null
             return
@@ -155,7 +155,7 @@ class ThemeStore(
                 } ?: throw Exception("Invalid theme format: Root is not an object")
 
                 val isLegacy = listOf("manifest", "simple_colors", "colors", "drawable_tints", "background", "fonts").none { root.containsKey(it) }
-                
+
                 val theme = if (isLegacy) {
                     me.lampu.lampcord.shared.utils.Logging.i("Theme", "Converting legacy theme...")
                     val manifest = mutableMapOf<String, JsonElement>()
@@ -175,14 +175,14 @@ class ThemeStore(
                             "simple_bg_color" -> simpleColors["background"] = value
                             "simple_bg_secondary_color" -> simpleColors["background_secondary"] = value
                             "mention_highlight" -> simpleColors[key] = value
-                            "active_channel_color", "statusbar_color", "input_background_color" -> 
+                            "active_channel_color", "statusbar_color", "input_background_color" ->
                                 simpleColors[key.removeSuffix("_color")] = value
                             else -> {
                                 when {
                                     key.startsWith("color_") -> colors[key.substring(6)] = value
                                     key.startsWith("drawablecolor_") -> drawableTints[key.substring(14)] = value
                                     key.startsWith("font_") -> fonts[key.substring(5)] = value
-                                    else -> { /* Unknown key */ }
+                                    else -> {  }
                                 }
                             }
                         }
@@ -202,14 +202,14 @@ class ThemeStore(
                     )
                 } else {
                     val manifestObj = root["manifest"] as? JsonObject
-                    val name = root["name"]?.jsonPrimitive?.content 
+                    val name = root["name"]?.jsonPrimitive?.content
                         ?: manifestObj?.get("name")?.jsonPrimitive?.content
                         ?: "Unknown Theme"
                     val author = root["author"]?.jsonPrimitive?.content
                         ?: manifestObj?.get("author")?.jsonPrimitive?.content
                     val version = root["version"]?.jsonPrimitive?.content
                         ?: manifestObj?.get("version")?.jsonPrimitive?.content
-                    
+
                     LampcordTheme(
                         manifest = ThemeManifest(
                             name = name,
@@ -264,7 +264,7 @@ class ThemeStore(
     }
 
     fun updateTheme(theme: LampcordTheme) {
-        availableThemes = availableThemes.map { 
+        availableThemes = availableThemes.map {
             if (it.manifest.name == theme.manifest.name) theme else it
         }
         if (theme.manifest.name in enabledThemeNames) {
@@ -284,7 +284,7 @@ class ThemeStore(
 
     val themeBackgroundUrl: String?
         get() = (activeThemes.lastOrNull()?.background?.get("url") as? JsonPrimitive)?.contentOrNull
-        
+
     val themeBackgroundAlpha: Float
         get() {
             val element = activeThemes.lastOrNull()?.background?.get("overlay_alpha") as? JsonPrimitive
@@ -299,13 +299,13 @@ class ThemeStore(
     fun resolveColor(colorName: String, colorScheme: androidx.compose.material3.ColorScheme): Color? {
         val themes = activeThemes
         if (themes.isEmpty()) return null
-        
+
         val keys = when (colorName) {
             "primary" -> listOf("brand_new", "brand_500", "brand_new_500", "accent", "link", "colorControlBrandForeground", "colorControlActivated", "color_brand", "color_brand_500")
             "onPrimary" -> listOf("white_500", "white", "primary_100", "primary_light_100", "primary_dark_100")
             "primaryContainer" -> listOf("brand_500_alpha_20", "mention_highlight", "brand_new_160", "theme_chat_mention_background", "theme_chat_mentioned_me")
             "onPrimaryContainer" -> listOf("white_500", "brand_new_500", "theme_chat_mention_foreground", "primary_dark_100")
-            
+
             "secondary" -> listOf("brand_new_360", "accent2", "brand_360", "colorControlActivated", "brand_new_530")
             "onSecondary" -> listOf("white_500", "primary_dark_100")
             "secondaryContainer" -> listOf("brand_new_360_alpha_20", "brand_360_alpha_20")
@@ -319,13 +319,13 @@ class ThemeStore(
 
             "background" -> listOf("primary_dark_600", "background", "colorBackgroundPrimary", "primary_600")
             "onBackground" -> listOf("primary_dark_200", "white_500", "primary_dark_100", "primary_100", "primary_200")
-            
+
             "surface" -> listOf("primary_dark_800", "background_secondary", "colorSurface", "colorBackgroundFloating", "colorTabsBackground")
             "onSurface" -> listOf("primary_dark_200", "white_500", "primary_dark_100", "primary_100")
-            
+
             "surfaceVariant" -> listOf("primary_dark_630", "background_secondary", "primary_630", "theme_chat_code", "input_background")
             "onSurfaceVariant" -> listOf("primary_dark_330", "primary_dark_400", "primary_300")
-            
+
             "surfaceContainer" -> listOf("primary_dark_630", "background_secondary", "primary_700", "colorBackgroundTertiary", "colorBackgroundSecondary")
             "surfaceContainerLow" -> listOf("primary_dark_600", "background", "primary_600")
             "surfaceContainerLowest" -> listOf("primary_dark_700", "background_tertiary", "primary_700", "statusbar")
@@ -334,12 +334,12 @@ class ThemeStore(
 
             "outline" -> listOf("primary_dark_400", "primary_400", "theme_chat_codeblock_border", "primary_660")
             "outlineVariant" -> listOf("primary_dark_500", "primary_500")
-            
+
             "scrim" -> listOf("background_floating", "black_alpha_10")
             "inverseSurface" -> listOf("white_500", "white")
             "inverseOnSurface" -> listOf("primary_dark_800", "primary_800")
             "inversePrimary" -> listOf("brand_new")
-            
+
             else -> listOf(colorName)
         }
 
@@ -358,7 +358,7 @@ class ThemeStore(
                 }
             }
         }
-        
+
         return null
     }
 
@@ -375,7 +375,7 @@ class ThemeStore(
                 null
             }
         }
-        
+
         if (value.startsWith("system_")) {
             return when {
                 value.contains("accent1") -> colorScheme.primary
@@ -386,10 +386,9 @@ class ThemeStore(
                 else -> null
             }
         }
-        
-        // Also support integer colors (Aliucord format)
+
         return try {
-            // Aliucord uses 32-bit signed integers for colors
+
             val intColor = value.toInt()
             Color(intColor)
         } catch (e: Exception) {

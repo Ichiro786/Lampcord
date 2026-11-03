@@ -6,21 +6,15 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
-/** Value used by settings to mean "follow the device language". */
 const val LANGUAGE_SYSTEM = "system"
 
-/** A language offered in the language picker. */
 data class AppLanguage(
-    /** BCP-47 tag, matching the qualifier of the Compose Resources directory. */
+
     val languageTag: String,
     val englishName: String,
     val nativeName: String,
 )
 
-/**
- * The 30 locales Discord exposes in its language picker. Kept in the same order
- * as Discord's `WidgetSettingsLanguage`.
- */
 val SUPPORTED_LANGUAGES: List<AppLanguage> = listOf(
     AppLanguage("en-US", "English, USA", "English, USA"),
     AppLanguage("en-GB", "English, UK", "English, UK"),
@@ -54,26 +48,14 @@ val SUPPORTED_LANGUAGES: List<AppLanguage> = listOf(
     AppLanguage("zh-TW", "Chinese, Traditional", "繁體中文"),
 )
 
-/** Finds a supported language by tag, or null for the system/unknown. */
 fun findLanguage(languageTag: String?): AppLanguage? =
     languageTag?.let { tag -> SUPPORTED_LANGUAGES.firstOrNull { it.languageTag == tag } }
 
-/**
- * Name shown for the currently selected language in the settings list.
- * [systemName] is the localized label for "System".
- */
 fun languageDisplayName(languageTag: String, systemName: String): String {
     if (languageTag == LANGUAGE_SYSTEM) return systemName
     return findLanguage(languageTag)?.nativeName ?: "English, USA"
 }
 
-/**
- * Replaces Discord's ICU-style named placeholders (`{name}`) in a raw string.
- *
- * Discord keeps `{...}` tokens in its translations and substitutes them in
- * code. Compose Resources can only substitute positional `%1$s` arguments, so
- * named placeholders are resolved here instead.
- */
 fun String.formatNamed(vararg args: Pair<String, Any?>): String {
     if (args.isEmpty()) return this
     var result = this
@@ -92,18 +74,10 @@ fun String.formatNamed(args: Map<String, Any?>): String {
     return result
 }
 
-/**
- * Loads [resource] and substitutes Discord-style named placeholders.
- * Equivalent to `stringResource(resource)` when no args are supplied.
- */
 @Composable
 fun localized(resource: StringResource, vararg args: Pair<String, Any?>): String =
     stringResource(resource).formatNamed(*args)
 
-/**
- * Loads a plural [resource] for [quantity] and substitutes Discord's named
- * placeholders. `{#}` is the conventional placeholder for the quantity.
- */
 @Composable
 fun localizedPlural(
     resource: PluralStringResource,

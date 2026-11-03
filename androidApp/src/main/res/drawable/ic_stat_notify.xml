@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  Notification small icon.
 
-  Traced from the alpha channel of Discord's ic_notification_message_24dp
-  (the Discord mark with a speech-bubble badge and the lower-right leg
-  knocked out), rather than copied as a binary asset. Three subpaths with
-  evenOdd: the logo outline, the left eye as a hole, and the bubble.
-
-  The system only reads the alpha channel of a small icon and tints it, so
-  the fill colour is irrelevant.
--->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"

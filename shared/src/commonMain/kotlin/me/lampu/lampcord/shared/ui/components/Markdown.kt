@@ -1,5 +1,9 @@
 package me.lampu.lampcord.shared.ui.components
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.copy_link
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
@@ -13,7 +17,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,9 +81,9 @@ fun DiscordMarkdownText(
     remember { EmojiIndex.initialize() }
     var revealedSpoilers by remember { mutableStateOf(setOf<Int>()) }
     val primaryColor = MaterialTheme.colorScheme.primary
-    
+
     val fontSize = style.fontSize.takeIf { it.isSp } ?: 16.sp
-    
+
     val isJumbo = remember(content) {
         if (maxLines != Int.MAX_VALUE) return@remember false
         val trimmed = content.trim()
@@ -88,7 +91,7 @@ fun DiscordMarkdownText(
         val customEmojiRegex = me.lampu.lampcord.shared.utils.FreeNitroEmojis.emojiRegex
         var temp = trimmed
         var count = 0
-        customEmojiRegex.findAll(trimmed).forEach { 
+        customEmojiRegex.findAll(trimmed).forEach {
             count++
             temp = temp.replace(it.value, "")
         }
@@ -107,7 +110,7 @@ fun DiscordMarkdownText(
     }
 
     val emojiSize = if (isJumbo) (fontSize.value * 2.8f).sp else (fontSize.value * 1.4f).sp
-    
+
     val processedContent = remember(content) {
         content.split('\n').joinToString("\n") { line ->
             val leadingSpaces = line.takeWhile { it == ' ' }.length
@@ -119,11 +122,9 @@ fun DiscordMarkdownText(
         }
     }
 
-    val allGuildChannels by guildStore.allGuildChannels.collectAsState()
-
     rememberDiscordLinkPreload(processedContent)
 
-    val annotatedString = remember(processedContent, revealedSpoilers, primaryColor, allGuildChannels.size) {
+    val annotatedString = remember(processedContent, revealedSpoilers, primaryColor) {
         buildAnnotatedString {
             appendDiscordMarkdown(
                 content = processedContent,
@@ -148,7 +149,7 @@ fun DiscordMarkdownText(
             val animated = parts[1] == "a"
             val name = parts[2]
             val url = customEmojiCdnUrl(id, animated, size = (emojiSize.value * 2).toInt())
-            
+
             map[annotation.item] = InlineTextContent(
                 Placeholder(emojiSize, emojiSize, PlaceholderVerticalAlign.Center)
             ) {
@@ -170,7 +171,7 @@ fun DiscordMarkdownText(
                 Placeholder(emojiSize, emojiSize, PlaceholderVerticalAlign.Center)
             ) {
                 var loadFailed by remember { mutableStateOf(false) }
-                
+
                 Box(contentAlignment = Alignment.Center) {
                     if (!loadFailed && url.isNotEmpty()) {
                         AsyncImage(
@@ -264,11 +265,6 @@ fun DiscordMarkdownText(
 
                                 if (url == null && mentionsAtOffset == null) return@awaitEachGesture
 
-                                // Link presses are owned by this text gesture and must not open the parent message menu.
-                                // The message ContextMenu (respectChildGestures) runs on the Final pass and skips a down
-                                // that's already consumed, so claim it here; both menus waited out the same long-press
-                                // timeout, which opened the link dialog and the message sheet together. Mentions have no
-                                // menu of their own, so a long press on one still opens the message menu.
                                 if (url != null) pressed.consume()
                                 var isSlopExceeded = false
                                 val completedTap = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
@@ -371,7 +367,7 @@ fun DiscordMarkdownText(
                             setClipboardText(url)
                             showToast("Copied link")
                             contextMenuUrl = null
-                        }) { Text("Copy Link") }
+                        }) { Text(stringResource(Res.string.copy_link)) }
                     },
                     dismissButton = {
                         TextButton(onClick = {
@@ -403,7 +399,7 @@ fun DiscordMarkdownText(
                             )
                             DropdownMenuItem(
                                 modifier = Modifier.handCursor(),
-                                text = { Text("Copy Link") },
+                                text = { Text(stringResource(Res.string.copy_link)) },
                                 onClick = {
                                     setClipboardText(url)
                                     showToast("Copied link")
@@ -437,7 +433,7 @@ private fun AnnotatedString.Builder.appendDiscordMarkdown(
             allMatches.add(Triple(match.range, match, tag))
         }
     }
-    
+
     var scanIdx = 0
     while (scanIdx < content.length) {
         val found = EmojiIndex.findEmojiInString(content, scanIdx)
@@ -449,23 +445,23 @@ private fun AnnotatedString.Builder.appendDiscordMarkdown(
             scanIdx++
         }
     }
-    
+
     val sortedMatches = allMatches.sortedWith(compareBy({ it.first.first }, { -it.first.last }))
-    
+
     var lastIndex = 0
     var i = 0
     while (i < sortedMatches.size) {
         val (range, match, tag) = sortedMatches[i]
-        
+
         if (range.first < lastIndex) {
             i++
             continue
         }
-        
+
         if (range.first > lastIndex) {
             append(content.substring(lastIndex, range.first))
         }
-        
+
         when (tag) {
             "UNICODE_EMOJI" -> {
                 val emoji = content.substring(range)
@@ -474,14 +470,14 @@ private fun AnnotatedString.Builder.appendDiscordMarkdown(
                 appendInlineContent(key, emoji)
                 pop()
             }
-            "H1" -> withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp)) { 
-                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick) 
+            "H1" -> withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp)) {
+                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick)
             }
-            "H2" -> withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)) { 
-                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick) 
+            "H2" -> withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)) {
+                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick)
             }
-            "H3" -> withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp)) { 
-                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick) 
+            "H3" -> withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp)) {
+                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick)
             }
             "BLOCKQUOTE", "BLOCKQUOTE_MULTI" -> {
                 withStyle(style = SpanStyle(color = Color.Gray, background = Color.Gray.copy(alpha = 0.1f))) {
@@ -489,8 +485,8 @@ private fun AnnotatedString.Builder.appendDiscordMarkdown(
                     appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick)
                 }
             }
-            "SUBTEXT" -> withStyle(SpanStyle(fontSize = 12.sp, color = Color.Gray)) { 
-                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick) 
+            "SUBTEXT" -> withStyle(SpanStyle(fontSize = 12.sp, color = Color.Gray)) {
+                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick)
             }
             "BULLET" -> {
                 append("  • ")
@@ -527,8 +523,7 @@ private fun AnnotatedString.Builder.appendDiscordMarkdown(
             }
             "URL", "URL_SUPPRESSED" -> {
                 val url = if (tag == "URL_SUPPRESSED") match!!.groupValues[1] else match!!.groupValues[0]
-                // A Discord destination is shown as a readable chip; anything else stays a
-                // plain underlined URL, and an unresolvable Discord link falls back to it too.
+
                 val resolved = DiscordLinkResolver.resolve(
                     url,
                     guildStore.guilds.value,
@@ -536,16 +531,16 @@ private fun AnnotatedString.Builder.appendDiscordMarkdown(
                 )
                 appendResolvedLink(url, resolved, primaryColor)
             }
-            "BOLD" -> withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) { 
-                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick) 
+            "BOLD" -> withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick)
             }
-            "UNDERLINE" -> withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) { 
-                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick) 
+            "UNDERLINE" -> withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
+                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick)
             }
-            "ITALIC" -> withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) { 
-                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick) 
+            "ITALIC" -> withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) {
+                appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick)
             }
-            "STRIKE" -> withStyle(style = SpanStyle(textDecoration = TextDecoration.LineThrough)) { 
+            "STRIKE" -> withStyle(style = SpanStyle(textDecoration = TextDecoration.LineThrough)) {
                 appendDiscordMarkdown(match!!.groupValues[1], revealedSpoilers, primaryColor, navigationStore, guildStore, userStore, profileStore, onSpoilerClick)
             }
             "CODE_BLOCK" -> {
@@ -561,8 +556,8 @@ private fun AnnotatedString.Builder.appendDiscordMarkdown(
                     append("\n")
                 }
             }
-            "CODE" -> withStyle(style = SpanStyle(fontFamily = FontFamily.Monospace, background = Color.LightGray.copy(alpha = 0.2f))) { 
-                append(match!!.groupValues[1]) 
+            "CODE" -> withStyle(style = SpanStyle(fontFamily = FontFamily.Monospace, background = Color.LightGray.copy(alpha = 0.2f))) {
+                append(match!!.groupValues[1])
             }
             "EMOJI" -> {
                 val animated = match!!.groupValues[1] == "a"
@@ -594,13 +589,13 @@ private fun AnnotatedString.Builder.appendDiscordMarkdown(
                 var prefix = "@"
                 var mentionBg = primaryColor.copy(alpha = 0.1f)
                 var mentionColor = primaryColor
-                
+
                 when(tag) {
                     "MENTION" -> {
                         val member = userStore.getMember(navigationStore.selectedGuild?.id ?: "", id)
                         val user = userStore.getUser(id)
                         name = member?.nick ?: user?.let { it.global_name ?: it.username } ?: id
-                        
+
                         if (member != null && navigationStore.selectedGuild != null) {
                             val colorRole = member.getRoleColorRole(navigationStore.selectedGuild)
                             if (colorRole != null && colorRole.color != 0) {
@@ -624,7 +619,7 @@ private fun AnnotatedString.Builder.appendDiscordMarkdown(
                     "EVERYONE" -> name = "everyone"
                     "HERE" -> name = "here"
                 }
-                
+
                 val isMentionLink = tag == "MENTION"
                 withStyle(style = SpanStyle(color = mentionColor, fontWeight = FontWeight.Bold, background = mentionBg)) {
                     if (isMentionLink) {
@@ -637,11 +632,11 @@ private fun AnnotatedString.Builder.appendDiscordMarkdown(
                 }
             }
         }
-        
+
         lastIndex = range.last + 1
         i++
     }
-    
+
     if (lastIndex < content.length) {
         append(content.substring(lastIndex))
     }
@@ -696,30 +691,30 @@ private fun AnnotatedString.Builder.appendCodeWithHighlighting(code: String, lan
     val commentColor = Color(0xFF8B949E)
     val numberColor = Color(0xFFD2A8FF)
     val functionColor = Color(0xFFD2A8FF)
-    
+
     val keywords = setOf(
-        "val", "var", "fun", "class", "object", "if", "else", "when", "return", "import", "package", 
-        "private", "public", "protected", "override", "suspend", "interface", "typealias", "it", "this", 
-        "true", "false", "null", "let", "struct", "enum", "extension", "guard", "guard", "func", "throws", 
+        "val", "var", "fun", "class", "object", "if", "else", "when", "return", "import", "package",
+        "private", "public", "protected", "override", "suspend", "interface", "typealias", "it", "this",
+        "true", "false", "null", "let", "struct", "enum", "extension", "guard", "guard", "func", "throws",
         "try", "catch", "async", "await", "for", "while", "do", "break", "continue", "in", "as", "is"
     )
-    
+
     val regex = Regex("""(//.*|/\*[\s\S]*?\*/)|(".*?"|'.*?')|(\b\d+\b)|(\b\w+\b\()|(\b\w+\b)""")
-    
+
     val matches = regex.findAll(code)
     var lastMatchEnd = 0
-    
+
     for (match in matches) {
         if (match.range.first > lastMatchEnd) {
             append(code.substring(lastMatchEnd, match.range.first))
         }
-        
-        val group1 = match.groups[1] // comment
-        val group2 = match.groups[2] // string
-        val group3 = match.groups[3] // number
-        val group4 = match.groups[4] // function
-        val group5 = match.groups[5] // identifier/keyword
-        
+
+        val group1 = match.groups[1]
+        val group2 = match.groups[2]
+        val group3 = match.groups[3]
+        val group4 = match.groups[4]
+        val group5 = match.groups[5]
+
         when {
             group1 != null -> withStyle(SpanStyle(color = commentColor)) { append(match.value) }
             group2 != null -> withStyle(SpanStyle(color = stringColor)) { append(match.value) }
@@ -738,10 +733,10 @@ private fun AnnotatedString.Builder.appendCodeWithHighlighting(code: String, lan
             }
             else -> append(match.value)
         }
-        
+
         lastMatchEnd = match.range.last + 1
     }
-    
+
     if (lastMatchEnd < code.length) {
         append(code.substring(lastMatchEnd))
     }

@@ -1,5 +1,12 @@
 package me.lampu.lampcord.shared.ui.components.members
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.close_dm
+import me.lampu.lampcord.shared.generated.resources.copy_id
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_clear
+import me.lampu.lampcord.shared.generated.resources.pinned_messages
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -56,6 +63,8 @@ fun MemberHeader(
     searchStore: SearchStore = koinInject(),
     autocompleteStore: AutocompleteStore = koinInject(),
     settingsStore: SettingsStore = koinInject(),
+    onBack: (() -> Unit)? = null,
+    overlapping: Boolean = false,
 ) {
     val currentUser by userStore.currentUser.collectAsState()
     val allUsers by userStore.users.collectAsState()
@@ -76,8 +85,55 @@ fun MemberHeader(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
-            .padding(top = 16.dp, bottom = 8.dp)
+            .padding(
+                top = if (overlapping) 4.dp else 16.dp,
+                bottom = if (overlapping) 4.dp else 8.dp
+            )
     ) {
+        if (!isDesktop && overlapping) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp)
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (onBack != null) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = { navigationStore.isSearchVisible = true }) {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "Search",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                IconButton(onClick = { navigationStore.isPinsVisible = true }) {
+                    Icon(
+                        imageVector = Icons.Filled.PushPin,
+                        contentDescription = "Pins",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (canManageChannel) {
+                    IconButton(onClick = { navigationStore.openChannelSettings(channel) }) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = "Settings",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+
         if (isDesktop) {
             val focusManager = LocalFocusManager.current
             var isFocused by remember { mutableStateOf(false) }
@@ -98,13 +154,13 @@ fun MemberHeader(
                     .height(40.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        if (isFocused) MaterialTheme.colorScheme.surfaceContainerHigh 
+                        if (isFocused) MaterialTheme.colorScheme.surfaceContainerHigh
                         else MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.65f)
                     )
                     .border(
-                        1.dp, 
-                        if (isFocused) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) 
-                        else Color.Transparent, 
+                        1.dp,
+                        if (isFocused) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                        else Color.Transparent,
                         RoundedCornerShape(20.dp)
                     )
             ) {
@@ -167,7 +223,7 @@ fun MemberHeader(
                             }
                             if (searchStore.searchQuery.isNotEmpty()) {
                                 IconButton(
-                                    onClick = { 
+                                    onClick = {
                                         searchStore.searchQuery = ""
                                         autocompleteStore.clear(isSearch = true)
                                     },
@@ -175,7 +231,7 @@ fun MemberHeader(
                                 ) {
                                     Icon(
                                         Icons.Filled.Close,
-                                        contentDescription = "Clear",
+                                        contentDescription = stringResource(Res.string.lampcord_settings_clear),
                                         modifier = Modifier.size(16.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -187,7 +243,7 @@ fun MemberHeader(
 
                 DropdownMenu(
                     expanded = isFocused && autocompleteStore.searchAutocompleteType != null && autocompleteStore.searchAutocompleteItems.isNotEmpty(),
-                    onDismissRequest = { /* Don't hide here to keep focus */ },
+                    onDismissRequest = {  },
                     properties = androidx.compose.ui.window.PopupProperties(focusable = false),
                     modifier = Modifier.width(300.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh),
                     offset = DpOffset(16.dp, 4.dp)
@@ -247,7 +303,7 @@ fun MemberHeader(
                         else -> Icons.Filled.Tag
                     }
                 }
-                
+
                 val name = remember(channel, allUsers, isDm, currentUser) {
                     if (isDm) {
                         if (channel.type == 3) {
@@ -280,33 +336,35 @@ fun MemberHeader(
                     else PermissionHelper.isChannelPrivate(guild, channel)
                 }
 
-                Box(modifier = Modifier.size(24.dp)) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                if (!isDm || channel.type == 3) {
+                    Box(modifier = Modifier.size(24.dp)) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-                    if (isPrivate && channel.type != 4 && !isDm) {
-                        Surface(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .offset(x = 2.dp, y = (-2).dp)
-                                .size(12.dp),
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surface,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Lock,
-                                contentDescription = null,
-                                modifier = Modifier.padding(1.dp).fillMaxSize(),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                        if (isPrivate && channel.type != 4 && !isDm) {
+                            Surface(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .offset(x = 2.dp, y = (-2).dp)
+                                    .size(12.dp),
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.surface,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Lock,
+                                    contentDescription = null,
+                                    modifier = Modifier.padding(1.dp).fillMaxSize(),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
+                    Spacer(Modifier.width(12.dp))
                 }
-                Spacer(Modifier.width(12.dp))
                 Text(
                     text = name,
                     style = MaterialTheme.typography.titleLarge,
@@ -333,7 +391,7 @@ fun MemberHeader(
                         ) {
                             DropdownMenuItem(
                                 modifier = Modifier.handCursor(),
-                                text = { Text("Close DM") },
+                                text = { Text(stringResource(Res.string.close_dm)) },
                                 onClick = {
                                     showMenu = false
                                     navigationStore.closeDm(channel.id)
@@ -342,7 +400,7 @@ fun MemberHeader(
                             )
                             DropdownMenuItem(
                                 modifier = Modifier.handCursor(),
-                                text = { Text("Pinned Messages") },
+                                text = { Text(stringResource(Res.string.pinned_messages)) },
                                 onClick = {
                                     showMenu = false
                                     navigationStore.isPinsVisible = true
@@ -352,7 +410,7 @@ fun MemberHeader(
                             if (settingsStore.userSettings?.developer_mode == true) {
                                 DropdownMenuItem(
                                     modifier = Modifier.handCursor(),
-                                    text = { Text("Copy ID") },
+                                    text = { Text(stringResource(Res.string.copy_id)) },
                                     onClick = {
                                         showMenu = false
                                         me.lampu.lampcord.shared.utils.setClipboardText(channel.id)
@@ -381,9 +439,9 @@ fun MemberHeader(
             }
         }
 
-        Spacer(Modifier.height(16.dp))
-        
-        if (!isDesktop) {
+        Spacer(Modifier.height(if (overlapping) 4.dp else 16.dp))
+
+        if (!isDesktop && !overlapping) {
             Spacer(Modifier.height(16.dp))
 
             ButtonGroup(

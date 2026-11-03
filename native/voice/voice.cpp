@@ -5,6 +5,7 @@
 #include <rnnoise.h>
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <stdexcept>
 #include <iostream>
 
@@ -12,6 +13,8 @@ namespace dave = discord::dave;
 using Bytes = std::vector<uint8_t>;
 
 namespace {
+std::atomic<uint64_t> decryptFailureCount{0};
+std::atomic<uint64_t> decryptSuccessCount{0};
 struct Peer {
     std::unique_ptr<dave::IDecryptor> decryptor = dave::CreateDecryptor();
     std::unique_ptr<OpusDecoder, decltype(&opus_decoder_destroy)> decoder{nullptr, opus_decoder_destroy};
@@ -21,6 +24,11 @@ struct Peer {
         if (error != OPUS_OK) throw std::runtime_error("Could not create Opus decoder");
         decryptor->TransitionToPassthroughMode(false, std::chrono::seconds(0));
     }
+};
+
+struct Transition {
+    std::unique_ptr<dave::IKeyRatchet> sender;
+    std::map<std::string, std::unique_ptr<dave::IKeyRatchet>> receivers;
 };
 
 struct Voice {
@@ -33,7 +41,8 @@ struct Voice {
     std::unique_ptr<OpusEncoder, decltype(&opus_encoder_destroy)> encoder{nullptr, opus_encoder_destroy};
     std::map<std::string, Peer> peers;
     std::set<std::string> roster;
-    std::map<int, std::unique_ptr<dave::IKeyRatchet>> transitions;
+    std::map<int, Transition> transitions;
+    int lastExecuted = -1;
     DenoiseState* rnnoise = nullptr;
     bool ready = false;
 
@@ -59,6 +68,7 @@ struct Voice {
 
     Bytes initialize(int version) {
         ready = false;
+        lastExecuted = -1;
         transitions.clear(); roster.clear(); peers.clear();
         encryptor->SetKeyRatchet(nullptr);
         if (version != 1 || version > daveMaxSupportedProtocolVersion()) throw std::runtime_error("Unsupported DAVE version");
@@ -80,29 +90,45 @@ struct Voice {
         }
     }
 
-    void prepare(int transition) {
-        auto sender = session->GetKeyRatchet(user);
-        if (!sender) throw std::runtime_error("DAVE group has no sender key");
-        for (const auto& uid : roster) {
-            auto key = session->GetKeyRatchet(uid);
-            if (!key) throw std::runtime_error("DAVE group has no receiver key");
-            // ponytail: some versions of Discord might re-send the same key; libdave handles this.
-            peers[uid].decryptor->TransitionToKeyRatchet(std::move(key));
+    void apply(Transition next) {
+        if (next.sender) {
+            encryptor->SetKeyRatchet(std::move(next.sender));
+            ready = true;
+        } else {
+            ready = false;
+            std::cerr << "Native voice: DAVE transition has no local sender key" << std::endl;
         }
-        if (transitions.size() >= 32) throw std::runtime_error("Too many pending DAVE transitions");
-        transitions[transition] = std::move(sender);
-        if (transition == 0) execute(0);
+        for (auto& [uid, key] : next.receivers) {
+            if (key) peers[uid].decryptor->TransitionToKeyRatchet(std::move(key));
+        }
     }
 
-    void execute(int transition) {
-        auto it = transitions.find(transition);
-        if (it == transitions.end()) {
-            // ponytail: ignore executions for transitions we didn't prepare (e.g. ignored commits).
+    void prepare(int transition) {
+        Transition next;
+        next.sender = session->GetKeyRatchet(user);
+        for (const auto& uid : roster) {
+            auto key = session->GetKeyRatchet(uid);
+            if (!key) continue;
+            next.receivers.emplace(uid, std::move(key));
+        }
+        if (transition == 0) {
+            apply(std::move(next));
+            lastExecuted = 0;
             return;
         }
-        encryptor->SetKeyRatchet(std::move(it->second));
-        transitions.erase(it);
-        ready = true;
+        if (transitions.size() >= 32) throw std::runtime_error("Too many pending DAVE transitions");
+        transitions[transition] = std::move(next);
+    }
+
+    bool execute(int transition) {
+        auto it = transitions.find(transition);
+        if (it != transitions.end()) {
+            apply(std::move(it->second));
+            transitions.erase(it);
+            lastExecuted = transition;
+            return true;
+        }
+        return transition == lastExecuted;
     }
 };
 
@@ -218,11 +244,14 @@ extern "C" JNIEXPORT jint JNICALL JNI(commit)(JNIEnv* env, jobject, jlong handle
     });
 }
 
-extern "C" JNIEXPORT void JNICALL JNI(transition)(JNIEnv* env, jobject, jlong handle, jint id, jboolean prepare) {
-    checked<int>(env, 0, [&] {
+extern "C" JNIEXPORT jint JNICALL JNI(transition)(JNIEnv* env, jobject, jlong handle, jint id, jboolean prepare) {
+    return checked<jint>(env, 0, [&] {
         auto& v = voice(handle);
-        if (prepare) v.prepare(id); else v.execute(id);
-        return 0;
+        if (prepare) {
+            v.prepare(id);
+            return 1;
+        }
+        return v.execute(id) ? 1 : 0;
     });
 }
 
@@ -291,14 +320,22 @@ extern "C" JNIEXPORT jbyteArray JNICALL JNI(encrypt)(JNIEnv* env, jobject, jlong
 extern "C" JNIEXPORT jbyteArray JNICALL JNI(decrypt)(JNIEnv* env, jobject, jlong handle, jstring user, jbyteArray frame) {
     return checked<jbyteArray>(env, nullptr, [&]() -> jbyteArray {
         auto& v = voice(handle);
-        auto peer = v.peers.find(string(env, user));
+        auto uid = string(env, user);
+        auto peer = v.peers.find(uid);
         if (peer == v.peers.end()) return nullptr;
         auto in = fromJavaBytes(env, frame);
         if (in.size() > 8192) return nullptr;
         Bytes out(in.size());
         size_t length = 0;
         auto result = peer->second.decryptor->Decrypt(dave::Audio, {in.data(), in.size()}, {out.data(), out.size()}, &length);
-        if (result != dave::IDecryptor::Success) return nullptr;
+        if (result != dave::IDecryptor::Success) {
+            auto count = decryptFailureCount.fetch_add(1) + 1;
+            if (count == 1 || count % 100 == 0)
+                std::cerr << "Native voice: DAVE decrypt failed for user " << uid
+                          << " (code " << static_cast<int>(result) << ", total " << count << ")" << std::endl;
+            return nullptr;
+        }
+        decryptSuccessCount.fetch_add(1);
         out.resize(length);
         return array(env, out);
     });
@@ -318,6 +355,14 @@ extern "C" JNIEXPORT jshortArray JNICALL JNI(decode)(JNIEnv* env, jobject, jlong
         if (result) env->SetShortArrayRegion(result, 0, count * 2, pcm.data());
         return result;
     });
+}
+
+extern "C" JNIEXPORT jlong JNICALL JNI(decryptFailures)(JNIEnv*, jobject) {
+    return static_cast<jlong>(decryptFailureCount.load());
+}
+
+extern "C" JNIEXPORT jlong JNICALL JNI(decryptSuccesses)(JNIEnv*, jobject) {
+    return static_cast<jlong>(decryptSuccessCount.load());
 }
 
 extern "C" JNIEXPORT jbyteArray JNICALL JNI(aead)(JNIEnv* env, jobject, jboolean encrypt, jboolean aes, jbyteArray key, jbyteArray nonce, jbyteArray header, jbyteArray payload) {

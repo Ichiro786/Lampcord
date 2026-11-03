@@ -161,7 +161,7 @@ object NotificationHelper {
                 }
             }
         } catch (e: Exception) {
-            // A failed avatar must not cost the user the notification itself.
+
             Logging.w(TAG, "Unable to load the notification avatar", e)
             null
         }

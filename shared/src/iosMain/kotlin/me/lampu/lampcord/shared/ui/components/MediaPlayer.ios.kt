@@ -29,8 +29,7 @@ import platform.Foundation.NSURL
 
 @OptIn(ExperimentalForeignApi::class)
 private fun newPlayer(): AVPlayer {
-    // Playback has to keep running with the ringer switch silenced. An interruption resets the
-    // session, so this is re-asserted for every player rather than once per process.
+
     runCatching {
         AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, null)
         AVAudioSession.sharedInstance().setActive(true, null)

@@ -122,7 +122,7 @@ fun AboutContent(
 
         Spacer(Modifier.height(32.dp))
 
-        val otherContributors = emptyList<AboutContributor>() // Add more here if needed
+        val otherContributors = emptyList<AboutContributor>()
         if (otherContributors.isNotEmpty()) {
             ContributorsSection(
                 contributors = otherContributors,
@@ -137,7 +137,7 @@ fun AboutContent(
             Triple("GitHub Repository", "https://github.com/l6t9/lampcord", Icons.Brand.Github),
             Triple("License", "https://github.com/l6t9/lampcord/blob/main/LICENSE", Icons.Filled.Info)
         )
-        
+
         AboutSection(
             title = text.communityAndInfo,
             itemCount = links.size,
@@ -159,7 +159,7 @@ fun AboutContent(
             },
             onClick = { index -> onOpenUrl(links[index].second) }
         )
-        
+
         Spacer(Modifier.height(32.dp))
     }
 }

@@ -1,5 +1,17 @@
 package me.lampu.lampcord.shared.ui.baseplates
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.back
+import me.lampu.lampcord.shared.generated.resources.channels
+import me.lampu.lampcord.shared.generated.resources.friends
+import me.lampu.lampcord.shared.generated.resources.home
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_nav_you
+import me.lampu.lampcord.shared.generated.resources.mentions
+import me.lampu.lampcord.shared.generated.resources.password_manager_open_settings
+import me.lampu.lampcord.shared.generated.resources.pins
+import me.lampu.lampcord.shared.generated.resources.search
+import org.jetbrains.compose.resources.stringResource
+
 import me.lampu.lampcord.shared.api.CdnUrls
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
@@ -13,6 +25,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -82,23 +96,23 @@ fun MobileBaseplate(
     var showCustomStatusDialog by remember { mutableStateOf(false) }
     var showAddAccountDialog by remember { mutableStateOf(false) }
 
-    val initialStartRoute = remember { 
+    val initialStartRoute = remember {
         if (navigationStore.isFriendsSelected) Screen.Friends else Screen.Chat
     }
-    val topLevelRoutes = remember { 
+    val topLevelRoutes = remember {
         setOf(
             Screen.Chat,
-            Screen.Friends, 
+            Screen.Friends,
             Screen.Mentions,
             Screen.Search,
             Screen.GlobalSearch,
-            Screen.Settings, 
-            Screen.ServerSettings, 
+            Screen.Settings,
+            Screen.ServerSettings,
             Screen.ChannelSettings,
             Screen.Pins,
             Screen.ChannelsAndRoles,
             Screen.EasterEgg
-        ) 
+        )
     }
     val navigationState = rememberNavigationState(
         startRoute = initialStartRoute,
@@ -125,6 +139,7 @@ fun MobileBaseplate(
             Screen.ChannelSettings to 10,
             Screen.Theming to 11,
             Screen.ThemeEditor::class to 12,
+            Screen.VoiceSettings to 12,
         )
     }
     val quickSpatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
@@ -186,7 +201,7 @@ fun MobileBaseplate(
 
     LaunchedEffect(navigationState.topLevelRoute) {
         val route = navigationState.topLevelRoute
-        
+
         if (route == Screen.Chat) {
             panelState.currentValue = lastPanelValue
         } else {
@@ -248,6 +263,7 @@ fun MobileBaseplate(
         currentRoute == Screen.PrivacySettings ||
         currentRoute == Screen.ConnectionsSettings ||
         currentRoute == Screen.DevicesSettings ||
+        currentRoute == Screen.VoiceSettings ||
         currentRoute == Screen.ChatSettings ||
         currentRoute == Screen.NotificationsSettings ||
         currentRoute == Screen.NavigationSettings ||
@@ -343,6 +359,7 @@ fun MobileBaseplate(
                         onNavigateToAppearance = { navigator.navigate(Screen.AppearanceSettings) },
                         onNavigateToAccessibility = { navigator.navigate(Screen.AccessibilitySettings) },
                         onNavigateToLanguage = { navigator.navigate(Screen.LanguageSettings) },
+                        onNavigateToVoice = { navigator.navigate(Screen.VoiceSettings) },
                         onNavigateToChat = { navigator.navigate(Screen.ChatSettings) },
                         onNavigateToNotifications = { navigator.navigate(Screen.NotificationsSettings) },
                         onNavigateToAdvanced = { navigator.navigate(Screen.AdvancedSettings) },
@@ -381,6 +398,9 @@ fun MobileBaseplate(
             entry<Screen.DevicesSettings> {
                 DevicesSettings(onBack = { navigator.goBack() })
             }
+            entry<Screen.VoiceSettings> {
+                me.lampu.lampcord.shared.ui.settings.VoiceSettings(onBack = { navigator.goBack() })
+            }
             entry<Screen.ChatSettings> {
                 ChatSettings(onBack = { navigator.goBack() })
             }
@@ -417,7 +437,7 @@ fun MobileBaseplate(
                             navigationStore.isSettingsVisible = true
                             navigator.navigate(Screen.Settings)
                         }) {
-                            Text("Open Settings")
+                            Text(stringResource(Res.string.password_manager_open_settings))
                         }
                     }
                 }
@@ -498,10 +518,10 @@ fun MobileBaseplate(
             val isOverlapping = Settings.shared.panelType == PanelType.OVERLAPPING
             val progress = panelState.progress
             val absProgress = kotlin.math.abs(progress).coerceIn(0f, 1f)
-            
-            if (progress > 0) { // Sliding to Sidebar (Start)
+
+            if (progress > 0) {
                 androidx.compose.ui.graphics.lerp(chatBackground, lightPanelColor, absProgress)
-            } else if (progress < 0) { // Sliding to Member List (End)
+            } else if (progress < 0) {
                 if (isOverlapping) {
                     androidx.compose.ui.graphics.lerp(chatBackground, memberHeaderColor, absProgress)
                 } else {
@@ -529,7 +549,7 @@ fun MobileBaseplate(
                 .statusBarsPadding(),
             swipeToStartEnabled = isChat && !navigationStore.isBubble,
             swipeToEndEnabled = isChat && !navigationStore.isBubble && !Settings.shared.swipeToReplyEnabled,
-            startPanel = { 
+            startPanel = {
                 if (isChat) {
                     val currentBottomPadding = (navBarHeight * navBarVisibleAmount).coerceAtLeast(0.dp)
                     Box(Modifier.fillMaxSize().padding(bottom = currentBottomPadding)) {
@@ -539,7 +559,11 @@ fun MobileBaseplate(
             },
             endPanel = {
                 if (isChat) {
-                    MemberList()
+                    val overlapping = Settings.shared.panelType == PanelType.OVERLAPPING
+                    MemberList(
+                        overlapping = overlapping,
+                        onBack = if (overlapping) ({ panelState.close() }) else null
+                    )
                 }
             },
             centerPanel = {
@@ -603,10 +627,10 @@ fun MobileBaseplate(
         )
 
         val navItems = remember(settingsStore.navTabsOrderJson, settingsStore.showNavHome, settingsStore.showNavFriends, settingsStore.showNavSearch, settingsStore.showNavMentions, settingsStore.showNavSettings) {
-            val order = runCatching { 
+            val order = runCatching {
                 settingsStore.navTabsOrderJson.removeSurrounding("[", "]").split(",").map { it.trim().removeSurrounding("\"") }
             }.getOrDefault(listOf("home", "friends", "search", "mentions", "settings"))
-            
+
             val items = order.mapNotNull { key ->
                 when (key) {
                     "home" -> if (settingsStore.showNavHome) Screen.Chat else null
@@ -617,7 +641,7 @@ fun MobileBaseplate(
                     else -> null
                 }
             }
-            
+
             if (items.isEmpty()) listOf(Screen.EasterEgg) else items
         }
 
@@ -659,7 +683,7 @@ fun MobileBaseplate(
                                     navigator.navigate(Screen.Chat)
                                 },
                                 icon = { Icon(if (currentRoute == Screen.Chat) Icons.Brand.DiscordRounded else Icons.Brand.DiscordRoundedOutline, "Home") },
-                                label = { Text("Home") },
+                                label = { Text(stringResource(Res.string.home)) },
                                 alwaysShowLabel = !settingsStore.hideNavLabels
                             )
                         }
@@ -672,7 +696,7 @@ fun MobileBaseplate(
                                     navigator.navigate(Screen.Friends)
                                 },
                                 icon = { Icon(if (currentRoute == Screen.Friends) Icons.Filled.Person else Icons.Rounded.Person, "Friends") },
-                                label = { Text("Friends") },
+                                label = { Text(stringResource(Res.string.friends)) },
                                 alwaysShowLabel = !settingsStore.hideNavLabels
                             )
                         }
@@ -683,7 +707,7 @@ fun MobileBaseplate(
                                     navigator.navigate(Screen.GlobalSearch)
                                 },
                                 icon = { Icon(Icons.Filled.Search, "Search") },
-                                label = { Text("Search") },
+                                label = { Text(stringResource(Res.string.search)) },
                                 alwaysShowLabel = !settingsStore.hideNavLabels
                             )
                         }
@@ -696,7 +720,7 @@ fun MobileBaseplate(
                                     navigator.navigate(Screen.Mentions)
                                 },
                                 icon = { Icon(Icons.Rounded.AlternateEmail, "Mentions") },
-                                label = { Text("Mentions") },
+                                label = { Text(stringResource(Res.string.mentions)) },
                                 alwaysShowLabel = !settingsStore.hideNavLabels
                             )
                         }
@@ -757,7 +781,7 @@ fun MobileBaseplate(
                                         Icon(Icons.Filled.Settings, "You")
                                     }
                                 },
-                                label = { Text("You") },
+                                label = { Text(stringResource(Res.string.lampcord_settings_nav_you)) },
                                 alwaysShowLabel = !settingsStore.hideNavLabels
                             )
                         }
@@ -846,6 +870,8 @@ fun MobileBaseplate(
 
         DiscordBottomSheet(
             fillHeight = true,
+            fullBleed = true,
+            dragHandle = {},
             onDismissRequest = {
                 profileStore.selectedProfile = null
                 profileStore.isProfileExpanded = false
@@ -853,28 +879,74 @@ fun MobileBaseplate(
             },
             sheetState = sheetState,
         ) {
-            if (profileStore.selectedProfile != null) {
-                val p = profileStore.selectedProfile!!
-                ProfileCard(
-                    profile = p,
-                    modifier = Modifier.fillMaxSize(),
-                    showBorder = false,
-                    isExpanded = true,
-                    fillAvailableHeight = true,
-                    showBoardTab = true,
-                    showFrameOverlay = true,
-                    onExpand = null,
-                    onDismiss = {
-                        profileStore.selectedProfile = null
-                        profileStore.isProfileExpanded = false
-                        profileStore.isProfileLoading = false
+            val p = profileStore.selectedProfile
+            val cardShape = RoundedCornerShape(
+                topStart = DiscordSheetCornerRadius,
+                topEnd = DiscordSheetCornerRadius
+            )
+
+            Box(Modifier.fillMaxSize()) {
+                val cardLayout = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxHeight(0.9f)
+                    .widthIn(max = 560.dp)
+                    .fillMaxWidth()
+                Box(
+                    modifier = cardLayout
+                        .clip(cardShape)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                ) {
+                    if (p != null) {
+                        ProfileCard(
+                            profile = p,
+                            modifier = Modifier.fillMaxSize(),
+                            showBorder = false,
+                            isExpanded = true,
+                            fillAvailableHeight = true,
+                            showBoardTab = true,
+                            showFrameArt = false,
+                            onExpand = null,
+                            onDismiss = {
+                                profileStore.selectedProfile = null
+                                profileStore.isProfileExpanded = false
+                                profileStore.isProfileLoading = false
+                            }
+                        )
+                    } else {
+                        ProfileCardSkeleton(
+                            modifier = Modifier.fillMaxWidth(),
+                            isExpanded = true
+                        )
                     }
-                )
-            } else {
-                ProfileCardSkeleton(
-                    modifier = Modifier.fillMaxWidth(),
-                    isExpanded = true
-                )
+                }
+
+                if (p != null) {
+                    val frameSku = remember(p) {
+                        ProfileCollectibles.frameSku(p.user_profile, p.guild_member_profile)
+                    }
+                    val frameProduct = frameSku?.let { profileStore.getFrame(it) }
+                    frameProduct?.let { product ->
+                        Box(modifier = cardLayout) {
+                            ProfileFrameOverlay(
+                                product = product,
+                                modifier = Modifier.matchParentSize(),
+                                railTop = profileBannerHeight(0.dp, true, null, 0f),
+                                showBottom = false
+                            )
+                        }
+                    }
+                }
+
+                Box(modifier = cardLayout) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 10.dp)
+                            .size(width = 36.dp, height = 4.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(Color.White.copy(alpha = 0.65f))
+                    )
+                }
             }
         }
     }
@@ -1081,7 +1153,7 @@ private fun MainBaseplateContent(
                                         }) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = "Back"
+                                                contentDescription = stringResource(Res.string.back)
                                             )
                                         }
                                     } else if (isRoles) {
@@ -1090,10 +1162,10 @@ private fun MainBaseplateContent(
                                         }) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = "Back"
+                                                contentDescription = stringResource(Res.string.back)
                                             )
                                         }
-                                    } else if (activeChannel != null && activeChannel.type != 1 && activeChannel.type != 3 && activeChannel.guild_id != null) {
+                                    } else if (Settings.shared.panelType != PanelType.OVERLAPPING && activeChannel != null && activeChannel.type != 1 && activeChannel.type != 3 && activeChannel.guild_id != null) {
                                         val channelIcon = when (activeChannel.type) {
                                             15 -> Icons.Rounded.Forum
                                             2, 13 -> Icons.AutoMirrored.Filled.VolumeUp
@@ -1118,7 +1190,7 @@ private fun MainBaseplateContent(
                                             Box(modifier = Modifier.size(28.dp)) {
                                                 Icon(
                                                     imageVector = channelIcon,
-                                                    contentDescription = "Channels",
+                                                    contentDescription = stringResource(Res.string.channels),
                                                     modifier = Modifier.fillMaxSize(),
                                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
@@ -1141,7 +1213,14 @@ private fun MainBaseplateContent(
                                                 }
                                             }
                                         }
-                                    } else {
+                                    } else if (Settings.shared.panelType == PanelType.OVERLAPPING) {
+                                        IconButton(onClick = { panelState.openStart() }) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                contentDescription = stringResource(Res.string.back)
+                                            )
+                                        }
+                                    } else if (activeChannel?.type != 1 && activeChannel?.type != 3) {
                                         IconButton(onClick = { panelState.openStart() }) {
                                             Icon(
                                                 imageVector = Icons.Filled.Menu,
@@ -1161,7 +1240,7 @@ private fun MainBaseplateContent(
                                         IconButton(onClick = { navigationStore.isSearchVisible = true }) {
                                             Icon(
                                                 imageVector = Icons.Filled.Search,
-                                                contentDescription = "Search",
+                                                contentDescription = stringResource(Res.string.search),
                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                         }
@@ -1170,7 +1249,7 @@ private fun MainBaseplateContent(
                                         IconButton(onClick = { navigationStore.isPinsVisible = true }) {
                                             Icon(
                                                 imageVector = Icons.Filled.PushPin,
-                                                contentDescription = "Pins",
+                                                contentDescription = stringResource(Res.string.pins),
                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                         }
@@ -1192,12 +1271,8 @@ private fun MainBaseplateContent(
                                 }
                             },
                             colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = if (me.lampu.lampcord.shared.settings.Settings.shared.panelType == me.lampu.lampcord.shared.settings.PanelType.CENTER)
-                                    MaterialTheme.colorScheme.surfaceContainer
-                                else MaterialTheme.colorScheme.background,
-                                scrolledContainerColor = if (me.lampu.lampcord.shared.settings.Settings.shared.panelType == me.lampu.lampcord.shared.settings.PanelType.CENTER)
-                                    MaterialTheme.colorScheme.surfaceContainer
-                                else MaterialTheme.colorScheme.background
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer
                             )
                         )
                     }

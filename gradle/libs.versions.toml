@@ -34,7 +34,7 @@ navigation3 = "1.2.0"
 compose-webview = "1.0.3"
 coil = "3.6.3"
 
-nucleus = "2.6.0-dev-202609281230"
+nucleus = "3.0.0-dev-202610272317"
 
 [libraries]
 firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessaging" }
@@ -63,7 +63,6 @@ ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor"
 ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
 slf4j_simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
-# KMP Libraries
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }

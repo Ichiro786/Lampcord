@@ -102,7 +102,7 @@ fun ProfileHeader(
     val profileSecondaryTextColor = theme.customTextColor ?: MaterialTheme.colorScheme.onSurfaceVariant
 
     Row(
-        verticalAlignment = Alignment.Top, // Align to top to ensure downward expansion
+        verticalAlignment = Alignment.Top,
         modifier = Modifier.fillMaxWidth().padding(end = 16.dp).zIndex(1f)
     ) {
         Box(
@@ -198,7 +198,7 @@ fun ProfileHeader(
                     tonalElevation = 2.dp,
                     shadowElevation = 1.dp
                 ) {}
-                
+
                 Surface(
                     modifier = Modifier
                         .offset(x = 22.dp, y = 18.dp)
@@ -273,7 +273,7 @@ fun ProfileHeader(
             badges = profile.badges + profile.guild_badges,
             roleIds = profile.guild_member?.roles.orEmpty()
         )
-        
+
         if (user.id == currentUser?.id && onEditAvatar == null) {
             Spacer(Modifier.height(4.dp))
             Button(
@@ -301,7 +301,7 @@ fun ProfileHeader(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = { 
+                    onClick = {
                         navigationStore.openDm(user.id)
                         onDismiss?.invoke()
                     },

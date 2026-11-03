@@ -14,6 +14,7 @@ import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.serialization.json.add
@@ -38,6 +39,11 @@ import me.lampu.lampcord.shared.model.Member
 import me.lampu.lampcord.shared.model.Role
 import me.lampu.lampcord.shared.model.UserGuildSettings
 import me.lampu.lampcord.shared.utils.Logging
+
+sealed interface JoinGuildResult {
+    data class Joined(val guild: Guild) : JoinGuildResult
+    data class Failed(val message: String) : JoinGuildResult
+}
 
 class GuildApi(private val rest: RestClient) {
 
@@ -311,16 +317,28 @@ class GuildApi(private val rest: RestClient) {
         }
     }
 
-    suspend fun joinGuild(inviteCode: String): Guild? {
+    suspend fun joinGuild(inviteCode: String): JoinGuildResult {
         return try {
             val response = rest.httpClient.post("${rest.apiBase}/invites/$inviteCode") {
                 standardHeaders(rest)
             }
-            if (response.status.isSuccess()) response.body<Invite>().guild else null
+            if (!response.status.isSuccess()) {
+                val body = response.bodyAsText()
+                val error = rest.discordError(body)
+                val message = joinErrorMessage(error?.code, error?.message, response.status)
+                Logging.e("Invite", "Error joining with code $inviteCode: $message")
+                return JoinGuildResult.Failed(message)
+            }
+            val guild = runCatching { response.body<Invite>() }.getOrNull()?.guild
+            if (guild == null) {
+                JoinGuildResult.Failed("Discord accepted the invite but did not return the server. Try again.")
+            } else {
+                JoinGuildResult.Joined(guild)
+            }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Logging.e("Invite", "Error joining with code $inviteCode: ${e.message}")
-            null
+            JoinGuildResult.Failed("Could not reach Discord. Check your connection and try again.")
         }
     }
 
@@ -570,5 +588,23 @@ class GuildApi(private val rest: RestClient) {
             Logging.e("Guild", "Error updating self member: ${e.message}")
             null
         }
+    }
+}
+
+internal fun joinErrorMessage(code: Int?, message: String?, status: HttpStatusCode): String {
+    return when (code) {
+        30001 -> "You are in 100 servers, the maximum for a Discord account. Leave a server and try again."
+        30019 -> "That server is full."
+        340015 -> "Discord has limited your account from joining new servers. Try again later."
+        10006 -> "That invite is invalid or has expired."
+        40007 -> "You are banned from that server."
+        50009 -> "That server requires a higher verification level."
+        50013 -> "You do not have permission to join that server."
+        50001 -> "Discord says you do not have access to that server."
+        50020 -> "That invite is invalid or has expired."
+        50035 -> "That invite is invalid or has expired."
+        50095 -> "That server is not available in your region."
+        40002 -> "Verify your Discord account before joining this server."
+        else -> discordErrorMessage(message, status)
     }
 }

@@ -1,5 +1,7 @@
 package me.lampu.lampcord.shared.ui
 
+import me.lampu.lampcord.shared.generated.resources.user_settings_avatar
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.text.KeyboardActions
@@ -143,10 +145,10 @@ fun LoginScreen(
                     val currentTicket: String? = mfaTicket
                     if (currentTicket != null) {
                         val res = sessionManager.verifyMFA(mfaCode.trim(), currentTicket, mfaType)
-                        if (res) {
+                        if (res?.token != null) {
                             onLoginSuccess()
                         } else {
-                            errorMessage = invalidMfaError
+                            errorMessage = res?.message ?: invalidMfaError
                         }
                     }
                 }
@@ -397,7 +399,7 @@ fun LoginScreen(
                                         if (avatarUrl != null) {
                                             me.lampu.lampcord.shared.ui.components.AsyncImage(
                                                 model = avatarUrl,
-                                                contentDescription = "Avatar",
+                                                contentDescription = stringResource(Res.string.user_settings_avatar),
                                                 modifier = Modifier.size(64.dp).clip(CircleShape)
                                             )
                                         }

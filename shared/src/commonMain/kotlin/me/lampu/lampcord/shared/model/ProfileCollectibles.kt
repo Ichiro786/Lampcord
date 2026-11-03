@@ -7,13 +7,6 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
-/**
- * An entry of `user_profile.collectibles`, which is a list rather than an object.
- *
- * The effect and frame a profile has equipped are often only discoverable here: some responses
- * omit `profile_effect`/`profile_frame` and carry the sku in this list instead, distinguished
- * by [type] (1 = effect, 3 = frame).
- */
 @Serializable
 data class CollectibleRef(
     val type: Int? = null,
@@ -73,15 +66,6 @@ const val ANCHOR_CENTER = 2
 
 private const val CDN = "https://cdn.discordapp.com"
 
-/**
- * Reads profile effects and frames out of Discord's collectibles payloads.
- *
- * A profile's equipped effect and frame are looked up first as `profile_effect`/`profile_frame`
- * on the profile metadata, then by scanning `collectibles` for a matching type, because either
- * can be absent. A product response is a list of items, and bundles can place a different
- * collectible before the one that was asked for, so items are matched on their own type rather
- * than taking the first.
- */
 object ProfileCollectibles {
 
     fun effectSku(global: UserProfileMetadata?, guild: UserProfileMetadata?): String? =
@@ -198,7 +182,6 @@ object ProfileCollectibles {
 
     private fun JsonObject.enum(key: String): String? = str(key)?.lowercase()
 
-    /** Only Discord's own hosts are loaded, so a hostile payload cannot point elsewhere. */
     private fun imageUrl(raw: String?): String? {
         val text = raw?.trim() ?: return null
         val url = when {

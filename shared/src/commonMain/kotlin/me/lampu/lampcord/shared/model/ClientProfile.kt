@@ -12,10 +12,6 @@ data class CustomProfile(
     @SerialName("p") val avatar: String? = null
 )
 
-/**
- * UserBG lists every user with a banner (hundreds of thousands of IDs), so banner owners are kept
- * as a sorted array of snowflakes and [CustomProfile]s are only built for the user being looked up.
- */
 class ClientProfileMapping(
     private val bannerUserIds: LongArray = LongArray(0),
     private val avatars: Map<String, String> = emptyMap()

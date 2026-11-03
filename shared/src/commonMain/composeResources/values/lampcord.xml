@@ -91,8 +91,6 @@
     <string name="lampcord_settings_up_to_date">Lampcord is up to date</string>
     <string name="lampcord_settings_update_notifications">Update Notifications</string>
     <string name="lampcord_settings_update_notifications_desc">Tell me when an update is ready to install.</string>
-    <string name="lampcord_settings_use_custom_titlebar">Use Custom Titlebar</string>
-    <string name="lampcord_settings_use_custom_titlebar_desc">Use a custom in-app title bar instead of the system window frame. Requires restart.</string>
     <string name="lampcord_settings_version_fmt">Version %1$s</string>
     <string name="lampcord_settings_view_changelog">View changelog</string>
     <string name="lampcord_settings_visual">Visual</string>

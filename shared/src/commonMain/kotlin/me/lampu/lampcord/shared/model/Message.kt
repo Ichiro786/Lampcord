@@ -74,10 +74,9 @@ data class Message(
     val isDeleted: Boolean = false,
     val oldContent: String? = null
 ) {
-    /** Discord sets `IS_COMPONENTS_V2` (1 << 15) for messages whose layout lives in components. */
+
     val isComponentsV2: Boolean get() = ((flags ?: 0) and COMPONENTS_V2_FLAG) != 0
 
-    /** Notification/notification-preview text, falling back to the text displays used by Components V2. */
     val previewText: String
         get() = if (content.isNotBlank()) {
             content
@@ -103,13 +102,11 @@ data class Message(
 
 private const val COMPONENTS_V2_FLAG = 1 shl 15
 
-/** Every text display reachable from a component, including nested containers and sections. */
 fun MessageComponent.collectText(): List<String> = buildList {    content?.takeIf { it.isNotBlank() }?.let { add(it) }
     components?.forEach { addAll(it.collectText()) }
     accessory?.let { addAll(it.collectText()) }
 }
 
-/** Fallback preview text from labels, names, and descriptions. */
 fun MessageComponent.collectFallbackText(): List<String> = buildList {
     label?.takeIf { it.isNotBlank() }?.let { add(it) }
     name?.takeIf { it.isNotBlank() }?.let { add(it) }
@@ -120,12 +117,6 @@ fun MessageComponent.collectFallbackText(): List<String> = buildList {
     accessory?.let { addAll(it.collectFallbackText()) }
 }
 
-/**
- * Attachment ids/filenames referenced by Components V2 media, thumbnail and file components.
- *
- * In a Components V2 message clients only render attachments that a component explicitly points
- * at, so the plain attachment list has to skip these to avoid showing each one twice.
- */
 fun collectReferencedAttachments(components: List<MessageComponent>): Set<String> {
     val keys = mutableSetOf<String>()
 
@@ -241,7 +232,7 @@ data class MessageComponent(
     val min_values: Int? = null,
     val max_values: Int? = null,
     val options: List<SelectMenuOption>? = null,
-    // Components V2 layout/content fields.
+
     val content: String? = null,
     val media: UnfurledMediaItem? = null,
     val items: List<MediaGalleryItem>? = null,

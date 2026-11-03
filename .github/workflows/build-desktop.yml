@@ -50,8 +50,7 @@ on:
 
 concurrency:
   group: desktop-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  # A manual run is never cancelled by a later push, so a single-platform retry started from
-  # this workflow is not killed halfway through by unrelated commits landing on main.
+
   cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 jobs:

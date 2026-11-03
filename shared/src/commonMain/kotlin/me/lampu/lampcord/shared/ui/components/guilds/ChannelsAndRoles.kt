@@ -1,5 +1,10 @@
 package me.lampu.lampcord.shared.ui.components.guilds
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.roles
+import me.lampu.lampcord.shared.generated.resources.save
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -59,7 +64,7 @@ fun ChannelsAndRoles(
         ) {
             Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text("Customize") })
             Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }, text = { Text("Browse Channels") })
-            Tab(selected = selectedTab == 2, onClick = { selectedTab = 2 }, text = { Text("Roles") })
+            Tab(selected = selectedTab == 2, onClick = { selectedTab = 2 }, text = { Text(stringResource(Res.string.roles)) })
         }
 
         Box(modifier = Modifier.weight(1f)) {
@@ -174,7 +179,7 @@ private fun CustomizeTab(
                     if (saving) {
                         CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
                     } else {
-                        Text("Save")
+                        Text(stringResource(Res.string.save))
                     }
                 }
             }

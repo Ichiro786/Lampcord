@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "logged_messages",
-    indices = [Index("channelId")]
+    indices = [Index(value = ["channelId", "timestamp"])]
 )
 data class MessageEntity(
     @PrimaryKey val id: String,
@@ -17,5 +17,5 @@ data class MessageEntity(
     val timestamp: String,
     val isDeleted: Boolean = false,
     val oldContent: String? = null,
-    val jsonPayload: String // Full original JSON for reconstruction
+    val jsonPayload: String
 )

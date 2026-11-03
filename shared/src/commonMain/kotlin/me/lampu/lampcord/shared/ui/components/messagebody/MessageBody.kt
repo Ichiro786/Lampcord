@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.lampu.lampcord.shared.model.Attachment
-import me.lampu.lampcord.shared.model.DiscordMedia
 import me.lampu.lampcord.shared.model.Embed
 import me.lampu.lampcord.shared.model.EmbedImage
 import me.lampu.lampcord.shared.model.EmbedVideo
@@ -51,20 +51,38 @@ fun MessageAttachments(
     message: Message? = null,
     navigationStore: NavigationStore = koinInject()
 ) {
-    val referencedAttachmentKeys = collectReferencedAttachments(components.orEmpty())
-    // Components V2 messages reference their uploads from media/file components; rendering the raw
-    // attachment list too would duplicate every image.
-    val visibleAttachments = if (referencedAttachmentKeys.isEmpty()) {
-        attachments
-    } else {
-        attachments.filterNot { it.id in referencedAttachmentKeys || it.filename in referencedAttachmentKeys }
+    val hasLinkContent = remember(content) {
+        content?.let {
+            it.contains("discord.gg", ignoreCase = true) ||
+                it.contains("discord.com/invite", ignoreCase = true) ||
+                it.contains("discordapp.com/invite", ignoreCase = true) ||
+                it.contains(".gif", ignoreCase = true) ||
+                it.contains(".mp4", ignoreCase = true) ||
+                it.contains(".webm", ignoreCase = true) ||
+                it.contains(".mov", ignoreCase = true)
+        } == true
+    }
+    if (attachments.isEmpty() && embeds.isEmpty() && stickerItems.isNullOrEmpty() &&
+        stickers.isNullOrEmpty() && poll == null && components.isNullOrEmpty() && !hasLinkContent
+    ) {
+        return
     }
 
-    val images = visibleAttachments.filter { it.isImage() }
-    val videos = visibleAttachments.filter { it.isVideo() }
-    val otherFiles = visibleAttachments.filter { !it.isImage() && !it.isVideo() }
-    
-    val viewableItems: List<DiscordMedia> = images + videos
+    val referencedAttachmentKeys = remember(components) { collectReferencedAttachments(components.orEmpty()) }
+
+    val visibleAttachments = remember(attachments, referencedAttachmentKeys) {
+        if (referencedAttachmentKeys.isEmpty()) {
+            attachments
+        } else {
+            attachments.filterNot { it.id in referencedAttachmentKeys || it.filename in referencedAttachmentKeys }
+        }
+    }
+
+    val images = remember(visibleAttachments) { visibleAttachments.filter { it.isImage() } }
+    val videos = remember(visibleAttachments) { visibleAttachments.filter { it.isVideo() } }
+    val otherFiles = remember(visibleAttachments) { visibleAttachments.filter { !it.isImage() && !it.isVideo() } }
+
+    val viewableItems = remember(images, videos) { images + videos }
 
     if (viewableItems.isNotEmpty()) {
         MessageMosaic(viewableItems, onOpenItem = { index ->
@@ -88,7 +106,7 @@ fun MessageAttachments(
 
     embeds.forEach { embed ->
         EmbedView(embed)
-        
+
         embed.url?.let { url ->
             DISCORD_INVITE_PATTERN.find(url)?.groupValues?.get(1)?.let { code ->
                 if (processedInvites.add(code)) {
@@ -99,27 +117,37 @@ fun MessageAttachments(
     }
 
     content?.let {
-        DISCORD_INVITE_PATTERN.findAll(it).forEach { match ->
-            val code = match.groupValues[1]
-            if (processedInvites.add(code)) {
-                InviteEmbedView(code)
+        if (it.contains("discord", ignoreCase = true)) {
+            val codes = remember(it) {
+                DISCORD_INVITE_PATTERN.findAll(it)
+                    .map { match -> match.groupValues[1] }
+                    .distinct()
+                    .toList()
+            }
+            codes.forEach { code ->
+                if (processedInvites.add(code)) {
+                    InviteEmbedView(code)
+                }
             }
         }
     }
 
-    // Discord does not always create an embed for direct GIF/Video links. Render those URLs as media as a fallback.
-    val embeddedMediaUrls = embeds.flatMap { embed ->
-        listOfNotNull(
-            embed.image?.url,
-            embed.image?.proxy_url,
-            embed.video?.url,
-            embed.url
-        )
-    }.map { it.normalizedMediaUrl() }.toSet()
+    val embeddedMediaUrls = remember(embeds) {
+        embeds.flatMap { embed ->
+            listOfNotNull(
+                embed.image?.url,
+                embed.image?.proxy_url,
+                embed.video?.url,
+                embed.url
+            )
+        }.map { it.normalizedMediaUrl() }.toSet()
+    }
 
-    extractMediaUrls(content)
-        .filterNot { it.normalizedMediaUrl() in embeddedMediaUrls }
-        .forEach { url ->
+    val standaloneMediaUrls = remember(content, embeddedMediaUrls) {
+        extractMediaUrls(content).filterNot { it.normalizedMediaUrl() in embeddedMediaUrls }
+    }
+
+    standaloneMediaUrls.forEach { url ->
             if (url.isGifUrl()) {
                 val gif = EmbedImage(url = url, proxy_url = url)
                 AttachmentImage(
@@ -157,9 +185,20 @@ private val mediaUrlPattern = Regex(
 private val DISCORD_INVITE_PATTERN =
     Regex("""(?:discord\.gg/|discord\.com/invite/|discordapp\.com/invite/|discord\.me/|discord\.li/|discord\.io/)([a-zA-Z0-9\-]+)""")
 
-private fun extractMediaUrls(content: String?): List<String> = content
-    ?.let { mediaUrlPattern.findAll(it).map { match -> match.value.trimEnd('.', ',', '!', '?', ';', ':') }.distinct().toList() }
-    ?: emptyList()
+private fun extractMediaUrls(content: String?): List<String> {
+    if (content == null) return emptyList()
+    if (!content.contains(".gif", ignoreCase = true) &&
+        !content.contains(".mp4", ignoreCase = true) &&
+        !content.contains(".webm", ignoreCase = true) &&
+        !content.contains(".mov", ignoreCase = true)
+    ) {
+        return emptyList()
+    }
+    return mediaUrlPattern.findAll(content)
+        .map { match -> match.value.trimEnd('.', ',', '!', '?', ';', ':') }
+        .distinct()
+        .toList()
+}
 
 private fun String.isGifUrl(): Boolean {
     val path = substringBefore('?').substringBefore('#')

@@ -108,7 +108,7 @@ fun AttachmentViewer(
                     val isGifv = item.isGifv()
                     VideoPlayer(
                         url = item.url ?: item.proxy_url ?: "",
-                        // Under Reduce Motion a GIF starts paused and a tap plays it; it never gets video controls.
+
                         loop = isGifv,
                         showControls = !isGifv,
                         showSeekBar = !isGifv,
@@ -169,7 +169,7 @@ fun AttachmentViewer(
                             color = Color.White.copy(alpha = 0.7f)
                         )
                     }
-                    
+
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         val scope = rememberCoroutineScope()
                         ViewerRoundButton(onClick = {
@@ -260,7 +260,7 @@ private fun ZoomableImageView(
 ) {
     var scale by remember(url) { mutableFloatStateOf(1f) }
     var offset by remember(url) { mutableStateOf(Offset.Zero) }
-    
+
     val sizeState = remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
 
     Box(
@@ -272,14 +272,14 @@ private fun ZoomableImageView(
             .pointerInput(url) {
                 detectTransformGestures { _, pan, zoom, _ ->
                     val newScale = (scale * zoom).coerceIn(1f, 8f)
-                    
+
                     if (newScale != scale) {
                         offset *= (newScale / scale)
                     }
-                    
+
                     val maxX = (sizeState.value.width * (newScale - 1f)) / 2f
                     val maxY = (sizeState.value.height * (newScale - 1f)) / 2f
-                    
+
                     val newOffset = offset + pan
                     offset = Offset(
                         newOffset.x.coerceIn(-maxX, maxX),

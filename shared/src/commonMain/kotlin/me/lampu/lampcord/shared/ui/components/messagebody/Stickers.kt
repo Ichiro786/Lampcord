@@ -24,7 +24,7 @@ fun StickersView(stickers: List<StickerItem>) {
                 } else {
                     "https://cdn.discordapp.com/stickers/${sticker.id}.gif?size=320"
                 }
-                3 -> "https://cdn.discordapp.com/stickers/${sticker.id}.json" // Lottie, needs special handling for full animation
+                3 -> "https://cdn.discordapp.com/stickers/${sticker.id}.json"
                 else -> "https://cdn.discordapp.com/stickers/${sticker.id}.png?size=320"
             }
 

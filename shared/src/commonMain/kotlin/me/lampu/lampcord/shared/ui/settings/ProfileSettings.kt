@@ -1,5 +1,12 @@
 package me.lampu.lampcord.shared.ui.settings
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.close
+import me.lampu.lampcord.shared.generated.resources.save_changes
+import me.lampu.lampcord.shared.generated.resources.user_popout_about_me
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -43,7 +50,7 @@ fun ProfilesSettings(
 ) {
     val user by userStore.currentUser.collectAsState()
     val userVal = user ?: return
-    
+
     SettingsSubScreen(
         title = "Profiles",
         onNavigateBack = onBack
@@ -65,10 +72,10 @@ fun ProfileSettingsContent(
 ) {
     val scope = rememberCoroutineScope()
     val guilds by guildStore.guilds.collectAsState()
-    
+
     var selectedGuildId by remember { mutableStateOf<String?>(null) }
     val selectedGuild = remember(selectedGuildId, guilds) { guilds.find { it.id == selectedGuildId } }
-    
+
     var serverProfile by remember { mutableStateOf<UserProfile?>(null) }
     var isLoadingProfile by remember { mutableStateOf(false) }
 
@@ -95,18 +102,18 @@ fun ProfileSettingsContent(
             )
         }
     }
-    
-    var displayName by remember(userVal.id, selectedGuildId) { 
-        mutableStateOf("") 
+
+    var displayName by remember(userVal.id, selectedGuildId) {
+        mutableStateOf("")
     }
-    var pronouns by remember(userVal.id, selectedGuildId) { 
-        mutableStateOf("") 
+    var pronouns by remember(userVal.id, selectedGuildId) {
+        mutableStateOf("")
     }
-    var bio by remember(userVal.id, selectedGuildId) { 
-        mutableStateOf("") 
+    var bio by remember(userVal.id, selectedGuildId) {
+        mutableStateOf("")
     }
     var bannerColor by remember(userVal.id, selectedGuildId) {
-        mutableStateOf<Int?>(null) 
+        mutableStateOf<Int?>(null)
     }
     var bannerUri by remember(userVal.id, selectedGuildId) {
         mutableStateOf<String?>(null)
@@ -120,15 +127,15 @@ fun ProfileSettingsContent(
     var themeSecondaryColor by remember(userVal.id, selectedGuildId) {
         mutableStateOf<Int?>(null)
     }
-    
+
     var showColorPicker by remember { mutableStateOf(false) }
-    var colorPickerTarget by remember { mutableStateOf(0) } // 0: banner, 1: primary, 2: secondary
+    var colorPickerTarget by remember { mutableStateOf(0) }
     var showAvatarPicker by remember { mutableStateOf(false) }
     var showBannerPicker by remember { mutableStateOf(false) }
     var showGuildPicker by remember { mutableStateOf(false) }
     var showRecentAvatars by remember { mutableStateOf(false) }
     var recentAvatars by remember { mutableStateOf<List<RecentAvatar>>(emptyList()) }
-    
+
     var pendingCropImage by remember { mutableStateOf<ByteArray?>(null) }
 
     LaunchedEffect(showRecentAvatars) {
@@ -144,7 +151,7 @@ fun ProfileSettingsContent(
                 val mimeType = "image/png"
                 val base64 = me.lampu.lampcord.shared.utils.base64Encode(croppedBytes)
                 val dataUri = "data:$mimeType;base64,$base64"
-                
+
                 scope.launch {
                     clientProfileStore.setLocalAvatar(userVal.id, dataUri)
                     if (selectedGuildId == null) {
@@ -204,7 +211,7 @@ fun ProfileSettingsContent(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showRecentAvatars = false }) { Text("Close") }
+                TextButton(onClick = { showRecentAvatars = false }) { Text(stringResource(Res.string.close)) }
             }
         )
     }
@@ -230,7 +237,7 @@ fun ProfileSettingsContent(
             pronouns = pronouns,
             theme_colors = themeColors
         )
-        
+
         serverProfile?.copy(
             user = userVal.copy(
                 global_name = if (selectedGuildId == null) displayName else userVal.global_name,
@@ -288,7 +295,7 @@ fun ProfileSettingsContent(
                 }
             }
         }
-        
+
         if (selectedGuildId != null) {
             profile?.guild_member?.let {
                 userStore.cacheMember(selectedGuildId!!, userVal.id, it)
@@ -324,7 +331,7 @@ fun ProfileSettingsContent(
                     item {
                         ListItem(
                             headlineContent = { Text("Global Profile") },
-                            modifier = Modifier.clickableCursor { 
+                            modifier = Modifier.clickableCursor {
                                 selectedGuildId = null
                                 showGuildPicker = false
                             },
@@ -352,7 +359,7 @@ fun ProfileSettingsContent(
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { showGuildPicker = false }) { Text("Cancel") } }
+            confirmButton = { TextButton(onClick = { showGuildPicker = false }) { Text(stringResource(Res.string.cancel)) } }
         )
     }
 
@@ -471,7 +478,7 @@ fun ProfileSettingsContent(
                             customProfileOverride = previewCustomProfile,
                             modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)
                         )
-                        
+
                         Button(
                             onClick = { showRecentAvatars = true },
                             modifier = Modifier.fillMaxWidth(),
@@ -612,7 +619,7 @@ fun ProfileSettingsContent(
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = CircleShape
-                            ) { Text("Save Changes") }
+                            ) { Text(stringResource(Res.string.save_changes)) }
                         }
                     }
                 }
@@ -633,7 +640,7 @@ fun ProfileSettingsContent(
                                             OutlinedTextField(value = displayName, onValueChange = { displayName = it }, label = { Text(if (selectedGuildId == null) "Display Name" else "Server Nickname") }, modifier = Modifier.fillMaxWidth())
                                             if (selectedGuildId == null) {
                                                 OutlinedTextField(value = pronouns, onValueChange = { pronouns = it }, label = { Text("Pronouns") }, modifier = Modifier.fillMaxWidth())
-                                                OutlinedTextField(value = bio, onValueChange = { bio = it }, label = { Text("About Me") }, modifier = Modifier.fillMaxWidth(), minLines = 3)
+                                                OutlinedTextField(value = bio, onValueChange = { bio = it }, label = { Text(stringResource(Res.string.user_popout_about_me)) }, modifier = Modifier.fillMaxWidth(), minLines = 3)
                                             }
                                         }
                                     }
@@ -649,8 +656,8 @@ fun ProfileSettingsContent(
                                     description = {
                                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 8.dp)) {
                                             Text("Used when no banner image is set:", style = MaterialTheme.typography.bodyMedium)
-                                            Box(modifier = Modifier.size(32.dp).background(bannerColor?.let { Color(it or 0xFF000000.toInt()) } ?: Color.Gray, CircleShape).clickableCursor { 
-                                                colorPickerTarget = 0; showColorPicker = true 
+                                            Box(modifier = Modifier.size(32.dp).background(bannerColor?.let { Color(it or 0xFF000000.toInt()) } ?: Color.Gray, CircleShape).clickableCursor {
+                                                colorPickerTarget = 0; showColorPicker = true
                                             })
                                         }
                                     }
@@ -668,14 +675,14 @@ fun ProfileSettingsContent(
                                             Text(if (hasNitro) "Set nitro profile colors." else if (settingsStore.profile3y3) "Shared via 3y3." else "Nitro required.", style = MaterialTheme.typography.bodySmall)
                                             Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                    Box(modifier = Modifier.size(40.dp).background(themePrimaryColor?.let { Color(it or 0xFF000000.toInt()) } ?: Color.Gray, CircleShape).clickableCursor { 
-                                                        colorPickerTarget = 1; showColorPicker = true 
+                                                    Box(modifier = Modifier.size(40.dp).background(themePrimaryColor?.let { Color(it or 0xFF000000.toInt()) } ?: Color.Gray, CircleShape).clickableCursor {
+                                                        colorPickerTarget = 1; showColorPicker = true
                                                     })
                                                     Text("Primary", style = MaterialTheme.typography.labelSmall)
                                                 }
                                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                    Box(modifier = Modifier.size(40.dp).background(themeSecondaryColor?.let { Color(it or 0xFF000000.toInt()) } ?: Color.Gray, CircleShape).clickableCursor { 
-                                                        colorPickerTarget = 2; showColorPicker = true 
+                                                    Box(modifier = Modifier.size(40.dp).background(themeSecondaryColor?.let { Color(it or 0xFF000000.toInt()) } ?: Color.Gray, CircleShape).clickableCursor {
+                                                        colorPickerTarget = 2; showColorPicker = true
                                                     })
                                                     Text("Secondary", style = MaterialTheme.typography.labelSmall)
                                                 }

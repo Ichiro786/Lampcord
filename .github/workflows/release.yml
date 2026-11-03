@@ -69,7 +69,6 @@ jobs:
             done
           }
 
-          # Strict semver both sides; an appVersion alpha must never be publishable.
           is_forward_version() {
             local previous="$1"
             local current="$2"
@@ -331,8 +330,6 @@ jobs:
           test -n "$PIXELDRAIN_API_KEY" || { echo "PIXELDRAIN_API_KEY is not configured" >&2; exit 1; }
           test -n "$DISCORD_WEBHOOK_URL" || { echo "DISCORD_WEBHOOK_URL is not configured" >&2; exit 1; }
 
-          # The package jobs name their output after the release version, so the tag and
-          # the file names agree. build-version is recorded in build-info.json only.
           expected=(
             "release-assets/lampcord-android-${APP_VERSION}.apk"
             "release-assets/lampcord-desktop-linux-x64-${APP_VERSION}.AppImage"
@@ -371,8 +368,6 @@ jobs:
           APP_VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           set -euo pipefail
-          # The macOS job names its DMG after the arch it was built for; the release asset is
-          # named after the version like every other platform.
           shopt -s nullglob
           dmgs=(release-assets/lampcord-desktop-macos-*-*.dmg)
           shopt -u nullglob
@@ -478,10 +473,6 @@ jobs:
             gh release delete "$tag" --yes --repo "$GITHUB_REPOSITORY"
           fi
 
-          # The versioned release is the archive: only version-pinned artifacts plus the
-          # build metadata and checksums that describe them. The unversioned "stable"
-          # aliases live in a separate rolling release (next step) so each release page
-          # stays free of duplicate copies.
           gh release create "$tag" \
             release-assets/* \
             --target "$GITHUB_SHA" \
@@ -496,8 +487,6 @@ jobs:
           APP_VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           set -euo pipefail
-          # A single rolling release holds the unversioned copies that the README badges
-          # link to, so those URLs are stable while versioned releases stay uncluttered.
           tag="stable"
           title="Lampcord (Stable)"
           mkdir -p stable-assets
@@ -529,7 +518,7 @@ jobs:
           CHECKSUMS_URL: ${{ steps.pixeldrain-checksums.outputs.pixeldrain_url }}
         run: |
           set -euo pipefail
-          
+
           role1="1534704702585966642"
           role2="1534740463481913415"
           role3="1534719840307253359"
@@ -576,7 +565,7 @@ jobs:
 
   cleanup-staging:
     name: Clean up package staging release
-    # Only on a fully successful publish. Cleaning up under `always()` deleted the staged
+
     if: ${{ !cancelled() && needs.publish.result == 'success' && needs.prepare.outputs.should-release == 'true' && inputs.publish-existing != true }}
     needs:
       - prepare

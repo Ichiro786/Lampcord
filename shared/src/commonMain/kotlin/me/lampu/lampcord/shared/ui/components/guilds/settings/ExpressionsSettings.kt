@@ -1,5 +1,11 @@
 package me.lampu.lampcord.shared.ui.components.guilds.settings
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.save
+import me.lampu.lampcord.shared.generated.resources.upload_emoji
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -108,12 +114,12 @@ fun ServerEmoji(guild: Guild, guildApi: GuildApi = koinInject()) {
                         emojiToRename = null
                     }
                 }) {
-                    Text("Save")
+                    Text(stringResource(Res.string.save))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { emojiToRename = null }) {
-                    Text("Cancel")
+                    Text(stringResource(Res.string.cancel))
                 }
             }
         )
@@ -128,7 +134,7 @@ fun ServerEmoji(guild: Guild, guildApi: GuildApi = koinInject()) {
             ) {
                 Icon(Icons.Rounded.Upload, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Upload Emoji")
+                Text(stringResource(Res.string.upload_emoji))
             }
 
             if (isLoading) {
@@ -304,10 +310,10 @@ fun ServerStickers(guild: Guild, guildApi: GuildApi = koinInject()) {
                         }
                         stickerToEdit = null
                     }
-                }) { Text("Save") }
+                }) { Text(stringResource(Res.string.save)) }
             },
             dismissButton = {
-                TextButton(onClick = { stickerToEdit = null }) { Text("Cancel") }
+                TextButton(onClick = { stickerToEdit = null }) { Text(stringResource(Res.string.cancel)) }
             }
         )
     }

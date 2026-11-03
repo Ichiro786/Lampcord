@@ -75,15 +75,13 @@ class AdaptiveNavigationItem<T>(
     val visible: Boolean = true,
 )
 
-/** Device conventions that cannot be inferred from an app window's dimensions. */
 enum class AdaptiveFormFactor {
-    /** Phones, foldables, and tablets; the current app window determines the layout. */
+
     TOUCH,
 
     DESKTOP,
     TELEVISION,
 
-    /** The parked app UI. Android Auto and driving-mode AAOS use the system MediaLibrary host. */
     AUTOMOTIVE,
 }
 

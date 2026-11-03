@@ -20,7 +20,7 @@ class MediaApi(private val rest: RestClient) {
     private var trendingGifCategoriesCache: TrendingGifCategoriesResponse? = null
 
     private fun requestedGifFormat(): String {
-        // Reduced Motion controls playback locally. `png` is not a valid Discord GIF media format and is treated as an MP4 fallback by the endpoint, which leaves category previews blank in image loaders.
+
         return when (getPlatformName()) {
             "windows", "macos", "linux" -> "mp4"
             else -> "gif"
@@ -82,7 +82,7 @@ class MediaApi(private val rest: RestClient) {
     }
 
     suspend fun getTrendingGifCategory(category: String, locale: String = "en-US", limit: Int = 50): List<Gif> {
-        // Category names are search terms. The trending-gifs route does not document a category query parameter and can return an empty list; use the stable search route instead.
+
         return searchGifs(category, locale, limit)
     }
 

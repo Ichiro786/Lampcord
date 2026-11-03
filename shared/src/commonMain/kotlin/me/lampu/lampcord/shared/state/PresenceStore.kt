@@ -1,5 +1,8 @@
 package me.lampu.lampcord.shared.state
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,11 +14,15 @@ import me.lampu.lampcord.shared.model.Session
 
 class PresenceStore(private val userApi: UserApi) {
     private val _presences = MutableStateFlow<Map<String, Map<String, PresenceUpdate>>>(emptyMap())
-    
-    // A simple cache for flattened presences to avoid recomputing too much
+
     private val flattenedPresences = MutableStateFlow<Map<String, PresenceUpdate>>(emptyMap())
     val presences: StateFlow<Map<String, PresenceUpdate>> = flattenedPresences.asStateFlow()
     val allPresences: StateFlow<Map<String, PresenceUpdate>> = flattenedPresences.asStateFlow()
+
+    private val userStates = mutableMapOf<String, MutableState<PresenceUpdate?>>()
+
+    fun presenceState(userId: String): State<PresenceUpdate?> =
+        userStates.getOrPut(userId) { mutableStateOf(flattenedPresences.value[userId]) }
 
     private fun flattenOne(presences: Collection<PresenceUpdate>): PresenceUpdate =
         presences.find { it.status == "online" }
@@ -25,7 +32,9 @@ class PresenceStore(private val userApi: UserApi) {
             ?: PresenceUpdate(status = "offline")
 
     private fun rebuildFlattened() {
-        flattenedPresences.value = _presences.value.mapValues { (_, guildMap) -> flattenOne(guildMap.values) }
+        val next = _presences.value.mapValues { (_, guildMap) -> flattenOne(guildMap.values) }
+        flattenedPresences.value = next
+        userStates.forEach { (userId, state) -> state.value = next[userId] }
     }
 
     private fun updateFlattened(changed: Set<String>) {
@@ -36,6 +45,7 @@ class PresenceStore(private val userApi: UserApi) {
             for (userId in changed) {
                 val guildMap = source[userId]
                 if (guildMap == null) next.remove(userId) else next[userId] = flattenOne(guildMap.values)
+                userStates[userId]?.value = next[userId]
             }
             next
         }
@@ -43,12 +53,12 @@ class PresenceStore(private val userApi: UserApi) {
 
     fun handleReady(ready: ReadyPayload) {
         val newPresences = mutableMapOf<String, MutableMap<String, PresenceUpdate>>()
-        
+
         ready.merged_presences?.friends?.forEach { update ->
             val userId = update.user?.id ?: update.user_id ?: return@forEach
             newPresences.getOrPut(userId) { mutableMapOf() }["global"] = update
         }
-        
+
         ready.merged_presences?.guilds?.forEachIndexed { index, guildPresences ->
             val guild = ready.guilds.getOrNull(index) ?: return@forEachIndexed
             guildPresences.forEach { update ->
@@ -56,7 +66,7 @@ class PresenceStore(private val userApi: UserApi) {
                 newPresences.getOrPut(userId) { mutableMapOf() }[guild.id] = update
             }
         }
-        
+
         ready.merged_members?.forEachIndexed { index, members ->
             val guild = ready.guilds.getOrNull(index) ?: return@forEachIndexed
             members.forEach { member ->
@@ -69,7 +79,7 @@ class PresenceStore(private val userApi: UserApi) {
                 }
             }
         }
-        
+
         _presences.value = newPresences
         rebuildFlattened()
 
@@ -104,7 +114,7 @@ class PresenceStore(private val userApi: UserApi) {
     fun handleSessions(userId: String, sessions: List<Session>) {
         val activeSession = sessions.find { it.active } ?: sessions.firstOrNull() ?: return
         val existing = _presences.value[userId]?.get("global")
-        
+
         val clientStatus = me.lampu.lampcord.shared.model.ClientStatus(
             desktop = sessions.find { it.client_info?.client == "desktop" }?.status,
             mobile = sessions.find { it.client_info?.client == "mobile" }?.status,
@@ -143,6 +153,8 @@ class PresenceStore(private val userApi: UserApi) {
     fun clear() {
         _presences.value = emptyMap()
         flattenedPresences.value = emptyMap()
+        userStates.values.forEach { it.value = null }
+        userStates.clear()
     }
 
     fun getUserStatus(userId: String, currentUserId: String?, currentUserStatus: String?): String {
@@ -151,14 +163,14 @@ class PresenceStore(private val userApi: UserApi) {
 
     fun getUserStatus(userId: String, presence: PresenceUpdate?, currentUserId: String?, currentUserStatus: String?): String {
         val p = presence ?: flattenedPresences.value[userId]
-        
+
         if (p != null) {
             val status = presenceStatus(p)
             if (userId == currentUserId && (status == "streaming" || status == "mobile")) {
                 return status
             }
         }
-        
+
         if (userId == currentUserId) return currentUserStatus ?: "online"
         if (p == null) return "offline"
         return presenceStatus(p)
@@ -190,8 +202,8 @@ class PresenceStore(private val userApi: UserApi) {
         val status = presence?.status ?: "offline"
         val isStreaming = presence?.activities?.any { it.type == 1 } == true
         val isOnline = status != "offline" && status != "invisible"
-        
-        return if ((flags and 524288) != 0) { // FLAG_OFFLINE_VISIBLE
+
+        return if ((flags and 524288) != 0) {
             isOnline
         } else {
             isOnline || isStreaming

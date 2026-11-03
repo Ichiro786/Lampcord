@@ -41,7 +41,7 @@ class VoiceStore(
         private set
     var isVoiceChatTextVisible by mutableStateOf(false)
     val voiceStates = mutableStateMapOf<String, SnapshotStateMap<String, VoiceState>>()
-    val calls = mutableStateMapOf<String, List<String>>() // channel -> ringing recipients
+    val calls = mutableStateMapOf<String, List<String>>()
     var incomingChannelId by mutableStateOf<String?>(null)
         private set
     private var server: VoiceServerUpdate? = null
@@ -236,7 +236,7 @@ class VoiceStore(
         if (state.channel_id == null) map.remove(state.user_id) else map[state.user_id] = state
         state.member?.let { member -> state.guild_id?.let { userStore.cacheMember(it, state.user_id, member) } }
         if (snapshot || state.user_id != userStore.currentUser.value?.id) return
-        val desired = activeChannel ?: return // Never open a microphone for a call on another device.
+        val desired = activeChannel ?: return
         val previous = currentVoiceState
         if (state.channel_id == null) {
             if (previous != null && state.session_id == previous.session_id) stopLocal()
@@ -248,7 +248,7 @@ class VoiceStore(
         }
         if (state.channel_id != desired.id) {
             if (previous == null) return
-            // A moderator moved this session. Re-key for the new channel, never reuse its MLS group.
+
             val moved = guildStore.allGuildChannels.value[state.channel_id] ?: Channel(state.channel_id, 2, state.guild_id)
             activeChannel = moved
             connectedServer = null

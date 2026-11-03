@@ -3,7 +3,6 @@ package me.lampu.lampcord.shared.model
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-// Minimal decoder for Discord's FrecencyUserSettings favorite_gifs field. Keeping this small avoids making the whole protobuf schema a runtime dependency just to read the picker favorites.
 @OptIn(ExperimentalEncodingApi::class)
 fun decodeFavoriteGifs(base64: String): List<Gif> {
     return try {
@@ -20,7 +19,7 @@ fun decodeFavoriteGifs(base64: String): List<Gif> {
         }
 
         favorites
-            .sortedWith(compareBy<OrderedFavoriteGif> { it.order }.thenBy { it.url })
+            .sortedWith(compareByDescending<OrderedFavoriteGif> { it.order }.thenBy { it.url })
             .map { favorite ->
                 Gif(
                     src = favorite.src,

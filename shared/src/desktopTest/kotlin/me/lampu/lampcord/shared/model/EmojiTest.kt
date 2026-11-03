@@ -21,7 +21,7 @@ class EmojiTest {
 
     @Test
     fun customEmojiUrlUsesGifForAnimatedAndWebpForStatic() {
-        // Matches Discord's own format, /emojis/{id}.{ext}?size={n}&quality=lossless.
+
         assertEquals(
             "https://cdn.discordapp.com/emojis/123.gif?size=64&quality=lossless",
             customEmojiCdnUrl("123", animated = true)
@@ -50,7 +50,7 @@ class EmojiTest {
 
     @Test
     fun sizeIsSnappedToAPowerOfTwoBecauseTheCdnRejectsAnythingElse() {
-        // Sizes derived from a font metric (e.g. 16sp * 1.4 * 2 = 44, jumbo = 89) 400 otherwise.
+
         assertEquals(
             "https://cdn.discordapp.com/emojis/123.webp?size=64&quality=lossless",
             customEmojiCdnUrl("123", animated = false, size = 44)

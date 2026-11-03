@@ -58,8 +58,7 @@ fun GifvView(
     onFullscreenClick: (() -> Unit)? = null
 ) {
     Box(modifier = modifier.clip(RoundedCornerShape(8.dp)).background(Color.Black)) {
-        // A GIF stays a GIF under Reduce Motion: it starts paused on its first frame and a tap plays it,
-        // rather than turning into a video with playback controls.
+
         VideoPlayer(
             url = video.url ?: "",
             loop = true,
@@ -113,7 +112,7 @@ fun PlayableEmbedView(
 
     val navigator = rememberWebViewNavigator()
     val webViewState = rememberWebViewState(url)
-    
+
     LaunchedEffect(webViewState) {
         val platform = getPlatformName()
         val isMobile = platform == "android" || platform == "ios"
@@ -125,11 +124,10 @@ fun PlayableEmbedView(
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
             }
         }
-        
-        // "webview refer fix" - spoofing Referer to avoid embed restrictions
+
         navigator.loadUrl(url, mapOf("Referer" to "https://discord.com"))
     }
-    
+
     Box(modifier = modifier.clip(RoundedCornerShape(8.dp)).background(Color.Black)) {
         WebView(
             state = webViewState,
@@ -176,7 +174,7 @@ fun EmbedView(
                 }
             }
             else -> {
-                // A direct media file plays in the native player below; only player pages need a web view.
+
                 if (embed.video != null && !embed.video.isDirectVideoFile()) embedUrl else null
             }
         }

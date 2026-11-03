@@ -31,13 +31,6 @@ import me.lampu.lampcord.shared.ui.theme.DiscordGreen
 import me.lampu.lampcord.shared.ui.theme.DiscordRed
 import org.koin.compose.koinInject
 
-/**
- * Renders the `components` array of a message.
- *
- * Supports both the legacy action rows (buttons/selects) and Components V2 (containers, text
- * displays, sections, thumbnails, galleries, files and separators). Components V2 messages carry
- * their text inside components instead of `content`, so without this they appear blank.
- */
 @Composable
 fun MessageComponentsRow(
     components: List<MessageComponent>,
@@ -289,10 +282,6 @@ private fun SpoilerWrapper(
     }
 }
 
-/**
- * FilePicker/theme media can reference uploaded attachments with `attachment://<filename>`.
- * Resolve those against the message's attachments; externally hosted URLs pass straight through.
- */
 private fun UnfurledMediaItem.resolveUrl(attachments: List<Attachment>): String? {
     if (url.isNotBlank() && !url.startsWith("attachment://")) return url
     val existing = findAttachment(attachments)

@@ -1,5 +1,9 @@
 package me.lampu.lampcord.shared.ui
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.dismiss
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -24,8 +28,15 @@ fun MainScreen(
     errorStore: AppErrorStore = koinInject(),
     profileStore: ProfileStore = koinInject(),
     voiceStore: VoiceStore = koinInject(),
-    userStore: UserStore = koinInject()
+    userStore: UserStore = koinInject(),
+    guildStore: GuildStore = koinInject()
 ) {
+    val currentUser by userStore.currentUser.collectAsState()
+    val guilds by guildStore.guilds.collectAsState()
+    CompositionLocalProvider(
+        LocalCurrentUser provides currentUser,
+        LocalGuilds provides guilds
+    ) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val reduceMotion = Settings.shared.reduceMotion
 
@@ -79,7 +90,7 @@ fun MainScreen(
                     }
                     else -> {
                         LoginScreen(
-                            onLoginSuccess = { /* No-op, navigationStore updates will trigger re-compose */ }
+                            onLoginSuccess = {  }
                         )
                     }
                 }
@@ -113,24 +124,25 @@ fun MainScreen(
                     ) {
                         Text(errors.first().message, modifier = Modifier.weight(1f))
                         TextButton(onClick = { errorStore.clear() }) {
-                            Text("Dismiss")
+                            Text(stringResource(Res.string.dismiss))
                         }
                     }
                 }
             }
         }
-        
+
         if (navigationStore.isQuickSwitcherVisible) {
             QuickSwitcher(
                 onDismiss = { navigationStore.isQuickSwitcherVisible = false }
             )
         }
-        
+
         navigationStore.forwardingMessage?.let { message ->
             ForwardDialog(
                 message = message,
                 onDismiss = { navigationStore.forwardingMessage = null }
             )
         }
+    }
     }
 }

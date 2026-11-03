@@ -1,5 +1,13 @@
 package me.lampu.lampcord.shared.ui.components.guilds.settings
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.form_label_server_name
+import me.lampu.lampcord.shared.generated.resources.form_label_system_channel
+import me.lampu.lampcord.shared.generated.resources.form_label_verification_level
+import me.lampu.lampcord.shared.generated.resources.reset
+import me.lampu.lampcord.shared.generated.resources.save_changes
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -108,7 +116,7 @@ fun ServerOverview(guild: Guild, guildStore: GuildStore = koinInject()) {
                         draftVerificationLevel = guild.verification_level ?: 0
                         draftExplicitContentFilter = guild.explicit_content_filter ?: 0
                     }) {
-                        Text("Reset")
+                        Text(stringResource(Res.string.reset))
                     }
                     Button(
                         onClick = {
@@ -126,7 +134,7 @@ fun ServerOverview(guild: Guild, guildStore: GuildStore = koinInject()) {
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43B581))
                     ) {
-                        Text("Save Changes")
+                        Text(stringResource(Res.string.save_changes))
                     }
                 }
             }
@@ -157,7 +165,7 @@ private fun ServerOverviewContent(
         Material3SettingsGroup(title = "Server Details") {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Server Name", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(Res.string.form_label_server_name), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     OutlinedTextField(
                         value = draftName,
                         onValueChange = onNameChange,
@@ -209,7 +217,7 @@ private fun ServerOverviewContent(
                 }
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("System Messages Channel", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(stringResource(Res.string.form_label_system_channel), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                     val textChannels = allChannels.values.filter { it.guild_id == guild.id && it.type == 0 }
                     SettingsButtonGroup(
                         options = listOf(null) + textChannels.map { it.id },
@@ -236,7 +244,7 @@ private fun ServerOverviewContent(
         Material3SettingsGroup(title = "Safety Setup") {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Verification Level", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(stringResource(Res.string.form_label_verification_level), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                     SettingsButtonGroup(
                         options = listOf(0, 1, 2, 3, 4),
                         selectedOption = draftVerificationLevel,

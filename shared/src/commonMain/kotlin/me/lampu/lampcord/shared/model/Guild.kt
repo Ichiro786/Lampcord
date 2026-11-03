@@ -27,7 +27,7 @@ data class Guild(
     val approximate_presence_count: Int? = null,
     val large: Boolean? = null,
     val presences: List<PresenceUpdate>? = null,
-    
+
     val afk_channel_id: String? = null,
     val afk_timeout: Int? = null,
     val system_channel_id: String? = null,
@@ -310,7 +310,7 @@ data class MuteConfig(
 data class ChannelOverride(
     val channel_id: String,
     val muted: Boolean = false,
-    val message_notifications: Int = 3, // inherit
+    val message_notifications: Int = 3,
     val collapsed: Boolean = false,
     val flags: Int = 0,
     val mute_config: MuteConfig? = null

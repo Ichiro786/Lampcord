@@ -1,5 +1,12 @@
 package me.lampu.lampcord.shared.ui.components.guilds
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.copy_id
+import me.lampu.lampcord.shared.generated.resources.leave_server
+import me.lampu.lampcord.shared.generated.resources.mark_as_read
+import me.lampu.lampcord.shared.generated.resources.server_settings
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
@@ -44,6 +51,7 @@ import me.lampu.lampcord.shared.state.NavigationStore
 import me.lampu.lampcord.shared.state.ProfileStore
 import me.lampu.lampcord.shared.state.SettingsStore
 import me.lampu.lampcord.shared.state.UserStore
+import me.lampu.lampcord.shared.ui.LocalCurrentUser
 import me.lampu.lampcord.shared.ui.components.AsyncImage
 import me.lampu.lampcord.shared.ui.components.ChannelItem
 import me.lampu.lampcord.shared.ui.components.ChannelSkeleton
@@ -68,15 +76,13 @@ fun GuildChannelList(
     // role and permission updates reach the channel list.
     val liveGuilds by guildStore.guilds.collectAsState()
     val guild = navigationStore.selectedGuild?.let { selected -> liveGuilds.find { it.id == selected.id } ?: selected }
-    val currentUser by userStore.currentUser.collectAsState()
-    val allMembers by userStore.members.collectAsState()
-    
-    val member = remember(guild, currentUser, allMembers) {
-        val g = guild
-        val u = currentUser
-        if (g == null || u == null) null
-        else allMembers[g.id]?.get(u.id)
+    val currentUser = LocalCurrentUser.current
+    val memberState = remember(guild?.id, currentUser?.id) {
+        val guildId = guild?.id
+        val userId = currentUser?.id
+        if (guildId == null || userId == null) null else userStore.memberState(guildId, userId)
     }
+    val member = memberState?.value
     val showHidden = settingsStore.showHiddenChannels
 
     val guildMedia = rememberGuildMediaUrls(
@@ -299,7 +305,7 @@ fun GuildChannelList(
 
                     DropdownMenuItem(
                         modifier = Modifier.handCursor(),
-                        text = { Text("Mark As Read") },
+                        text = { Text(stringResource(Res.string.mark_as_read)) },
                         onClick = { 
                             g?.let { guildStore.markGuildAsRead(it.id) }
                             menuExpanded = false 
@@ -324,7 +330,7 @@ fun GuildChannelList(
                     if (canManageGuild) {
                         DropdownMenuItem(
                             modifier = Modifier.handCursor(),
-                            text = { Text("Server Settings") },
+                            text = { Text(stringResource(Res.string.server_settings)) },
                             onClick = { 
                                 navigationStore.isServerSettingsVisible = true
                                 menuExpanded = false 
@@ -336,7 +342,7 @@ fun GuildChannelList(
                     val errorColor = MaterialTheme.colorScheme.error
                     DropdownMenuItem(
                         modifier = Modifier.handCursor(),
-                        text = { Text("Leave Server", color = errorColor) },
+                        text = { Text(stringResource(Res.string.leave_server), color = errorColor) },
                         onClick = { 
                             showLeaveDialog = true
                             menuExpanded = false 
@@ -347,7 +353,7 @@ fun GuildChannelList(
                         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                         DropdownMenuItem(
                             modifier = Modifier.handCursor(),
-                            text = { Text("Copy ID") },
+                            text = { Text(stringResource(Res.string.copy_id)) },
                             onClick = { 
                                 g?.let { setClipboardText(it.id) }
                                 menuExpanded = false 

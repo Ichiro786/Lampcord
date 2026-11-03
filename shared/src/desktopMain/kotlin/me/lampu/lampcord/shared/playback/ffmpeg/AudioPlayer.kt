@@ -21,13 +21,11 @@ class AudioPlayer(
     @Volatile
     private var isSeeking = false
 
-    private val frameQueue = LinkedBlockingQueue<ByteArray>(15) // ~300ms frame buffer
+    private val frameQueue = LinkedBlockingQueue<ByteArray>(15)
     private val eofSentinel = ByteArray(0)
 
     private var currentVolume = 1.0f
 
-    // prepareFile runs on an IO thread while close() comes from the UI when the attachment is disposed.
-    // A close that lands mid-prepare must not let the finished decoder/renderer be stored, or they leak.
     private val lifecycleLock = Any()
     private var generation = 0L
 
@@ -36,7 +34,6 @@ class AudioPlayer(
         headers: Map<String, String> = emptyMap(),
     ): Boolean = prepareFile(path, headers, startPaused = false).also { prepared -> if (prepared) play() }
 
-    // Initializes the decoder and renderer without starting worker threads when paused. This is used for restoring a paused session without producing any audio first.
     fun prepareFile(
         path: String,
         headers: Map<String, String> = emptyMap(),
@@ -101,7 +98,7 @@ class AudioPlayer(
                         )
                     if (reachedEnd) {
                         while (isRunning && !frameQueue.offer(eofSentinel, 50, TimeUnit.MILLISECONDS)) {
-                            // Wait until the renderer has room for the completion marker.
+
                         }
                     }
                 } catch (_: InterruptedException) {

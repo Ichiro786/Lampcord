@@ -1,5 +1,11 @@
 package me.lampu.lampcord.shared.ui.settings
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.confirm
+import me.lampu.lampcord.shared.generated.resources.logout
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,13 +42,6 @@ private data class Verification(
     val onConfirm: suspend (String) -> Unit
 )
 
-/**
- * Drives the device list and the escalation Discord asks for when signing a session out: a
- * password, then an authenticator code or a backup code.
- *
- * Each step hands the collected credential straight to the next request rather than storing it,
- * so a cancelled dialog leaves nothing behind.
- */
 private class DevicesController(
     private val api: SessionApi,
     private val scope: CoroutineScope
@@ -292,7 +291,7 @@ private fun DeviceSession.toItem(controller: DevicesController) = Material3Setti
     trailingContent = {
         if (!current) {
             TextButton(enabled = !controller.busy, onClick = { controller.logout(this@toItem) }) {
-                Text("Log Out", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(Res.string.logout), color = MaterialTheme.colorScheme.error)
             }
         }
     }
@@ -373,8 +372,8 @@ private fun VerificationSheet(
                         else -> onConfirm(value.trim())
                     }
                 }
-            ) { Text("Confirm") }
+            ) { Text(stringResource(Res.string.confirm)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(Res.string.cancel)) } }
     )
 }

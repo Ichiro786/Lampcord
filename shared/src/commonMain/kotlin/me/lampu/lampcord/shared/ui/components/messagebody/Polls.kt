@@ -44,16 +44,13 @@ fun PollView(
     }
     val isActive = !isExpired && !isFinalized
 
-    // Determine if user has already voted
     val myVotedAnswerIds = remember(currentPoll.results) {
         currentPoll.results?.answer_counts?.filter { it.me_voted }?.map { it.id }?.toSet() ?: emptySet()
     }
     val hasVoted = myVotedAnswerIds.isNotEmpty()
 
-    // Show results mode state (default to showing results if user voted or poll expired)
     var showResults by remember(hasVoted, isExpired) { mutableStateOf(hasVoted || isExpired) }
 
-    // Selected answers state for active voting
     var selectedAnswerIds by remember(myVotedAnswerIds) { mutableStateOf(myVotedAnswerIds) }
     var isSubmitting by remember { mutableStateOf(false) }
 
@@ -75,7 +72,7 @@ fun PollView(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Header: Poll Icon + Label + Multiselect hint + Expiry Duration
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -107,7 +104,6 @@ fun PollView(
 
             Spacer(Modifier.height(8.dp))
 
-            // Question
             Text(
                 text = currentPoll.question.text ?: "Untitled Poll",
                 style = MaterialTheme.typography.titleMedium,
@@ -117,7 +113,6 @@ fun PollView(
 
             Spacer(Modifier.height(12.dp))
 
-            // Options List
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 currentPoll.answers.forEach { answer ->
                     val answerResult = currentPoll.results?.answer_counts?.find { it.id == answer.answer_id }
@@ -127,7 +122,7 @@ fun PollView(
                     val percentage = if (totalVotes > 0) count.toFloat() / totalVotes.toFloat() else 0f
 
                     if (showResults) {
-                        // Results View Mode (Progress Bar + Percentage)
+
                         Surface(
                             shape = RoundedCornerShape(8.dp),
                             color = MaterialTheme.colorScheme.surfaceContainer,
@@ -183,7 +178,7 @@ fun PollView(
                             }
                         }
                     } else {
-                        // Voting Mode (Selectable Option Card)
+
                         Surface(
                             shape = RoundedCornerShape(8.dp),
                             color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surfaceContainer,
@@ -256,7 +251,6 @@ fun PollView(
 
             Spacer(Modifier.height(12.dp))
 
-            // Footer: Vote button / Toggle Results / End Poll
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -274,10 +268,10 @@ fun PollView(
                                     scope.launch {
                                         val channelId = message.channel_id
                                         val messageId = message.id
-                                        
+
                                         val toRemove = myVotedAnswerIds - selectedAnswerIds
                                         val toAdd = selectedAnswerIds - myVotedAnswerIds
-                                        
+
                                         var updatedMsg: Message? = null
                                         for (ansId in toRemove) {
                                             updatedMsg = messageApi.unvotePollAnswer(channelId, messageId, ansId) ?: updatedMsg

@@ -73,7 +73,7 @@ object EmojiIndex {
                 if (charToNames.containsKey(sub)) {
                     return sub to len
                 }
-                // Also check without trailing FE0F
+
                 if (sub.endsWith('\uFE0F')) {
                     val subNoVar = sub.dropLast(1)
                     if (charToNames.containsKey(subNoVar)) {

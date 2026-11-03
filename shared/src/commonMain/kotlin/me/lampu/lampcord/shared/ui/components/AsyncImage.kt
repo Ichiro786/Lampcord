@@ -111,24 +111,11 @@ fun AsyncImage(
 
     val isAnimatedSource = allowAnimation && !reducedMotion && effectiveModel.isAnimated()
 
-    // The shared memory cache is bounded (App.kt), so it stays on everywhere: re-decoding on every scroll back
-    // costs far more than the few MB it can hold per screen.
     val coilRequest = remember(coilContext, effectiveModel, size, allowAnimation, isAnimatedSource) {
         effectiveModel.toCoilData()?.let { data ->
             CoilImageRequest.Builder(coilContext)
                 .data(data)
-                .memoryCacheKey(
-                    if (effectiveModel is ByteArray) null
-                    else "${effectiveModel}@${size ?: 0}#${isAnimatedSource}"
-                )
-                .apply {
-                    if (effectiveModel !is ByteArray) {
-                        placeholderMemoryCacheKey(
-                            "${effectiveModel}@${size ?: 0}#${!isAnimatedSource}"
-                        )
-                    }
-                }
-                .coilCrossfade(!reducedMotion)
+                .coilCrossfade(!reducedMotion && (size == null || size >= 64))
                 .apply { extras[ALLOW_ANIMATION_KEY] = isAnimatedSource }
                 .precision(CoilPrecision.EXACT)
                 .scale(CoilScale.FIT)
@@ -163,8 +150,7 @@ fun AsyncImage(
                             onState?.invoke(ImageLoadState.Success)
                         }
                         is CoilState.Error -> {
-                            // Retry the original under Reduce Motion too: not every GIF host has a .png rendition, and
-                            // isAnimatedSource stays false then, so the original decodes as a still first frame.
+
                             val retryOriginal = !useOriginalModel && staticModel != model
                             if (retryOriginal) {
                                 useOriginalModel = true
@@ -207,7 +193,6 @@ private fun Any?.toStaticDiscordGif(): Any? {
         url.contains("media.discordapp.net", ignoreCase = true)
     if (!isDiscordMedia) return this
 
-    // Custom animated emojis use a WebP URL with animated=true rather than a .gif extension. Ask Discord for the static frame when motion is off.
     if (url.contains(ANIMATED_TRUE_PARAM)) {
         return url.replace(ANIMATED_TRUE_PARAM_VALUE, "${'$'}1false")
     }
@@ -243,13 +228,13 @@ fun ImageLoadingPlaceholder(
     val isDark = colorScheme.surface.luminance() < 0.5f
 
     val base = if (isDark) {
-        colorScheme.surfaceContainerHigh.let { 
-            if (it == Color.Black) Color(0xFF121212) else it 
+        colorScheme.surfaceContainerHigh.let {
+            if (it == Color.Black) Color(0xFF121212) else it
         }
     } else {
         colorScheme.surfaceContainerHigh
     }
-    
+
     val highlight = if (isDark) {
         colorScheme.surfaceVariant.let {
             if (it == Color.Black) Color(0xFF1E1E1E) else it
@@ -258,12 +243,11 @@ fun ImageLoadingPlaceholder(
         colorScheme.surfaceVariant
     }
 
-    // A static placeholder avoids starting one animation clock per image while a Windows message list is loading.
     if (Settings.shared.reduceMotion || remember { getPlatformName() == "windows" }) {
         Box(modifier = modifier.background(base))
         return
     }
-    
+
     val transition = rememberInfiniteTransition(label = "shimmer")
     val progress by transition.animateFloat(
         initialValue = 0f,
@@ -280,7 +264,7 @@ fun ImageLoadingPlaceholder(
             val width = size.width
             val height = size.height
             val xOffset = progress * (width * 2) - width
-            
+
             drawRect(
                 brush = Brush.linearGradient(
                     colors = listOf(base, highlight, base),

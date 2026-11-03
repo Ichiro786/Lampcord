@@ -17,7 +17,7 @@ actual object NetworkMonitor {
             override fun onAvailable(network: Network) { flow.value = hasInternet(manager) }
             override fun onLost(network: Network) { flow.value = hasInternet(manager) }
             override fun onUnavailable() { flow.value = hasInternet(manager) }
-            // Doze, battery saver and data saver block the network without losing it.
+
             override fun onBlockedStatusChanged(network: Network, blocked: Boolean) { flow.value = hasInternet(manager) }
         })
 

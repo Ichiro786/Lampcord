@@ -60,10 +60,6 @@ internal class ApngFrameSource private constructor(
 
         private const val MAX_COMPOSITED_PIXELS = 24_000_000L
 
-        /**
-         * Frames are composited at full size but stored no larger than [maxWidth]x[maxHeight]. Every frame
-         * stays in memory, so a 288px decoration shown at avatar size would otherwise keep tens of MB.
-         */
         fun parse(bytes: ByteArray, maxWidth: Int = Int.MAX_VALUE, maxHeight: Int = Int.MAX_VALUE): ApngFrameSource? {
             if (bytes.size < 8) return null
             for (index in SIGNATURE.indices) {
@@ -162,8 +158,6 @@ internal class ApngFrameSource private constructor(
                 1
             }
 
-            // Each step below allocates full-canvas native pixels. Close intermediates explicitly: their Java
-            // wrappers are tiny, so waiting for the GC would leave several canvases per frame alive at once.
             val canvasBitmap = Bitmap()
 
             if (!canvasBitmap.allocN32Pixels(width, height, false)) {
@@ -217,7 +211,6 @@ internal class ApngFrameSource private constructor(
                     frameImage.close()
                 }
 
-                // copyOf returns an immutable bitmap, so the Image shares its pixels instead of copying them.
                 val snapshot = copyOf(canvasBitmap, outWidth, outHeight)
                 composited += Image.makeFromBitmap(snapshot)
                 snapshot.close()

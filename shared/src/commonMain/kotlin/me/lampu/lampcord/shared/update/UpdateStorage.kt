@@ -63,8 +63,7 @@ internal suspend fun storeDownload(
             sink.write(chunk, 0, read)
             digest.write(chunk, 0, read)
         }
-        // The buffered sink holds the tail of the last chunk, so it has to reach the hasher
-        // before the digest is taken.
+
         digest.flush()
 
         when {

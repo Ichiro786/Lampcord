@@ -42,9 +42,7 @@ class ClientProfileStore(
 
     init {
         loadLocalOverrides()
-        // Each third-party database is only contacted while its toggle is on, and dropped when it is turned off:
-        // the UserBG list alone is hundreds of thousands of ids. Fetches are independent, so one failing source
-        // doesn't take the other down with it.
+
         val bannerUserIds = snapshotFlow { settingsStore.userBg }.distinctUntilChanged()
             .mapLatest { enabled -> if (enabled) fetchUserBg() else LongArray(0) }
             .onStart { emit(LongArray(0)) }
@@ -112,7 +110,7 @@ class ClientProfileStore(
     fun getCustomProfile(userId: String): CustomProfile? {
         val db = _customProfiles.value[userId]
         val local = _localOverrides.value[userId]
-        
+
         return if (local != null) {
             local.copy(
                 banner = if (local.banner != null) local.banner.takeIf { it.isNotEmpty() } else db?.banner,
@@ -171,4 +169,3 @@ fun rememberGuildMediaUrls(
         )
     }
 }
-

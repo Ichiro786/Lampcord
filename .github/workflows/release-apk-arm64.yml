@@ -3,10 +3,24 @@ name: Release APK (arm64-v8a)
 # Builds an optimized (R8, non-debuggable) APK for real-world performance testing. Debug builds
 # run Compose without R8 and with ART debugging on, so they stutter no matter what the code does.
 # Signed with a debug key cached across runs, so each build installs over the previous one.
+# Every build is versioned X.Y.Z-fork.<run number>. Run it by hand with "publish" ticked to put the
+# APK on a GitHub Release of this fork: the in-app updater checks Ichiro786/Lampcord releases.
 on:
   push:
     branches: [ 'fix/**' ]
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish this build as a release (the app will offer it as an update)
+        type: boolean
+        default: true
+      notes:
+        description: What's new (shown in the app's update sheet)
+        type: string
+        default: ''
+
+permissions:
+  contents: write
 
 concurrency:
   group: release-apk-${{ github.ref }}
@@ -68,6 +82,7 @@ jobs:
         # every run, so updates refused to install. Sign explicitly with the cached key instead.
         run: >
           ./gradlew :androidApp:assembleRelease --no-daemon -PvoiceAbis=arm64-v8a
+          -PforkBuild=${{ github.run_number }}
           -Pandroid.injected.signing.store.file=$HOME/.android/debug.keystore
           -Pandroid.injected.signing.store.password=android
           -Pandroid.injected.signing.key.alias=androiddebugkey
@@ -87,8 +102,11 @@ jobs:
           apk="$(ls androidApp/build/outputs/apk/release/*arm64-v8a*.apk | head -n 1)"
           test -f "$apk"
           mkdir -p dist
-          short_sha="$(echo "$GITHUB_SHA" | cut -c1-7)"
-          cp "$apk" "dist/lampcord-release-arm64-v8a-${short_sha}.apk"
+          app_version="$(grep -E '^appVersion=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')"
+          version="${app_version}-fork.${GITHUB_RUN_NUMBER}"
+          # The updater picks the asset whose name contains "android" and reads the version from it.
+          cp "$apk" "dist/lampcord-android-arm64-v8a-${version}.apk"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
           ls -la dist
 
       - name: Upload APK
@@ -97,3 +115,23 @@ jobs:
           name: lampcord-release-arm64-v8a
           path: dist/*.apk
           retention-days: 14
+
+      - name: Publish release
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.apk.outputs.version }}
+          NOTES: ${{ inputs.notes }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "### What's new"
+            if [ -n "$NOTES" ]; then echo "$NOTES"; else git log -1 --pretty=format:'%s' 2>/dev/null || echo "Fork build $VERSION"; fi
+            echo
+            echo "## Build"
+            echo "Branch \`${GITHUB_REF_NAME}\`, commit \`${GITHUB_SHA::7}\`."
+          } > notes.md
+          gh release create "v$VERSION" dist/*.apk \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Lampcord $VERSION" --notes-file notes.md --latest

@@ -37,14 +37,11 @@ class Settings(private val settings: KmpSettings) {
     var reduceMotion by preferenceBoolean("reduce_motion", false)
     var marqueeText by preferenceBoolean("marquee_text", false)
 
-    // Scrolling text is motion too, so Reduce Motion wins over the marquee toggle.
     val marqueeEnabled: Boolean get() = marqueeText && !reduceMotion
     var verboseLogging by preferenceBoolean("verbose_logging", false)
-    var enableSystemWindowFrame by preferenceBoolean("enable_system_window_frame", true)
-    var linuxDefaultFrameApplied by preferenceBoolean("linux_default_frame_applied", false)
-    var waylandDefaultFrameApplied by preferenceBoolean("wayland_default_frame_applied", false)
-    var macDefaultFrameApplied by preferenceBoolean("mac_default_frame_applied", false)
-    var enableWaylandScaling by preferenceBoolean("enable_wayland_scaling", false)
+    var windowWidth by preferenceInt("window_width", 1200)
+    var windowHeight by preferenceInt("window_height", 800)
+    var windowPlacement by preference("window_placement", "floating")
 
     var transparencyMode by preferenceEnum("transparency_mode", TransparencyMode.NONE)
     var enableCustomFonts by preferenceBoolean("enable_custom_fonts", true)
@@ -61,6 +58,8 @@ class Settings(private val settings: KmpSettings) {
     var chatboxFontSize by preferenceFloat("chatbox_font_size", 1.0f)
     var chatboxShowAvatar by preferenceBoolean("chatbox_show_avatar", false)
 
+    var favoritesServerEnabled by preferenceBoolean("favorites_server_enabled", false)
+    var favoriteChannelsJson by preference("favorite_channels_v1", "[]")
     var freeNitroEmojis by preferenceBoolean("free_nitro_emojis", false)
     var realmojis by preferenceBoolean("realmojis", false)
     var compoundRealmojis by preferenceBoolean("compound_realmojis", true)
@@ -117,6 +116,10 @@ class Settings(private val settings: KmpSettings) {
     var textReplaceJson by preference("text_replace_v1", "[]")
 
     var noiseCancellation by preferenceBoolean("noise_cancellation", true)
+    var voiceInputDevice by preference("voice_input_device", "")
+    var voiceOutputDevice by preference("voice_output_device", "")
+    var voiceInputVolume by preferenceFloat("voice_input_volume", 1.0f)
+    var voiceOutputVolume by preferenceFloat("voice_output_volume", 1.0f)
     var httpProxyUrl by preference("http_proxy_url", "")
 
     init {
@@ -209,7 +212,7 @@ class Settings(private val settings: KmpSettings) {
                 settings[key] = value
             }
         }
-    
+
     companion object {
         val shared: Settings by lazy { Settings(createSettings()) }
     }
@@ -220,4 +223,3 @@ enum class MessageSpacingMode {
     DEFAULT,
     SPACIOUS
 }
-

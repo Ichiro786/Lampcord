@@ -9,9 +9,7 @@ actual fun loadFont(
     weight: FontWeight,
     style: FontStyle
 ): Font {
-    // Custom fonts (imported picker files and downloaded theme fonts) are written to the app's
-    // storage directory and addressed by absolute path. Bundled fonts are Compose resources, which
-    // live in the bundle root or under the "compose-resources" directory.
+
     val bytes = if (path.startsWith("/")) {
         readBytes(path)
     } else {

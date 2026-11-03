@@ -19,8 +19,6 @@ actual fun getClipboardFiles(): List<Pair<String, ByteArray>> {
     for (i in 0 until clip.itemCount) {
         val item = clip.getItemAt(i)
 
-        // Copying an image out of a gallery or browser puts it in the clipboard as an Intent
-        // carrying EXTRA_STREAM rather than as a plain uri, so the uri alone is not enough.
         val intentUri = item.intent?.let { intent ->
             @Suppress("DEPRECATION")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

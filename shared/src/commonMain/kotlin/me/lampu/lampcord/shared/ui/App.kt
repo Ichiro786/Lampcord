@@ -7,6 +7,7 @@ import coil3.ImageLoader
 import coil3.PlatformContext as CoilPlatformContext
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
+import coil3.disk.DiskCache
 import coil3.memory.MemoryCache as CoilMemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.crossfade as coilCrossfade
@@ -21,7 +22,9 @@ import me.lampu.lampcord.shared.settings.ThemeMode
 import me.lampu.lampcord.shared.state.*
 import me.lampu.lampcord.shared.ui.theme.LampcordTheme
 import me.lampu.lampcord.shared.utils.ProvideClipboard
+import me.lampu.lampcord.shared.utils.getAppStoragePath
 import me.lampu.lampcord.shared.utils.getPlatformName
+import okio.Path.Companion.toPath
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.koinInject
 
@@ -98,8 +101,14 @@ fun newCoilImageLoader(context: CoilPlatformContext): ImageLoader {
     return ImageLoader.Builder(context)
         .components {
             add(KtorNetworkFetcherFactory(imageHttpClient))
-            // Registered last so they only see what Coil's own decoders passed on.
+
             platformImageDecoders().forEach { add(it) }
+        }
+        .diskCache {
+            DiskCache.Builder()
+                .directory("${getAppStoragePath()}/image_cache".toPath())
+                .maxSizeBytes(256L * 1024 * 1024)
+                .build()
         }
         .memoryCache {
             CoilMemoryCache.Builder()

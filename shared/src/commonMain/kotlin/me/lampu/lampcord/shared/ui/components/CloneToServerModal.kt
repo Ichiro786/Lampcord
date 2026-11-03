@@ -1,5 +1,9 @@
 package me.lampu.lampcord.shared.ui.components
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.cancel
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -62,7 +66,7 @@ fun CloneToServerModal(
                 }
             }
             Spacer(Modifier.height(8.dp))
-            Button(onClick = onDismiss) { Text("Cancel") }
+            Button(onClick = onDismiss) { Text(stringResource(Res.string.cancel)) }
         }
     }
 }

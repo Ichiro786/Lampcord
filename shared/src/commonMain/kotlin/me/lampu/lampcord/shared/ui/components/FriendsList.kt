@@ -1,5 +1,16 @@
 package me.lampu.lampcord.shared.ui.components
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.add_friend
+import me.lampu.lampcord.shared.generated.resources.add_friend_add_manually
+import me.lampu.lampcord.shared.generated.resources.back
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.friend_request_accept
+import me.lampu.lampcord.shared.generated.resources.friend_request_ignore
+import me.lampu.lampcord.shared.generated.resources.friends
+import me.lampu.lampcord.shared.generated.resources.unblock
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +52,7 @@ import me.lampu.lampcord.shared.state.PresenceStore
 import me.lampu.lampcord.shared.state.RelationshipStore
 import me.lampu.lampcord.shared.state.SettingsStore
 import me.lampu.lampcord.shared.state.UserStore
+import me.lampu.lampcord.shared.ui.LocalCurrentUser
 import me.lampu.lampcord.shared.ui.icons.Icons
 import org.koin.compose.koinInject
 
@@ -54,8 +66,7 @@ fun FriendsList(
     navigationStore: NavigationStore = koinInject()
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    // Adding a friend is its own page behind the app bar button rather than a fifth tab: five labels don't
-    // fit a phone-width tab row and wrapped mid-word.
+
     val tabs = listOf("Online", "All", "Pending", "Blocked")
     var showAddFriend by remember { mutableStateOf(false) }
 
@@ -68,18 +79,18 @@ fun FriendsList(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     var isHovered by remember { mutableStateOf(false) }
     val relationships by relationshipStore.relationships.collectAsState()
-    val currentUser by userStore.currentUser.collectAsState()
+    val currentUser = LocalCurrentUser.current
     val userSettings = settingsStore.userSettings
 
     val filteredRelationships = remember(relationships, selectedTab, currentUser, userSettings) {
         when (selectedTab) {
-            0 -> relationships.filter { 
+            0 -> relationships.filter {
                 val userId = it.user?.id ?: it.user_id ?: it.id
-                userId != null && presenceStore.getUserStatus(userId, currentUser?.id, userSettings?.status) != "offline" && it.type == 1 
+                userId != null && presenceStore.getUserStatus(userId, currentUser?.id, userSettings?.status) != "offline" && it.type == 1
             }
             1 -> relationships.filter { it.type == 1 }
-            2 -> relationships.filter { it.type == 3 || it.type == 4 } // Incoming/Outgoing
-            3 -> relationships.filter { it.type == 2 } // Blocked
+            2 -> relationships.filter { it.type == 3 || it.type == 4 }
+            3 -> relationships.filter { it.type == 2 }
             else -> emptyList()
         }
     }
@@ -90,10 +101,10 @@ fun FriendsList(
         topBar = {
             Column {
                 LargeTopAppBar(
-                    title = { Text("Friends") },
+                    title = { Text(stringResource(Res.string.friends)) },
                     navigationIcon = {
                         IconButton(onClick = { navigationStore.isFriendsSelected = false }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.back))
                         }
                     },
                     actions = {
@@ -113,7 +124,7 @@ fun FriendsList(
                         Tab(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },
-                            text = { 
+                            text = {
                                 Text(
                                     title,
                                     style = MaterialTheme.typography.labelLarge,
@@ -195,9 +206,9 @@ fun FriendItem(
     navigationStore: NavigationStore = koinInject()
 ) {
     val user = relationship.user ?: return
-    val currentUser by userStore.currentUser.collectAsState()
+    val currentUser = LocalCurrentUser.current
     val userSettings = settingsStore.userSettings
-    
+
     val status = presenceStore.getUserStatus(user.id, currentUser?.id, userSettings?.status)
     val relationshipType = relationship.type
 
@@ -223,9 +234,9 @@ fun FriendItem(
                     borderColor = MaterialTheme.colorScheme.surface
                 )
             }
-            
+
             Spacer(Modifier.width(16.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = user.global_name ?: user.username ?: "Unknown User",
@@ -238,11 +249,11 @@ fun FriendItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             when (relationshipType) {
                 2 -> {
                     TextButton(onClick = { relationshipStore.unblockUser(user.id) }) {
-                        Text("Unblock")
+                        Text(stringResource(Res.string.unblock))
                     }
                 }
                 3 -> {
@@ -250,16 +261,16 @@ fun FriendItem(
                         onClick = { relationshipStore.addFriend(user.id) },
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Accept")
+                        Text(stringResource(Res.string.friend_request_accept))
                     }
                     Spacer(Modifier.width(8.dp))
                     TextButton(onClick = { relationshipStore.removeFriend(user.id) }) {
-                        Text("Ignore")
+                        Text(stringResource(Res.string.friend_request_ignore))
                     }
                 }
                 4 -> {
                     TextButton(onClick = { relationshipStore.removeFriend(user.id) }) {
-                        Text("Cancel")
+                        Text(stringResource(Res.string.cancel))
                     }
                 }
                 else -> {
@@ -268,7 +279,7 @@ fun FriendItem(
                             Icon(Icons.Filled.Chat, "Message", modifier = Modifier.size(20.dp))
                         }
                         val errorColor = MaterialTheme.colorScheme.error
-                        // The menu opens on long press by default; the ⋮ button should open it on a plain tap.
+
                         var menuRequest by remember { mutableIntStateOf(0) }
                         ContextMenu(
                             openRequest = menuRequest,
@@ -299,10 +310,10 @@ private fun AddFriendPage(onBack: () -> Unit) {
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
-                title = { Text("Add Friend") },
+                title = { Text(stringResource(Res.string.add_friend)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.back))
                     }
                 }
             )
@@ -318,7 +329,7 @@ private fun AddFriendPage(onBack: () -> Unit) {
 fun AddFriendUI(relationshipStore: RelationshipStore = koinInject()) {
     var query by remember { mutableStateOf("") }
     var statusText by remember { mutableStateOf<String?>(null) }
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -334,9 +345,9 @@ fun AddFriendUI(relationshipStore: RelationshipStore = koinInject()) {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(Modifier.height(16.dp))
-        
+
         OutlinedTextField(
             value = query,
             onValueChange = { query = it },
@@ -355,11 +366,11 @@ fun AddFriendUI(relationshipStore: RelationshipStore = koinInject()) {
                     modifier = Modifier.padding(end = 8.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Send Friend Request")
+                    Text(stringResource(Res.string.add_friend_add_manually))
                 }
             }
         )
-        
+
         statusText?.let {
             Spacer(Modifier.height(12.dp))
             Text(

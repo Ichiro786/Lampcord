@@ -1,5 +1,9 @@
 package me.lampu.lampcord.shared.ui.components
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.back
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,14 +50,14 @@ import org.koin.compose.koinInject
 
 @Composable
 fun ThreadPanel(
-    onDismiss: () -> Unit = { me.lampu.lampcord.shared.settings.Settings.shared.let { /* fallback */ } },
+    onDismiss: () -> Unit = { me.lampu.lampcord.shared.settings.Settings.shared.let {  } },
     navigationStore: NavigationStore = koinInject(),
     guildStore: GuildStore = koinInject(),
     channelApi: ChannelApi = koinInject()
 ) {
     val parentChannel = navigationStore.selectedChannel ?: return
     val allChannels by guildStore.allGuildChannels.collectAsState()
-    
+
     val activeThreads = remember(parentChannel.id, allChannels.size) {
         allChannels.values.filter { it.parent_id == parentChannel.id && it.type in listOf(10, 11, 12) && it.thread_metadata?.archived != true }
             .sortedByDescending { it.lastMessageId() ?: it.id }
@@ -82,17 +86,17 @@ fun ThreadPanel(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { 
-                    if (isMobile) onDismiss() else navigationStore.isThreadPanelVisible = false 
+                IconButton(onClick = {
+                    if (isMobile) onDismiss() else navigationStore.isThreadPanelVisible = false
                 }) {
                     Icon(
                         imageVector = if (isMobile) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.Close,
-                        contentDescription = "Back"
+                        contentDescription = stringResource(Res.string.back)
                     )
                 }
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "Threads", 
+                    text = "Threads",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )

@@ -175,9 +175,7 @@ class GatewayManager(
                         header("Origin", "https://discord.com")
                         header("Accept-Language", "en-US,en;q=0.9")
                         header("Cache-Control", "no-cache")
-                        // The gateway is idle between heartbeats (every ~41s), so the HTTP
-                        // socket read timeout must not apply. Liveness is tracked by the
-                        // heartbeat ACK handler instead.
+
                         timeout {
                             socketTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS
                         }
@@ -599,13 +597,6 @@ class GatewayManager(
         enqueue(payload)
     }
 
-    /**
-     * Asks the gateway for members whose username or nickname matches [query].
-     *
-     * Search only covers what the client already holds, so a user who has never been cached —
-     * an offline member, typically — is invisible until they are pulled in here. The reply
-     * arrives as GUILD_MEMBERS_CHUNK.
-     */
     fun requestGuildMembers(
         guildId: String,
         query: String? = null,

@@ -37,7 +37,7 @@ fun VideoSlider(
             PlayerSliderTrack(
                 sliderState = sliderState,
                 bufferedFraction = bufferedFraction,
-                trackHeight = 16.dp, // Shorter as requested
+                trackHeight = 16.dp,
                 colors = SliderDefaults.colors(
                     activeTrackColor = MaterialTheme.colorScheme.primary,
                     inactiveTrackColor = Color.White.copy(alpha = 0.24f)
@@ -110,7 +110,7 @@ private fun DrawScope.drawTrack(
     val isRtl = layoutDirection == LayoutDirection.Rtl
     val trackWidth = size.width
     val trackHeightPx = trackHeight.toPx()
-    val cornerRadius = CornerRadius(4.dp.toPx()) // Proportional rounding
+    val cornerRadius = CornerRadius(4.dp.toPx())
 
     drawRoundRect(
         color = inactiveTrackColor,

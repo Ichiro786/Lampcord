@@ -43,7 +43,7 @@ fun ForwardedMessage(
 ) {
     val snapshot = message.message_snapshots?.firstOrNull() ?: return
     val msg = snapshot.message
-    
+
     Column(
         modifier = Modifier
             .padding(start = 4.dp, top = 4.dp)
@@ -77,7 +77,7 @@ fun ForwardedMessage(
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }
-        
+
         DiscordMarkdownText(
             content = msg.previewText,
             style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp)
@@ -97,13 +97,13 @@ fun ForwardedMessage(
             val guildId = reference.guild_id
             val channelId = reference.channel_id
             val canLink = channelId != null
-            
+
             val guilds by guildStore.guilds.collectAsState()
             val allChannels by guildStore.allGuildChannels.collectAsState()
             val privateChannels by guildStore.privateChannels.collectAsState()
 
             val guild = guildId?.let { id -> guilds.firstOrNull { it.id == id } }
-            
+
             Surface(
                 onClick = {
                     if (canLink) {
@@ -115,7 +115,7 @@ fun ForwardedMessage(
                             }
                         } else {
                             val dm = privateChannels.firstOrNull { it.id == channelId }
-                            dm?.let { 
+                            dm?.let {
                                 navigationStore.selectHome()
                                 navigationStore.selectChannel(it)
                             }
@@ -148,14 +148,14 @@ fun ForwardedMessage(
                                 }
                             }
                         }
-                        
+
                         Text(
                             text = guild.name ?: "Unknown Server",
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     } else {
-                        // Fallback to "Direct Message" or similar if it's not a guild
+
                         Icon(
                             imageVector = Icons.Rounded.AlternateEmail,
                             contentDescription = null,
@@ -168,23 +168,23 @@ fun ForwardedMessage(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    
+
                     Text(
                         text = " • ",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
-                    
+
                     val timeStr = remember(msg.timestamp) {
                         if (msg.timestamp.isEmpty()) "" else DateTimeUtils.formatTimestamp(msg.timestamp)
                     }
-                    
+
                     Text(
                         text = timeStr,
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
-                    
+
                     if (canLink) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,

@@ -91,7 +91,7 @@ internal fun Map<String, String>.toIncomingNotificationData(): IncomingNotificat
             else -> null
         },
         isDm = guildId == null,
-        // A push only exists because the server decided this mention is worth sending.
+
         isMention = true,
         pushType = pushType
     )

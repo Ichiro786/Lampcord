@@ -49,7 +49,7 @@ from pathlib import Path
 try:
     from fontTools.pens.basePen import BasePen
     from fontTools.ttLib import TTFont
-except ImportError:  # pragma: no cover
+except ImportError:
     sys.exit("This script needs fonttools. Install it with: pip install fonttools")
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -58,9 +58,6 @@ FONT_DIR = Path(__file__).resolve().parent / ".fonts"
 
 REPO = "https://github.com/google/material-design-icons/raw/master/variablefont"
 
-# The Material Symbols variable fonts served on fonts.google.com/icons. The repo
-# ships no separate "Filled" font file; "filled" is the Outlined font with the
-# FILL axis baked in (see DEFAULT_FILL).
 STYLE_FONTS = {
     "filled": "MaterialSymbolsOutlined[FILL,GRAD,opsz,wght].ttf",
     "outlined": "MaterialSymbolsOutlined[FILL,GRAD,opsz,wght].ttf",
@@ -85,26 +82,19 @@ OBJECT_NAMES = {
     "sharp": "IconsSharp",
 }
 
-# The "Filled" style means the FILL axis baked in. Outlined/Rounded/Sharp use the
-# default FILL=0 instance.
 DEFAULT_FILL = {
     "filled": 1.0,
     "rounded_filled": 1.0,
 }
 
-# Classic Material Icons names that no longer exist as glyphs in the current
-# Material Symbols font, mapped to the current equivalent glyph.
 LEGACY_GLYPHS = {
-    "Clear": "close",                # X shape -> current "close"
-    "FavoriteBorder": "favorite",    # border heart -> FILL=0 "favorite"
-    "NewReleases": "release_alert",  # burst badge + checkmark
+    "Clear": "close",
+    "FavoriteBorder": "favorite",
+    "NewReleases": "release_alert",
     "NotificationsNone": "notifications",
     "PeopleOutline": "group",
 }
 
-# Icons Google marks as auto-mirrored (they flip in RTL layouts). The AutoMirrored
-# facade objects in LampcordIcons.kt are hand-maintained; this list only drives a
-# reminder when you add one of these.
 AUTO_MIRRORED = {
     "arrow_back", "arrow_back_ios", "arrow_back_ios_new", "arrow_forward",
     "arrow_forward_ios", "arrow_left", "arrow_right", "arrow_right_alt",
@@ -116,7 +106,6 @@ AUTO_MIRRORED = {
     "undo", "volume_down", "volume_mute", "volume_off", "volume_up",
 }
 
-
 def icon_to_glyph(name: str) -> str:
     """AccountCircle -> account_circle ; BarChart4Bars -> bar_chart_4_bars."""
     s = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", name)
@@ -124,10 +113,8 @@ def icon_to_glyph(name: str) -> str:
     s = re.sub(r"(?<=[a-z])(?=[0-9])", "_", s)
     return s.lower()
 
-
 def glyph_for(name: str) -> str:
     return LEGACY_GLYPHS.get(name, icon_to_glyph(name))
-
 
 class CompactPen(BasePen):
     """BasePen emitting absolute path data in the compact 960-grid format used by the
@@ -177,9 +164,7 @@ class CompactPen(BasePen):
     def path(self) -> str:
         return "".join(self.commands)
 
-
 _font_cache: dict[tuple[str, float | None], TTFont] = {}
-
 
 def get_font(style: str, fill: float | None, glyphs: set[str] | None = None) -> TTFont:
     """Download (once, cached) and load the variable font for a style.
@@ -221,22 +206,15 @@ def get_font(style: str, fill: float | None, glyphs: set[str] | None = None) -> 
     _font_cache[key] = font
     return font
 
-
 def extract_glyph(font: TTFont, glyph: str) -> str:
     pen = CompactPen(font.getGlyphSet())
     font.getGlyphSet()[glyph].draw(pen)
     return pen.path()
 
-
-# ---------------------------------------------------------------------------
-# Existing-file parsing / writing
-# ---------------------------------------------------------------------------
-
 _ENTRY_RE = re.compile(
     r"internal const val (\w+)_Path = \"([^\"]+)\"",
     re.MULTILINE
 )
-
 
 def parse_existing(path: Path) -> dict[str, str]:
     """Return {iconName: pathData} for a generated LampcordIcons*.kt file."""
@@ -244,7 +222,6 @@ def parse_existing(path: Path) -> dict[str, str]:
         return {}
     text = path.read_text()
     return dict(_ENTRY_RE.findall(text))
-
 
 def write_file(style: str, entries: dict[str, str]) -> None:
     out_path = ICON_DIR / OUTPUT_FILES[style]
@@ -272,17 +249,10 @@ def write_file(style: str, entries: dict[str, str]) -> None:
     out_path.write_text("\n".join(lines) + "\n")
     print(f"[*] Wrote {out_path.relative_to(ROOT)} ({len(entries)} icons)")
 
-
-# ---------------------------------------------------------------------------
-# Geometry comparison
-# ---------------------------------------------------------------------------
-
 _TOKEN_RE = re.compile(r"[a-zA-Z]|-?\d*\.?\d+(?:[eE][+-]?\d+)?")
-
 
 def _fmt(v: float) -> str:
     return f"{v:.3f}".rstrip("0").rstrip(".")
-
 
 def normalize_path(path: str) -> str:
     """Expand SVG path data to absolute M/L/Q/C/Z only, for geometry comparison.
@@ -296,7 +266,7 @@ def normalize_path(path: str) -> str:
     i = 0
     cur = (0.0, 0.0)
     start = (0.0, 0.0)
-    last_ctrl: tuple[float, float] | None = None  # previous Q/C control point
+    last_ctrl: tuple[float, float] | None = None
 
     def nums(n: int) -> list[float]:
         nonlocal i
@@ -313,7 +283,7 @@ def normalize_path(path: str) -> str:
         cmd = tokens[i]
         i += 1
         if cmd in ("Z", "z"):
-            # A line that ends exactly at the start point is redundant before Z.
+
             if out and out[-1][0] == "L" and cur == start:
                 out.pop()
             out.append("Z")
@@ -330,7 +300,7 @@ def normalize_path(path: str) -> str:
             start = cur
             out.append(f"M{_fmt(x)} {_fmt(y)}")
             last_ctrl = None
-            # Implicit lineto pairs after an M
+
             while is_num():
                 x, y = nums(2)
                 if rel:
@@ -410,16 +380,14 @@ def normalize_path(path: str) -> str:
             raise ValueError(f"Unknown path command {cmd}")
     return " ".join(out)
 
-
 def _seg_pts(seg: tuple) -> tuple[tuple[str, str], ...]:
     """All coordinate points of a segment tuple (M/L: 1, Q: 2, C: 3)."""
     return tuple(zip(seg[1::2], seg[2::2]))
 
-
 def _reversed_subpath(sub: tuple) -> tuple:
     """The same geometric subpath traversed in the opposite direction."""
     start = sub[0][1:]
-    pts = [seg[1:] for seg in sub]  # pts[i] = endpoint of segment i
+    pts = [seg[1:] for seg in sub]
     rev = [("M",) + pts[-1]]
     for i in range(len(sub) - 1, 0, -1):
         seg = sub[i]
@@ -431,7 +399,6 @@ def _reversed_subpath(sub: tuple) -> tuple:
         elif seg[0] == "C":
             rev.append(("C", seg[3], seg[4], seg[1], seg[2]) + prev)
     return tuple(rev)
-
 
 def canonical_path(path: str) -> frozenset:
     """Render-equivalent canonical key for a path.
@@ -480,20 +447,14 @@ def canonical_path(path: str) -> frozenset:
             continue
         start = sub[0][1:]
         if all(seg[1:] == start for seg in sub[1:]):
-            continue  # zero-area subpath (e.g. repeated single point)
+            continue
         keys.add(min(sub, _reversed_subpath(sub)))
     return frozenset(keys)
-
-
-# ---------------------------------------------------------------------------
-# Commands
-# ---------------------------------------------------------------------------
 
 def _resolve_fill(style: str, fill: float | None) -> float | None:
     if fill is not None:
         return fill
     return DEFAULT_FILL.get(style)
-
 
 def verify(styles: list[str], fill: float | None) -> int:
     total = mismatches = missing = legacy_kept = 0
@@ -536,7 +497,6 @@ def verify(styles: list[str], fill: float | None) -> int:
     print(f"\n{total} icons checked, {mismatches} mismatched, {missing} missing, {legacy_kept} legacy-kept")
     return mismatches + missing
 
-
 def regen(styles: list[str], fill: float | None) -> int:
     problems = 0
     for style in styles:
@@ -574,7 +534,6 @@ def regen(styles: list[str], fill: float | None) -> int:
             problems += len(kept)
     return problems
 
-
 def add_icons(style: str, names: list[str], fill: float | None) -> int:
     out_path = ICON_DIR / OUTPUT_FILES[style]
     if out_path is None:
@@ -602,10 +561,9 @@ def add_icons(style: str, names: list[str], fill: float | None) -> int:
                 "AutoMirrored object in LampcordIcons.kt if needed."
             )
     if changed:
-        # Keep entries alphabetically sorted (matches how new icons are expected).
+
         write_file(style, dict(sorted(entries.items())))
     return changed
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -631,7 +589,6 @@ def main() -> None:
         sys.exit(1 if regen(args.style, args.fill) else 0)
     else:
         sys.exit(1 if verify(args.style, args.fill) else 0)
-
 
 if __name__ == "__main__":
     main()

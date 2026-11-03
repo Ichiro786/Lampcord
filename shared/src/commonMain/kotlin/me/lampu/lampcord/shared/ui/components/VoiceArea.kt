@@ -1,5 +1,10 @@
 package me.lampu.lampcord.shared.ui.components
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.form_label_muted
+import me.lampu.lampcord.shared.generated.resources.voice_channel_deafened
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.BorderStroke
@@ -238,14 +243,14 @@ private fun VoiceParticipantTile(
                 if (state.self_deaf || state.deaf) {
                     Icon(
                         Icons.Filled.HeadsetOff,
-                        contentDescription = "Deafened",
+                        contentDescription = stringResource(Res.string.voice_channel_deafened),
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.error
                     )
                 } else if (state.self_mute || state.mute) {
                     Icon(
                         Icons.Filled.MicOff,
-                        contentDescription = "Muted",
+                        contentDescription = stringResource(Res.string.form_label_muted),
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.error
                     )

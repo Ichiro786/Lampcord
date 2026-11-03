@@ -1,12 +1,19 @@
 @file:OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3ExpressiveApi::class)
-
 package me.lampu.lampcord.shared.ui.components.chat
 
-import androidx.compose.animation.animateContentSize
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.create
+import me.lampu.lampcord.shared.generated.resources.delete
+import me.lampu.lampcord.shared.generated.resources.message_action_reply
+import me.lampu.lampcord.shared.generated.resources.retry
+import me.lampu.lampcord.shared.generated.resources.thread_name
+import org.jetbrains.compose.resources.stringResource
+
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
@@ -18,6 +25,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitHorizontalTouchSlopOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -88,6 +96,8 @@ import me.lampu.lampcord.shared.ui.components.ContextMenu
 import me.lampu.lampcord.shared.ui.components.ContextMenuItem
 import me.lampu.lampcord.shared.ui.components.DiscordMarkdownText
 import me.lampu.lampcord.shared.ui.components.EmojiPicker
+import me.lampu.lampcord.shared.ui.LocalCurrentUser
+import me.lampu.lampcord.shared.ui.LocalGuilds
 import me.lampu.lampcord.shared.ui.components.AsyncImage
 import me.lampu.lampcord.shared.ui.components.chat.ReactionPickerSheet
 import me.lampu.lampcord.shared.ui.components.ForwardedMessage
@@ -138,13 +148,14 @@ fun MessageItem(
     }
 
     var isHovered by remember { mutableStateOf(false) }
+    var isPressed by remember { mutableStateOf(false) }
     var showReactionPicker by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showCreateThreadDialog by remember { mutableStateOf(false) }
     var showMessageContextMenu by remember { mutableStateOf(false) }
     var messageLongPressRequest by remember { mutableStateOf(0) }
-    
-    val currentUser by userStore.currentUser.collectAsState()
+
+    val currentUser = LocalCurrentUser.current
     val userSettings = settingsStore.userSettings
     val scope = rememberCoroutineScope()
 
@@ -158,17 +169,10 @@ fun MessageItem(
         if (authorId == currentUser?.id) currentUser ?: message.author else message.author
     }
 
-    // Observe only this author's member entry. Collecting the whole all-guild members map made
-    // every visible message recompose on any member or presence update anywhere.
-    val cachedAuthorMember by remember(guildId, authorId) {
-        userStore.members
-            .map { all -> if (guildId != null && authorId != null) all[guildId]?.get(authorId) else null }
-            .distinctUntilChanged()
-    }.collectAsState(
-        initial = if (guildId != null && authorId != null) userStore.getMember(guildId, authorId) else null
-    )
-
-    val member = message.member ?: cachedAuthorMember
+    val memberState = remember(guildId, authorId) {
+        if (guildId != null && authorId != null) userStore.memberState(guildId, authorId) else null
+    }
+    val member = message.member ?: memberState?.value
 
     LaunchedEffect(authorId, guildId) {
         if (authorId != null && guildId != null && message.member == null) {
@@ -184,16 +188,9 @@ fun MessageItem(
         }
     }
 
-    val selectedGuildId = navigationStore.selectedGuild?.id
-    val currentUserId = currentUser?.id
-    val currentMemberState by remember(selectedGuildId, currentUserId) {
-        userStore.members
-            .map { all -> if (selectedGuildId != null && currentUserId != null) all[selectedGuildId]?.get(currentUserId) else null }
-            .distinctUntilChanged()
-    }.collectAsState(
-        initial = if (selectedGuildId != null && currentUserId != null) userStore.getMember(selectedGuildId, currentUserId) else null
-    )
-    val currentMember = currentMemberState
+    val currentMember = navigationStore.selectedGuild?.id?.let { guildId ->
+        currentUser?.id?.let { userId -> userStore.memberState(guildId, userId).value }
+    }
 
     val cAuthor = author
     val cMember = member
@@ -208,7 +205,6 @@ fun MessageItem(
     val canManageMessages = if (guild == null || currentMember == null) false
         else PermissionHelper.hasPermission(currentMember, guild, channel, Permission.MANAGE_MESSAGES, currentUser?.id)
 
-
     val contextMenuItems = remember(message, currentUser, userSettings, priorMessage, currentMember, canAddReaction, cAuthor) {
         if (message.isPending) {
             return@remember listOf(
@@ -220,17 +216,17 @@ fun MessageItem(
             else PermissionHelper.hasPermission(currentMember, guild, channel, Permission.MANAGE_THREADS, currentUser?.id)
 
         val items = mutableListOf<ContextMenuItem>()
-        
+
         if (isMe) {
             items.add(ContextMenuItem("Edit Message", Icons.Filled.Edit, onClick = { messageStore.editingMessage = message }, group = "Primary"))
         }
 
         items.add(ContextMenuItem("Reply", Icons.Rounded.Reply, onClick = { messageStore.replyingTo = message }, group = "Primary"))
         items.add(ContextMenuItem("Forward", Icons.Filled.Forward, onClick = { navigationStore.forwardingMessage = message }, group = "Primary"))
-        
+
         cAuthor?.let { a ->
-            items.add(ContextMenuItem("Profile", Icons.Filled.AccountCircle, onClick = { 
-                profileStore.showProfile(a.id, guildId) 
+            items.add(ContextMenuItem("Profile", Icons.Filled.AccountCircle, onClick = {
+                profileStore.showProfile(a.id, guildId)
             }, group = "Primary"))
         }
 
@@ -287,10 +283,7 @@ fun MessageItem(
     val isMentioned = remember(message, currentUser, currentMember) { if (message.isPending) false else messageStore.isMessageMentioningMe(message, currentUser, currentMember) }
 
     val reduceMotion = Settings.shared.reduceMotion
-    val messageAlpha by animateFloatAsState(
-        if (message.isPending) 0.5f else 1f,
-        animationSpec = if (reduceMotion) snap() else spring()
-    )
+    val messageAlpha = if (message.isPending) 0.5f else 1f
 
     val isInline = priorMessage != null
     val useBubbles = settingsStore.chatBubbles
@@ -304,7 +297,7 @@ fun MessageItem(
         val currentType = message.type ?: 0
         val nextType = nextMessage.type ?: 0
         if ((currentType != 0 && currentType != 19) || (nextType != 0 && nextType != 19)) return@remember false
-        
+
         try {
             val currentTs = Instant.parse(message.timestamp)
             val nextTs = Instant.parse(nextMessage.timestamp)
@@ -325,7 +318,7 @@ fun MessageItem(
         }
     }
     val isHighlighted = messageStore.highlightedMessageId == message.id
-    
+
     val tapTapMode = remember { me.lampu.lampcord.shared.settings.Settings.shared.tapTap }
     val gestureMode = remember { me.lampu.lampcord.shared.settings.Settings.shared.swipeToReplyEnabled }
     val offsetX = remember { Animatable(0f) }
@@ -346,93 +339,108 @@ fun MessageItem(
             .fillMaxWidth()
             .onSizeChanged { swipeWidthPx = it.width.toFloat() }
             .zIndex(if (isHovered || showReactionPicker) 10f else 1f)
-            .pointerInput(message.id, gestureMode, swipeThresholdPx) {
+            .then(
                 if (!isPreview && gestureMode) {
-                    // Direct manipulation: the row follows the finger 1:1 and snaps back on
-                    // release, replying when dragged past the trigger distance. The gesture only
-                    // claims leftward drags so rightward swipes still fall through to the
-                    // channel/member panels, matching Discord's swipe-to-reply.
-                    awaitEachGesture {
-                        val down = awaitFirstDown(requireUnconsumed = false)
-                        val dragStart = awaitHorizontalTouchSlopOrCancellation(down.id) { change, _ ->
-                            if (change.position.x < down.position.x) {
-                                change.consume()
-                            }
-                        } ?: return@awaitEachGesture
-
-                        var lastX = dragStart.position.x
-                        scope.launch {
-                            offsetX.snapTo((offsetX.value + lastX - down.position.x).coerceIn(-swipeMaxPx, 0f))
-                        }
-                        while (true) {
-                            val event = awaitPointerEvent()
-                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
-                            if (!change.pressed) break
-                            val dx = change.position.x - lastX
-                            lastX = change.position.x
-                            if (dx != 0f) {
-                                scope.launch {
-                                    offsetX.snapTo((offsetX.value + dx).coerceIn(-swipeMaxPx, 0f))
+                    Modifier.pointerInput(message.id, swipeThresholdPx) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            val dragStart = awaitHorizontalTouchSlopOrCancellation(down.id) { change, _ ->
+                                if (change.position.x < down.position.x) {
+                                    change.consume()
                                 }
+                            } ?: return@awaitEachGesture
+
+                            var lastX = dragStart.position.x
+                            scope.launch {
+                                offsetX.snapTo((offsetX.value + lastX - down.position.x).coerceIn(-swipeMaxPx, 0f))
                             }
-                            change.consume()
-                        }
-
-                        val shouldReply = offsetX.value <= -swipeThresholdPx
-                        scope.launch {
-                            if (shouldReply) messageStore.replyingTo = message
-                            offsetX.animateTo(0f, swipeBackSpec)
-                        }
-                    }
-                }
-            }
-            .pointerInput(message.id, tapTapMode) {
-                if (!isPreview && tapTapMode != me.lampu.lampcord.shared.settings.TapTapAction.DISABLED) {
-                    detectTapGestures(
-                        onLongPress = if (getPlatformName() == "android") {
-                            { _ -> messageLongPressRequest++ }
-                        } else null,
-                        onDoubleTap = {
-                            val isMe = message.author?.id == currentUser?.id
-
-                            when (tapTapMode) {
-                                TapTapAction.REPLY_OR_EDIT -> {
-                                    if (isMe) {
-                                        messageStore.editingMessage = message
-                                    } else {
-                                        messageStore.replyingTo = message
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                                if (!change.pressed) break
+                                val dx = change.position.x - lastX
+                                lastX = change.position.x
+                                if (dx != 0f) {
+                                    scope.launch {
+                                        offsetX.snapTo((offsetX.value + dx).coerceIn(-swipeMaxPx, 0f))
                                     }
                                 }
-                                TapTapAction.EMOJI_PICKER -> if (canAddReaction) { showReactionPicker = true }
-                                TapTapAction.DELETE_MESSAGE -> if (isMe || canManageMessages) { messageStore.deleteMessage(message) }
+                                change.consume()
+                            }
 
+                            val shouldReply = offsetX.value <= -swipeThresholdPx
+                            scope.launch {
+                                if (shouldReply) messageStore.replyingTo = message
+                                offsetX.animateTo(0f, swipeBackSpec)
                             }
                         }
-                    )
-                }
-            }
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        when (event.type) {
-                            PointerEventType.Enter -> isHovered = true
-                            PointerEventType.Exit -> isHovered = false
+                    }
+                } else Modifier
+            )
+            .then(
+                if (!isPreview && tapTapMode != TapTapAction.DISABLED) {
+                    Modifier.pointerInput(message.id, tapTapMode) {
+                        detectTapGestures(
+                            onLongPress = if (getPlatformName() == "android") {
+                                { _ -> messageLongPressRequest++ }
+                            } else null,
+                            onDoubleTap = {
+                                val isMe = message.author?.id == currentUser?.id
+
+                                when (tapTapMode) {
+                                    TapTapAction.REPLY_OR_EDIT -> {
+                                        if (isMe) {
+                                            messageStore.editingMessage = message
+                                        } else {
+                                            messageStore.replyingTo = message
+                                        }
+                                    }
+                                    TapTapAction.EMOJI_PICKER -> if (canAddReaction) { showReactionPicker = true }
+                                    TapTapAction.DELETE_MESSAGE -> if (isMe || canManageMessages) { messageStore.deleteMessage(message) }
+                                }
+                            }
+                        )
+                    }
+                } else Modifier
+            )
+            .then(
+                if (getPlatformName() != "android" && getPlatformName() != "ios") {
+                    Modifier.pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                when (event.type) {
+                                    PointerEventType.Enter -> isHovered = true
+                                    PointerEventType.Exit -> isHovered = false
+                                }
+                            }
                         }
                     }
-                }
-            }
-            .graphicsLayer(clip = false) // Allow actions to draw outside if parent row allows
+                } else Modifier
+            )
+            .then(
+                if (!isPreview) {
+                    Modifier.pointerInput(message.id) {
+                        awaitEachGesture {
+                            awaitFirstDown(requireUnconsumed = false)
+                            isPressed = true
+                            try {
+                                waitForUpOrCancellation()
+                            } finally {
+                                isPressed = false
+                            }
+                        }
+                    }
+                } else Modifier
+            )
     ) {
         val guildId = message.guild_id ?: navigationStore.selectedGuild?.id
 
-        // Reply affordance revealed from the right edge as the row is dragged left, growing and
-        // turning accent-coloured once the swipe passes the trigger distance.
         val swipeProgress = (-offsetX.value / swipeThresholdPx).coerceIn(0f, 1f)
         if (swipeProgress > 0f) {
             Icon(
                 imageVector = Icons.Rounded.Reply,
-                contentDescription = "Reply",
+                contentDescription = stringResource(Res.string.message_action_reply),
                 tint = if (swipeProgress >= 1f) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
@@ -448,23 +456,26 @@ fun MessageItem(
             )
         }
 
+        val messageBackground by animateColorAsState(
+            targetValue = when {
+                isHighlighted -> MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                isMentioned -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
+                message.isDeleted -> MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
+                isPressed -> MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.65f)
+                isHovered || showReactionPicker -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.12f)
+                message.sendError != null -> MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
+                else -> Color.Transparent
+            },
+            animationSpec = if (reduceMotion) snap() else tween(durationMillis = 120),
+            label = "messageBackground"
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetX.value.roundToInt(), 0) }
-                .background(
-                    color = when {
-                        isHighlighted -> MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                        isMentioned -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
-                        message.isDeleted -> MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
-                        isHovered || showReactionPicker -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.12f)
-                        message.sendError != null -> MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
-                        else -> Color.Transparent
-                    }
-                )
+                .background(color = messageBackground)
                 .alpha(messageAlpha)
-                .animateContentSize(animationSpec = if (reduceMotion) snap() else spring())
-                .graphicsLayer(clip = false)
         ) {
             if (isMentioned || message.isDeleted) {
                 val barColor = if (message.isDeleted) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
@@ -549,7 +560,7 @@ fun MessageItem(
                                 }
                             }
                             IconButton(
-                                onClick = { 
+                                onClick = {
                                     showReactionPicker = true
                                     onDismiss()
                                 },
@@ -565,7 +576,7 @@ fun MessageItem(
                 respectChildGestures = true,
                 openRequest = messageLongPressRequest
             ) {
-                val guilds by guildStore.guilds.collectAsState()
+                val guilds = LocalGuilds.current
                 val roleData = remember(message, guilds, navigationStore.selectedGuild, cAuthor, cMember) {
                     val guild = (if (message.guild_id != null) guilds.find { it.id == message.guild_id } else null)
                         ?: navigationStore.selectedGuild
@@ -591,7 +602,7 @@ fun MessageItem(
 
                 val roleColor = roleData?.first ?: Color.Unspecified
                 val roleGradient = roleData?.second
-                
+
                 val displayColor = if (roleColor == Color.Unspecified) MaterialTheme.colorScheme.onSurface else roleColor
 
                 @Composable
@@ -602,7 +613,7 @@ fun MessageItem(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(bottom = 2.dp)
                         ) {
-                            var namePosition by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+                            val namePosition = remember { floatArrayOf(0f, 0f) }
                             UsernameView(
                                 name = cMember?.nick ?: cAuthor.global_name ?: cAuthor.username ?: "Unknown User",
                                 style = cMember?.display_name_styles ?: cAuthor.display_name_styles,
@@ -615,8 +626,18 @@ fun MessageItem(
                                 roleGradient = roleGradient,
                                 overflow = TextOverflow.Clip,
                                 modifier = Modifier
-                                    .onGloballyPositioned { namePosition = it.positionInRoot() }
-                                    .clickableCursor(enabled = !isPreview) { profileStore.showProfile(cAuthor.id, guildId, namePosition) },
+                                    .onGloballyPositioned {
+                                        val position = it.positionInRoot()
+                                        namePosition[0] = position.x
+                                        namePosition[1] = position.y
+                                    }
+                                    .clickableCursor(enabled = !isPreview) {
+                                        profileStore.showProfile(
+                                            cAuthor.id,
+                                            guildId,
+                                            androidx.compose.ui.geometry.Offset(namePosition[0], namePosition[1])
+                                        )
+                                    },
                                 ignoreEffects = !isHovered,
                                 ignoreColors = false
                             )
@@ -637,7 +658,7 @@ fun MessageItem(
                                 else MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (useBubbles) 0.7f else 0.5f)
                             )
-                            
+
                             if (message.isDeleted) {
                                 Spacer(Modifier.width(8.dp))
                                 Text(
@@ -649,7 +670,7 @@ fun MessageItem(
                             }
                         }
                     }
-                    
+
                     val hasSnapshots = !message.message_snapshots.isNullOrEmpty()
                     val snapshotContent = message.message_snapshots?.firstOrNull()?.message?.content
                     val isDuplicateForward = hasSnapshots && message.content.trim() == snapshotContent?.trim()
@@ -767,7 +788,7 @@ fun MessageItem(
                                 ) {
                                     if (cAuthor != null) {
                                         val isDm = message.guild_id == null && navigationStore.selectedGuild == null
-                                        var namePosition by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+                                        val namePosition = remember { floatArrayOf(0f, 0f) }
 
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
@@ -781,8 +802,18 @@ fun MessageItem(
                                                 roleGradient = roleGradient,
                                                 overflow = TextOverflow.Clip,
                                                 modifier = Modifier
-                                                    .onGloballyPositioned { namePosition = it.positionInRoot() }
-                                                    .clickableCursor { profileStore.showProfile(cAuthor.id, guildId, namePosition) },
+                                                    .onGloballyPositioned {
+                                                        val position = it.positionInRoot()
+                                                        namePosition[0] = position.x
+                                                        namePosition[1] = position.y
+                                                    }
+                                                    .clickableCursor {
+                                                        profileStore.showProfile(
+                                                            cAuthor.id,
+                                                            guildId,
+                                                            androidx.compose.ui.geometry.Offset(namePosition[0], namePosition[1])
+                                                        )
+                                                    },
                                                 ignoreEffects = !isHovered,
                                                 ignoreColors = false
                                             )
@@ -835,8 +866,8 @@ fun MessageItem(
                                     ) {
                                         Icon(Icons.Rounded.Error, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(14.dp))
                                         Text(text = message.sendError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
-                                        Text(text = "Retry", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickableCursor { messageStore.retryMessage(message) })
-                                        Text(text = "Delete", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error, modifier = Modifier.clickableCursor { messageStore.deletePendingMessage(message) })
+                                        Text(text = stringResource(Res.string.retry), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickableCursor { messageStore.retryMessage(message) })
+                                        Text(text = stringResource(Res.string.delete), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error, modifier = Modifier.clickableCursor { messageStore.deletePendingMessage(message) })
                                     }
                                 }
 
@@ -934,48 +965,34 @@ fun MessageItem(
         }
 
         val isMe = message.author?.id == currentUser?.id
-        val actions = remember(message, isMe) {
-            val list = mutableListOf(
-                Triple(Icons.Filled.AddReaction, "Add Reaction") { showReactionPicker = true },
-                Triple(Icons.Rounded.Reply, "Reply") { messageStore.replyingTo = message },
-                Triple(Icons.Filled.Forward, "Forward") {
-                    navigationStore.forwardingMessage = message
-                }
-            )
-            if (isMe) {
-                list.add(Triple(Icons.Filled.Edit, "Edit") {
-                    messageStore.editingMessage = message
-                })
-            }
-            list.add(Triple(Icons.Filled.Tag, "Create Thread") { showCreateThreadDialog = true })
-            list.add(Triple(Icons.Filled.MoreHoriz, "More") { showMessageContextMenu = true })
-            list
-        }
-
         val showActions = isHovered || showReactionPicker || showMessageContextMenu
-        val actionAlpha by animateFloatAsState(
-            targetValue = if (showActions) 1f else 0f,
-            animationSpec = if (reduceMotion) snap() else tween(durationMillis = 150),
-            label = "actionAlpha"
-        )
-        val actionScale by animateFloatAsState(
-            targetValue = if (showActions) 1f else 0.92f,
-            animationSpec = if (reduceMotion) snap() else spring(dampingRatio = 0.7f, stiffness = 400f),
-            label = "actionScale"
-        )
+        if (showActions) {
+            val actions = remember(message, isMe) {
+                val list = mutableListOf(
+                    Triple(Icons.Filled.AddReaction, "Add Reaction") { showReactionPicker = true },
+                    Triple(Icons.Rounded.Reply, "Reply") { messageStore.replyingTo = message },
+                    Triple(Icons.Filled.Forward, "Forward") {
+                        navigationStore.forwardingMessage = message
+                    }
+                )
+                if (isMe) {
+                    list.add(Triple(Icons.Filled.Edit, "Edit") {
+                        messageStore.editingMessage = message
+                    })
+                }
+                list.add(Triple(Icons.Filled.Tag, "Create Thread") { showCreateThreadDialog = true })
+                list.add(Triple(Icons.Filled.MoreHoriz, "More") { showMessageContextMenu = true })
+                list
+            }
 
-        if (actionAlpha > 0f) {
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(end = 16.dp)
                     .zIndex(2f)
                     .graphicsLayer {
-                        alpha = actionAlpha
-                        scaleX = actionScale
-                        scaleY = actionScale
                         clip = false
-                        translationY = -16.dp.toPx() // Explicitly move up in graphics layer
+                        translationY = -16.dp.toPx()
                     }
                     .layout { measurable, constraints ->
                         val placeable = measurable.measure(constraints)
@@ -1115,7 +1132,7 @@ fun CreateThreadDialog(
     onConfirm: (String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
-    
+
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(16.dp),
@@ -1128,32 +1145,32 @@ fun CreateThreadDialog(
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Spacer(Modifier.height(16.dp))
-                
+
                 TextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Thread Name") },
+                    label = { Text(stringResource(Res.string.thread_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
-                
+
                 Spacer(Modifier.height(24.dp))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel")
+                        Text(stringResource(Res.string.cancel))
                     }
                     Spacer(Modifier.width(8.dp))
                     Button(
                         onClick = { if (name.isNotBlank()) onConfirm(name) },
                         enabled = name.isNotBlank()
                     ) {
-                        Text("Create")
+                        Text(stringResource(Res.string.create))
                     }
                 }
             }
@@ -1174,8 +1191,6 @@ private fun emojiFromKey(key: String): Emoji {
     }
 }
 
-// Like Discord, a message that is nothing but a link to a GIF or image shows only the embed: repeating the
-// URL above it adds nothing. Anything else in the message (text, a second link) keeps the content visible.
 private fun Message.isOnlyEmbeddedMediaLink(): Boolean {
     val link = content.trim().removeSurrounding("<", ">")
     if (link.isEmpty() || link.any(Char::isWhitespace) || !link.startsWith("http", ignoreCase = true)) return false

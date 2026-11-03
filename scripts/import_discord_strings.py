@@ -30,8 +30,6 @@ import re
 import sys
 from pathlib import Path
 
-# Discord locale folder -> (Compose qualifier, BCP-47 tag, English label, native label)
-# Order matters: first entry is the default (values/) locale.
 LOCALES: list[tuple[str, str, str, str]] = [
     ("values", None, "en-US", "English, USA"),
     ("values-en-rGB", "en-rGB", "en-GB", "English, UK"),
@@ -65,16 +63,12 @@ LOCALES: list[tuple[str, str, str, str]] = [
     ("values-zh-rTW", "zh-rTW", "zh-TW", "繁體中文"),
 ]
 
-# Strings that only exist in Lampcord (Discord has no equivalent). Written to
-# ``values/lampcord.xml`` in the default locale only; every other locale falls
-# back to English through Compose Resources' normal fallback. Keys are prefixed
-# with ``lampcord_`` so they never collide with imported Discord keys.
 LAMPCORD_EXTRA_STRINGS: dict[str, str] = {
-    # Settings > Language
+
     "lampcord_language_system": "System",
     "lampcord_language_system_description": "Use your device language",
     "lampcord_language_description": "Select your preferred language",
-    # Login
+
     "lampcord_login_token_label": "Discord Token",
     "lampcord_login_token_hide": "Hide token",
     "lampcord_login_token_show": "Show token",
@@ -95,7 +89,7 @@ LAMPCORD_EXTRA_STRINGS: dict[str, str] = {
     "lampcord_login_error_invalid": "Invalid login or password",
     "lampcord_login_error_invalid_mfa": "Invalid code or expired ticket",
     "lampcord_login_error_unexpected": "An unexpected error occurred",
-    # Settings > Accessibility
+
     "lampcord_settings_visual": "Visual",
     "lampcord_settings_saturation": "Saturation",
     "lampcord_settings_motion": "Motion",
@@ -103,15 +97,13 @@ LAMPCORD_EXTRA_STRINGS: dict[str, str] = {
     "lampcord_settings_detection": "Detection",
     "lampcord_settings_allow_accessibility_detection": "Allow Accessibility Detection",
     "lampcord_settings_allow_accessibility_detection_desc": "Allow Discord to detect if you are using accessibility tools.",
-    # Settings > Advanced
+
     "lampcord_settings_advanced": "Advanced",
     "lampcord_settings_developer_settings": "Developer Settings",
     "lampcord_settings_developer_mode_desc": "Exposes ID copying and other advanced debug tools.",
     "lampcord_settings_show_hidden_channels": "Show Hidden Channels",
     "lampcord_settings_show_hidden_channels_desc": "Display channels you don't have permission to view as locked and greyed out.",
     "lampcord_settings_window": "Window",
-    "lampcord_settings_use_custom_titlebar": "Use Custom Titlebar",
-    "lampcord_settings_use_custom_titlebar_desc": "Use a custom in-app title bar instead of the system window frame. Requires restart.",
     "lampcord_settings_wayland_scaling": "Enable Wayland Scaling Fix",
     "lampcord_settings_wayland_scaling_desc": "Enables automatic display scaling detection on Wayland compositors. Requires restart.",
     "lampcord_settings_data_management": "Data Management",
@@ -119,7 +111,7 @@ LAMPCORD_EXTRA_STRINGS: dict[str, str] = {
     "lampcord_settings_clear_cache_desc": "Delete all locally cached images and messages.",
     "lampcord_settings_reset_app_state": "Reset App State",
     "lampcord_settings_reset_app_state_desc": "Restore all settings to their default values.",
-    # Settings > Navigation
+
     "lampcord_settings_navigation": "Navigation",
     "lampcord_settings_nav_home": "Home",
     "lampcord_settings_nav_you": "You",
@@ -127,14 +119,14 @@ LAMPCORD_EXTRA_STRINGS: dict[str, str] = {
     "lampcord_settings_hide_nav_labels": "Hide Navigation Labels",
     "lampcord_settings_hide_nav_labels_desc": "Only show icons in the navigation bar.",
     "lampcord_settings_tab_order": "Tab Order",
-    # Settings > Connections
+
     "lampcord_settings_no_connections": "No connected accounts found",
     "lampcord_settings_add_connection": "Add Connection",
-    # Settings > Account
+
     "lampcord_settings_password_auth": "Password and Authentication",
     "lampcord_settings_two_fa_enabled": "Two-Factor Authentication: Enabled",
     "lampcord_settings_two_fa_disabled": "Two-Factor Authentication: Disabled",
-    # Settings > Notifications
+
     "lampcord_settings_enable_notifications": "Enable Notifications",
     "lampcord_settings_enable_notifications_desc": "Show notifications in your system tray when Lampcord is in the background.",
     "lampcord_settings_show_message_preview": "Show Message Preview",
@@ -145,7 +137,7 @@ LAMPCORD_EXTRA_STRINGS: dict[str, str] = {
     "lampcord_settings_incoming_call_sound_desc": "Play a sound when you are being called.",
     "lampcord_settings_show_in_app_notifications": "Show In-App Notifications",
     "lampcord_settings_show_in_app_notifications_desc": "Display banners in the app when someone mentions or pings you.",
-    # Settings > Privacy & Safety
+
     "lampcord_settings_content_filter": "Content Filter",
     "lampcord_settings_content_filter_edge": "I live on the edge",
     "lampcord_settings_content_filter_off_help": "Don't scan any direct messages.",
@@ -154,7 +146,7 @@ LAMPCORD_EXTRA_STRINGS: dict[str, str] = {
     "lampcord_settings_content_controls": "Content Controls",
     "lampcord_settings_hide_blocked_messages": "Hide Blocked Messages",
     "lampcord_settings_hide_blocked_messages_desc": "Completely remove messages from blocked users.",
-    # Settings > Updates
+
     "lampcord_settings_check_for_updates": "Check for Updates",
     "lampcord_settings_check_for_updates_desc": "Look for a newer build when Lampcord opens.",
     "lampcord_settings_update_notifications": "Update Notifications",
@@ -171,9 +163,9 @@ LAMPCORD_EXTRA_STRINGS: dict[str, str] = {
     "lampcord_settings_downloading_fmt": "Downloading %1$s",
     "lampcord_settings_ready_fmt": "%1$s is ready to install",
     "lampcord_settings_install_restart": "Install and restart",
-    # Settings > Changelog
+
     "lampcord_settings_no_release_notes": "No release notes were published.",
-    # Settings > Debug log
+
     "lampcord_settings_debug_logs": "Debug Logs",
     "lampcord_settings_search_logs": "Search logs...",
     "lampcord_settings_auto_scroll": "Auto-scroll",
@@ -183,8 +175,6 @@ LAMPCORD_EXTRA_STRINGS: dict[str, str] = {
     "lampcord_settings_clear": "Clear",
 }
 
-# Names that look like app strings but are library/framework plumbing we never
-# want to expose to the UI layer.
 LIBRARY_PREFIXES = (
     "abc_",
     "androidx_",
@@ -207,7 +197,6 @@ PLURAL_REF_RE = re.compile(r"R\.plurals\.([A-Za-z0-9_]+)(?![A-Za-z0-9_…])")
 XML_STRING_REF_RE = re.compile(r"@string/([A-Za-z0-9_]+)")
 XML_PLURAL_REF_RE = re.compile(r"@plurals/([A-Za-z0-9_]+)")
 
-# <string name="foo" ...>inner</string>  (inner may span lines)
 STRING_ENTRY_RE = re.compile(
     r"<string\b[^>]*\bname=\"([^\"]+)\"[^>]*>(.*?)</string>", re.DOTALL
 )
@@ -216,10 +205,7 @@ PLURAL_ENTRY_RE = re.compile(
     r"<plurals\b[^>]*\bname=\"([^\"]+)\"[^>]*>(.*?)</plurals>", re.DOTALL
 )
 
-# Android-only escapes that Compose Resources does not unescape. ``\n``, ``\t``,
-# ``\uXXXX`` and ``\\`` are handled natively by Compose, so we leave them alone.
 QUOTE_ESCAPES = {"'", '"', "@", "?"}
-
 
 def android_unescape(value: str) -> str:
     """Drop Android-only backslash escapes Compose Resources does not support."""
@@ -236,11 +222,9 @@ def android_unescape(value: str) -> str:
         i += 1
     return "".join(out)
 
-
 def parse_string_entries(text: str) -> dict[str, str]:
     entries: dict[str, str] = {}
-    # Drop self-closing tags first: otherwise the entry regex swallows the
-    # following sibling's opening tag as this string's body.
+
     for name in STRING_SELF_CLOSING_RE.findall(text):
         entries.setdefault(name, "")
     text = STRING_SELF_CLOSING_RE.sub("", text)
@@ -248,10 +232,8 @@ def parse_string_entries(text: str) -> dict[str, str]:
         entries.setdefault(name, body)
     return entries
 
-
 def parse_plural_entries(text: str) -> dict[str, str]:
     return {name: body for name, body in PLURAL_ENTRY_RE.findall(text)}
-
 
 def collect_referenced_keys(discord: Path) -> tuple[set[str], set[str]]:
     strings: set[str] = set()
@@ -273,16 +255,12 @@ def collect_referenced_keys(discord: Path) -> tuple[set[str], set[str]]:
 
     return strings, plurals
 
-
 def is_library_name(name: str) -> bool:
     return name.startswith(LIBRARY_PREFIXES)
 
-
 def escape_text(value: str) -> str:
-    # The source is already valid XML, so entities and markup are preserved
-    # verbatim. Only Android-specific backslash escapes need rewriting.
-    return android_unescape(value)
 
+    return android_unescape(value)
 
 def write_strings_xml(
     path: Path, entries: dict[str, str], plural_entries: dict[str, str]
@@ -305,7 +283,6 @@ def write_strings_xml(
         path.with_name("plurals.xml").write_text(
             "\n".join(plines) + "\n", encoding="utf-8"
         )
-
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -351,8 +328,6 @@ def main() -> int:
 
     written = 0
 
-    # Lampcord-specific strings (no Discord equivalent) go in the default
-    # locale only; other locales fall back to English automatically.
     lampcord_values = args.out / "values"
     lampcord_values.mkdir(parents=True, exist_ok=True)
     write_strings_xml(
@@ -387,7 +362,6 @@ def main() -> int:
 
     print(f"wrote {written} locales into {args.out}")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

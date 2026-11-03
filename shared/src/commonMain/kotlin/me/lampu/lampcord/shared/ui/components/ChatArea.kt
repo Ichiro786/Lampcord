@@ -1,5 +1,9 @@
 package me.lampu.lampcord.shared.ui.components
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.join_voice
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -25,7 +29,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.derivedStateOf
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -41,7 +51,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -49,7 +58,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import me.lampu.lampcord.shared.state.MessageStore
@@ -81,15 +89,16 @@ fun ChatArea(
     readStateStore: me.lampu.lampcord.shared.state.ReadStateStore = koinInject()
 ) {
     val joinVoice = me.lampu.lampcord.shared.voice.rememberVoiceJoin(voiceStore)
-    val channelId = navigationStore.selectedChannel?.id
-    // Read state, unread divider and "at bottom" tracking belong to the open thread when there is one;
-    // using the parent here acked the parent with a thread message id.
-    val readChannelId = navigationStore.selectedThread?.id ?: channelId
-    val scrollState = remember(readChannelId) { LazyListState() }
+    val isMobile = me.lampu.lampcord.shared.utils.getPlatformName() == "android" ||
+        me.lampu.lampcord.shared.utils.getPlatformName() == "ios"
+    val channelId = navigationStore.selectedThread?.id ?: navigationStore.selectedChannel?.id
+    val scrollState = remember(channelId) { LazyListState() }
     var isHovered by remember { mutableStateOf(false) }
     val messages by messageStore.messages.collectAsState()
     val relationships by relationshipStore.relationships.collectAsState()
-    val readStates by readStateStore.readStates.collectAsState()
+    val activeReadState by remember(channelId) {
+        readStateStore.readStates.map { it[channelId] }.distinctUntilChanged()
+    }.collectAsState(initial = readStateStore.readStates.value[channelId])
     val reduceMotion = Settings.shared.reduceMotion
 
     val themeBackgroundUrl = themeStore.themeBackgroundUrl ?: ""
@@ -97,29 +106,37 @@ fun ChatArea(
 
     val backgroundUrl = if (themeBackgroundUrl.isNotEmpty()) themeBackgroundUrl else settingsStore.chatBackground
 
-    val ackedMessageId = remember(readStates, readChannelId) {
-        if (readChannelId == null) "0" else readStates[readChannelId]?.last_message_id?.toString()?.removeSurrounding("\"") ?: "0"
+    val ackedMessageId = if (channelId == null) {
+        "0"
+    } else {
+        activeReadState?.last_message_id?.toString()?.removeSurrounding("\"") ?: "0"
     }
 
-    val unreadMessagesCount = remember(messages, ackedMessageId) {
-        val ackedLong = ackedMessageId.toLongOrNull() ?: 0L
-        messages.count { (it.id.toLongOrNull() ?: 0L) > ackedLong && !it.isPending }
+    val unreadInfo by remember(ackedMessageId) {
+        derivedStateOf {
+            val ackedLong = ackedMessageId.toLongOrNull() ?: 0L
+            var count = 0
+            var oldestUnreadId: String? = null
+            for (message in messages) {
+                if (message.isPending) continue
+                if ((message.id.toLongOrNull() ?: 0L) > ackedLong) {
+                    count++
+                    oldestUnreadId = message.id
+                } else {
+                    break
+                }
+            }
+            count to oldestUnreadId
+        }
     }
-
-    val firstUnreadMessageId = remember(messages, ackedMessageId) {
-        val ackedLong = ackedMessageId.toLongOrNull() ?: 0L
-        messages.findLast { (it.id.toLongOrNull() ?: 0L) > ackedLong && !it.isPending }?.id
-    }
+    val unreadMessagesCount = unreadInfo.first
+    val firstUnreadMessageId = unreadInfo.second
 
     val isScrolledFromBottom by remember(scrollState) {
         derivedStateOf { scrollState.firstVisibleItemIndex > 0 }
     }
 
-    // Report this view as attached so the gateway can auto-acknowledge while it is genuinely
-    // on screen and scrolled to the bottom. Discord derives the same thing from the chat list's
-    // LinearLayoutManager, which stops reporting once the activity is not resumed.
-    DisposableEffect(readChannelId) {
-        val channelId = readChannelId
+    DisposableEffect(channelId) {
         if (channelId != null) {
             navigationStore.setChatInteraction(channelId, true)
         }
@@ -131,6 +148,7 @@ fun ChatArea(
     }
 
     LaunchedEffect(scrollState) {
+        var ackJob: Job? = null
         snapshotFlow {
             val visibleItems = scrollState.layoutInfo.visibleItemsInfo
             val atBottom = scrollState.firstVisibleItemIndex == 0
@@ -142,19 +160,22 @@ fun ChatArea(
             .collect { (atBottom, lastVisibleItemIndex) ->
                 if (lastVisibleItemIndex != null) {
 
-
-                    if (readChannelId != null) {
-                        navigationStore.setChatInteraction(readChannelId, atBottom)
+                    if (channelId != null) {
+                        navigationStore.setChatInteraction(channelId, atBottom)
                     }
                     if (atBottom && messages.isNotEmpty()) {
                         val latestId = messages.first().id
                         if ((latestId.toLongOrNull() ?: 0L) > (ackedMessageId.toLongOrNull() ?: 0L)) {
-                            readStateStore.ackMessage(readChannelId ?: "", latestId)
+                            ackJob?.cancel()
+                            ackJob = launch {
+                                delay(1500)
+                                readStateStore.ackMessage(channelId ?: "", latestId)
+                            }
                         }
                     }
-                    if (lastVisibleItemIndex >= messages.size - 5) {
+                    if (channelId != null && lastVisibleItemIndex >= messages.size - 5) {
                         messageStore.loadMoreMessages(
-                            navigationStore.selectedChannel?.id ?: "",
+                            channelId,
                             navigationStore.selectedGuild?.id,
                             navigationStore.selectedThread?.id
                         )
@@ -185,29 +206,32 @@ fun ChatArea(
     }
 
     LaunchedEffect(messageStore.scrollToMessageId) {
-        messageStore.scrollToMessageId?.let { messageId ->
-            val index = messages.indexOfFirst { it.id == messageId }
-            if (index != -1) {
-                messageStore.highlightedMessageId = messageId
+        val messageId = messageStore.scrollToMessageId ?: return@LaunchedEffect
+        val index = withTimeoutOrNull(5_000) {
+            snapshotFlow { messages.indexOfFirst { it.id == messageId } }
+                .first { it != -1 }
+        } ?: -1
 
-                val visibleItems = scrollState.layoutInfo.visibleItemsInfo
-                val viewportHeight = scrollState.layoutInfo.viewportSize.height
+        if (index != -1) {
+            messageStore.highlightedMessageId = messageId
 
-                if (visibleItems.isNotEmpty()) {
-                    val averageItemHeight = visibleItems.map { it.size }.average().toInt()
-                    val centerOffset = (viewportHeight / 2) - (averageItemHeight / 2)
+            val visibleItems = scrollState.layoutInfo.visibleItemsInfo
+            val viewportHeight = scrollState.layoutInfo.viewportSize.height
 
-                    if (reduceMotion) {
-                        scrollState.scrollToItem(index, scrollOffset = -centerOffset)
-                    } else {
-                        scrollState.animateScrollToItem(index, scrollOffset = -centerOffset)
-                    }
+            if (visibleItems.isNotEmpty()) {
+                val averageItemHeight = visibleItems.map { it.size }.average().toInt()
+                val centerOffset = (viewportHeight / 2) - (averageItemHeight / 2)
+
+                if (reduceMotion) {
+                    scrollState.scrollToItem(index, scrollOffset = -centerOffset)
                 } else {
-                    if (reduceMotion) scrollState.scrollToItem(index) else scrollState.animateScrollToItem(index)
+                    scrollState.animateScrollToItem(index, scrollOffset = -centerOffset)
                 }
+            } else {
+                if (reduceMotion) scrollState.scrollToItem(index) else scrollState.animateScrollToItem(index)
             }
-            messageStore.scrollToMessageId = null
         }
+        messageStore.scrollToMessageId = null
     }
 
     Box(
@@ -240,14 +264,17 @@ fun ChatArea(
             )
         }
 
-        val filteredMessages = remember(messages, relationships) {
-            val hideBlocked = me.lampu.lampcord.shared.settings.Settings.shared.hideBlockedMessages
-            if (hideBlocked) {
-                messages.filter { msg ->
-                    val authorId = msg.author?.id
-                    if (authorId == null) true
-                    else relationships.none { (it.id ?: it.user?.id ?: it.user_id) == authorId && it.type == 2 }
-                }
+        val blockedAuthorIds = remember(relationships) {
+            relationships.asSequence()
+                .filter { it.type == 2 }
+                .mapNotNull { it.id ?: it.user?.id ?: it.user_id }
+                .toSet()
+        }
+
+        val hideBlockedMessages = me.lampu.lampcord.shared.settings.Settings.shared.hideBlockedMessages
+        val filteredMessages = remember(messages, blockedAuthorIds, hideBlockedMessages) {
+            if (hideBlockedMessages) {
+                messages.filter { msg -> msg.author?.id?.let { it !in blockedAuthorIds } ?: true }
             } else messages
         }
 
@@ -285,7 +312,7 @@ fun ChatArea(
                     val priorType = priorMessage.type ?: 0
                     if (currentType != 0 && currentType != 19) return@remember false
                     if (priorType != 0 && priorType != 19) return@remember false
-                    
+
                     try {
                         val currentTs = Instant.parse(message.timestamp)
                         val priorTs = Instant.parse(priorMessage.timestamp)
@@ -295,23 +322,20 @@ fun ChatArea(
                     }
                 }
 
-                val itemZIndex = (filteredMessages.size - index).toFloat()
                 val isFirstUnread = message.id == firstUnreadMessageId
 
-                Column(modifier = Modifier.fillMaxWidth().zIndex(itemZIndex).graphicsLayer(clip = false)) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     if (showDateSeparator) {
                         DateSeparator(message.timestamp)
                     }
                     if (isFirstUnread) {
                         UnreadSeparator()
                     }
-                    Box((if (reduceMotion) Modifier else Modifier.animateItem()).graphicsLayer(clip = false)) {
-                        MessageItem(
-                            message = message,
-                            priorMessage = if (isInline) priorMessage else null,
-                            nextMessage = nextMessage
-                        )
-                    }
+                    MessageItem(
+                        message = message,
+                        priorMessage = if (isInline) priorMessage else null,
+                        nextMessage = nextMessage
+                    )
                 }
             }
             item {
@@ -370,7 +394,7 @@ fun ChatArea(
                         ) {
                             Icon(Icons.AutoMirrored.Filled.VolumeUp, null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
-                            Text("Join Voice")
+                            Text(stringResource(Res.string.join_voice))
                         }
                     }
                 }
@@ -379,7 +403,7 @@ fun ChatArea(
         VerticalScrollbar(
             state = scrollState,
             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            isVisible = isHovered,
+            isVisible = isHovered || isMobile,
             reverseLayout = true
         )
         if (unreadMessagesCount > 0 && isScrolledFromBottom) {
@@ -403,14 +427,14 @@ fun ChatArea(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.ArrowDownward, 
-                        contentDescription = null, 
+                        imageVector = Icons.Filled.ArrowDownward,
+                        contentDescription = null,
                         modifier = Modifier.size(14.dp),
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        text = "$unreadMessagesCount NEW MESSAGE${if (unreadMessagesCount > 1) "S" else ""}",
+                        text = "$unreadMessagesCount New Message${if (unreadMessagesCount > 1) "s" else ""}",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Black,
                             letterSpacing = 0.5.sp,
@@ -486,7 +510,7 @@ fun UnreadSeparator() {
     ) {
         HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.error)
         Text(
-            text = "NEW MESSAGES",
+            text = "New Messages",
             modifier = Modifier.padding(horizontal = 8.dp),
             style = MaterialTheme.typography.labelSmall.copy(
                 fontSize = 10.sp,

@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import me.lampu.lampcord.shared.api.GuildApi
+import me.lampu.lampcord.shared.api.JoinGuildResult
 import me.lampu.lampcord.shared.model.Invite
 import me.lampu.lampcord.shared.model.Guild
 import me.lampu.lampcord.shared.state.rememberGuildMediaUrls
@@ -66,7 +67,7 @@ fun GuildProfileSkeleton() {
             ShimmerBox(modifier = Modifier.width(150.dp).height(24.dp), shape = RoundedCornerShape(12.dp))
             Spacer(Modifier.height(8.dp))
             ShimmerBox(modifier = Modifier.fillMaxWidth().height(40.dp), shape = RoundedCornerShape(8.dp))
-            
+
             Spacer(Modifier.height(16.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ShimmerBox(modifier = Modifier.size(8.dp), shape = CircleShape)
@@ -108,8 +109,8 @@ fun GuildProfileSheet(
             val fetched = guildApi.getGuildPreview(guildId)
             if (fetched != null) {
                 inviteData = Invite(
-                    code = "", 
-                    guild = fetched, 
+                    code = "",
+                    guild = fetched,
                     approximate_member_count = fetched.approximate_member_count,
                     approximate_presence_count = fetched.approximate_presence_count
                 )
@@ -191,7 +192,7 @@ fun GuildProfileSheet(
 
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     Text(text = guild.name ?: "Server", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                    
+
                     if (guild.description?.isNotBlank() == true) {
                         Text(
                             text = guild.description,
@@ -227,21 +228,25 @@ fun GuildProfileSheet(
 
                     val isMember = guildStore.guilds.value.any { it.id == guild.id }
                     val scope = rememberCoroutineScope()
+                    var joinError by remember { mutableStateOf<String?>(null) }
 
                     Button(
                         onClick = {
                             if (isMember) {
-                                navigationStore.selectGuild(guild) { /* subscribe */ }
+                                navigationStore.selectGuild(guild) {  }
                                 onDismiss()
                             } else {
                                 inviteData?.code?.let { code ->
                                     if (code.isNotBlank()) {
                                         scope.launch {
-                                            val joined = guildApi.joinGuild(code)
-                                            if (joined != null) {
-                                                guildStore.handleGuildCreate(joined, emptyList())
-                                                navigationStore.selectGuild(joined) { }
-                                                onDismiss()
+                                            joinError = null
+                                            when (val result = guildApi.joinGuild(code)) {
+                                                is JoinGuildResult.Joined -> {
+                                                    guildStore.handleGuildCreate(result.guild, emptyList())
+                                                    navigationStore.selectGuild(result.guild) { }
+                                                    onDismiss()
+                                                }
+                                                is JoinGuildResult.Failed -> joinError = result.message
                                             }
                                         }
                                     }
@@ -253,6 +258,15 @@ fun GuildProfileSheet(
                         enabled = isMember || (inviteData?.code?.isNotBlank() == true)
                     ) {
                         Text(if (isMember) "Joined" else if (inviteData?.code?.isNotBlank() == true) "Join Server" else "Invite Required")
+                    }
+
+                    joinError?.let {
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
                     }
                 }
             }

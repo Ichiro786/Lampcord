@@ -22,13 +22,6 @@ import me.lampu.lampcord.shared.ui.icons.Icons
 import me.lampu.lampcord.shared.ui.kit.UserAvatar
 import org.koin.compose.koinInject
 
-/**
- * One search or picker row.
- *
- * A DM is labelled by the person on the other end rather than the literal "Direct Message" the
- * client used to fall back to, and a user result carries its status so offline members are still
- * distinguishable from the online ones.
- */
 @Composable
 fun FinderResultRow(
     result: FinderResult,
@@ -111,7 +104,6 @@ fun FinderResultRow(
     }
 }
 
-/** The channel id this result can forward to, if it names a destination at all. */
 fun FinderResult.targetChannelId(): String? = when (this) {
     is FinderResult.Channel -> channel.id
     is FinderResult.DirectMessage -> channel.id

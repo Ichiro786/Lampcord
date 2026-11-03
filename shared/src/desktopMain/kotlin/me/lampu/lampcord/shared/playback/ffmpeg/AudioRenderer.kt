@@ -28,7 +28,7 @@ class AudioRenderer(
         val info = DataLine.Info(SourceDataLine::class.java, audioFormat)
         line =
             (AudioSystem.getLine(info) as SourceDataLine).apply {
-                val latency = 0.15 // 150ms buffer for OS/GC protection
+                val latency = 0.15
                 val bufferSize = (latency * audioFormat.sampleRate * audioFormat.frameSize).toInt()
                 open(audioFormat, bufferSize)
                 start()
@@ -150,7 +150,7 @@ class AudioRenderer(
                     control.value = dB
                 }
             } catch (_: Exception) {
-                // Ignore control failure and fallback
+
             }
         }
     }

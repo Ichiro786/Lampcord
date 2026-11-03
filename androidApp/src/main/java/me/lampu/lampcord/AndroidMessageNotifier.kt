@@ -32,8 +32,7 @@ class AndroidMessageNotifier(
         get() = AppLifecycleTracker.isInForeground
 
     override fun showMessageNotification(data: IncomingNotificationData) {
-        // A ringing call is a call notification whether it arrived over the gateway or as a
-        // CALL_RING push. Routing it through the message path showed a text bubble for a call.
+
         if (data.pushType == NotificationPushType.CALL_RING) {
             IncomingCallNotifier.notifyIncomingCall(context, data.message.channel_id)
             if (AppLifecycleTracker.isInForeground) return
@@ -147,7 +146,7 @@ class AndroidMessageNotifier(
         )
 
         val builder = baseBuilder(context, channelForNotice, meta, messages, avatar)
-            // Re-rendering after a reply must not replay the alert.
+
             .setOnlyAlertOnce(true)
             .setSilent(true)
             .setContentIntent(NotificationHelper.buildContentIntent(context, channelId, meta.guildId))
@@ -222,15 +221,13 @@ class AndroidMessageNotifier(
             avatar,
             sortKey = timestamp
         )
-            // A conversation that already has messages must not alert again for each one.
+
             .setOnlyAlertOnce(messages.size > 1)
             .setContentIntent(NotificationHelper.buildContentIntent(context, channelId, data.message.guild_id))
             .setDeleteIntent(NotificationHelper.buildDeleteIntent(context, channelId))
             .addAction(NotificationHelper.buildReplyAction(context, channelId, data.message.guild_id))
             .addAction(NotificationHelper.buildMarkReadAction(context, channelId, data.message.guild_id, data.message.id))
 
-        // The channel owns sound and vibration from API 26 onwards, so setDefaults is ignored
-        // there; the user-facing toggle is the channel, not the notification.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O && Settings.shared.notificationSound) {
             builder.setDefaults(Notification.DEFAULT_SOUND)
         }
@@ -261,8 +258,6 @@ class AndroidMessageNotifier(
             .setGroupConversation(conversationTitle != null)
         conversationTitle?.let { messagingStyle.conversationTitle = it }
 
-        // MessagingStyle silently drops messages that share a timestamp with the one before
-        // them, so the thread is walked forward strictly in time.
         var previous = 0L
         messages.forEach { msg ->
             val at = if (msg.timestamp <= previous) previous + 1 else msg.timestamp

@@ -22,8 +22,7 @@ actual object LocalAppLocale {
             null -> default!!
             else -> Locale.forLanguageTag(value)
         }
-        // androidx.compose.ui.text.intl.Locale.current on desktop reads
-        // java.util.Locale.getDefault() directly.
+
         Locale.setDefault(newLocale)
         return local.provides(newLocale.toString())
     }

@@ -22,8 +22,7 @@ actual object LocalAppLocale {
             null -> default!!
             else -> Locale.forLanguageTag(value)
         }
-        // On API 24+ androidx.compose.ui.text.intl.Locale.current resolves from
-        // android.os.LocaleList.getDefault(), which Locale.setDefault updates.
+
         Locale.setDefault(newLocale)
         val updated = Configuration(configuration).apply { setLocale(newLocale) }
         return LocalConfiguration.provides(updated)

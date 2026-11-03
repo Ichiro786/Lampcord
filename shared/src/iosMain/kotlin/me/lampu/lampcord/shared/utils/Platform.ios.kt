@@ -39,10 +39,6 @@ actual fun getOsVersion(): String = UIDevice.currentDevice.systemVersion
 
 actual fun getOsSdkVersion(): String = UIDevice.currentDevice.systemVersion
 
-/**
- * Every device iOS ships to is arm64, and this value feeds the gateway identify payload where a
- * wrong architecture means the connection is rejected.
- */
 actual fun getOsArch(): String = "arm64"
 
 actual fun getDeviceName(): String = UIDevice.currentDevice.model
@@ -52,7 +48,6 @@ actual fun getCpuCoreCount(): Int = platform.posix.sysconf(platform.posix._SC_NP
 actual fun getMemoryMemory(): Long =
     platform.posix.sysconf(platform.posix._SC_PHYS_PAGES) *
         platform.posix.sysconf(platform.posix._SC_PAGE_SIZE)
-
 
 actual suspend fun getLocalMedia(): List<LocalMedia> = emptyList()
 
@@ -164,5 +159,4 @@ internal fun readBytes(path: String): ByteArray? {
 private const val SEEK_END = 2
 private const val SEEK_SET = 0
 
-// WKWebView ships with the OS.
 actual fun isEmbeddedWebViewAvailable(): Boolean = true

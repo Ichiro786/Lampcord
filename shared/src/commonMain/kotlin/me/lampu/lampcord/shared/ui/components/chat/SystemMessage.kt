@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.LinkAnnotation
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import me.lampu.lampcord.shared.model.Message
 import me.lampu.lampcord.shared.state.*
+import me.lampu.lampcord.shared.ui.LocalGuilds
 import me.lampu.lampcord.shared.ui.icons.Icons
 import me.lampu.lampcord.shared.ui.theme.DiscordGreen
 import me.lampu.lampcord.shared.ui.theme.DiscordRed
@@ -31,7 +33,9 @@ import org.koin.compose.koinInject
 fun SystemMessage(
     message: Message,
     profileStore: ProfileStore = koinInject(),
-    messageStore: MessageStore = koinInject()
+    messageStore: MessageStore = koinInject(),
+    userStore: UserStore = koinInject(),
+    navigationStore: NavigationStore = koinInject()
 ) {
     val targetMessageId = message.message_reference?.message_id
 
@@ -41,7 +45,7 @@ fun SystemMessage(
             .then(
                 if (targetMessageId != null) {
                     Modifier.clickableCursor {
-                        messageStore.scrollToMessageId = targetMessageId
+                        messageStore.jumpToMessage(message.channel_id, targetMessageId)
                     }
                 } else Modifier
             )
@@ -72,24 +76,47 @@ fun SystemMessage(
                     tint = iconTint
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(12.dp))
 
-            // One text flow rather than separate Texts in a FlowRow: the pieces used to wrap independently, which
-            // dropped the space between the greeting and the name and left a stray leading space on the next line.
             val (prefix, suffix) = remember(message.id) {
                 val templates = listOf(
+                    "" to " joined the party.",
+                    "" to " is here.",
                     "Welcome, " to ". We hope you brought pizza.",
-                    "" to " just slid into the server!",
-                    "Everyone welcome " to "!",
+                    "A wild " to " appeared.",
+                    "" to " just landed.",
+                    "" to " just slid into the server.",
                     "" to " just showed up!",
+                    "Welcome " to ". Say hi!",
                     "" to " hopped into the server.",
+                    "Everyone welcome " to "!",
+                    "Glad you're here, " to ".",
+                    "Good to see you, " to ".",
+                    "Yay you made it, " to "!"
                 )
-                templates[message.id.takeLast(1).toIntOrNull()?.let { it % templates.size } ?: 0]
+                val id = message.id.toLongOrNull() ?: 0L
+                val index = ((((id shr 22) + 1420070400000L) % templates.size) + templates.size) % templates.size
+                templates[index.toInt()]
             }
-            val name = message.author?.global_name ?: message.author?.username ?: "Unknown User"
+            val guilds = LocalGuilds.current
+            val guild = (message.guild_id?.let { id -> guilds.find { it.id == id } }) ?: navigationStore.selectedGuild
+            val author = message.author
+            val member = message.member
+                ?: message.guild_id?.let { guildId -> author?.id?.let { userStore.getMember(guildId, it) } }
+            val roleColor = remember(message.id, member?.roles, guild?.roles) {
+                val role = member?.getRoleColorRole(guild)
+                val primary = role?.colors?.primary_color ?: role?.color
+                if (role != null && primary != null && primary != 0) {
+                    Color(primary or 0xFF000000.toInt())
+                } else {
+                    Color.Unspecified
+                }
+            }
+            val nameColor = if (roleColor == Color.Unspecified) MaterialTheme.colorScheme.onSurface else roleColor
+            val name = member?.nick ?: author?.global_name ?: author?.username ?: "Unknown User"
             var profilePosition by remember { mutableStateOf(Offset.Zero) }
-            val nameStyle = SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+            val nameStyle = SpanStyle(fontWeight = FontWeight.Bold, color = nameColor)
             val joinText = remember(prefix, suffix, name, nameStyle) {
                 buildAnnotatedString {
                     append(prefix)
@@ -104,15 +131,15 @@ fun SystemMessage(
             Text(
                 text = joinText,
                 style = MaterialTheme.typography.bodyMedium,
-                // Softer than the name so the person who joined is what stands out in a long welcome channel.
+
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .weight(1f)
                     .onGloballyPositioned { profilePosition = it.positionInRoot() }
             )
-            
+
             Spacer(modifier = Modifier.width(8.dp))
-            
+
             MessageTimestamp(
                 timestamp = message.timestamp,
                 style = MaterialTheme.typography.labelSmall,
@@ -127,18 +154,18 @@ fun SystemMessage(
                     tint = iconTint
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             Text(
                 text = text,
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.width(8.dp))
-            
+
             MessageTimestamp(
                 timestamp = message.timestamp,
                 style = MaterialTheme.typography.labelSmall,

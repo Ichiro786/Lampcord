@@ -68,7 +68,6 @@ class RealFileDecodingTest {
     @Test
     fun `paints an apng through coil's own painter`() {
         val source = assertNotNull(ApngFrameSource.parse(fixture("anim.png")))
-        // Compose never calls Image.draw directly; it goes through Coil's asPainter, which
 
         val image: Image = SkiaAnimatedImage(source)
         assertEquals(source.width, image.width)

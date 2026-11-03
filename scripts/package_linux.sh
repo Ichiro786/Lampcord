@@ -40,10 +40,6 @@ rpm_requires=(gtk3 libnotify nss libXScrnSaver libXtst xdg-utils at-spi2-core li
 pac_depends=(gtk3 libnotify nss libxss libxtst xdg-utils at-spi2-core util-linux-libs libsecret)
 pac_optdepends=("libappindicator-gtk3" "webkit2gtk-4.1: embedded web content")
 
-# Without a jlink runtime the jar runs on whatever the distro ships, which only holds while
-# that JRE is new enough for our classes: our Java 21 bytecode is rejected by the Java 17
-# runtime Debian bookworm still ships. Keep the dependency as the fallback for the no-runtime
-# invocation, otherwise the package is self-contained.
 if [[ -z "$runtime" ]]; then
   deb_requires=(java-runtime "${deb_requires[@]}")
   rpm_requires=(java-runtime "${rpm_requires[@]}")
@@ -53,9 +49,6 @@ fi
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
-# An alpha appVersion (1.0.1-a3) has to be spelled differently for each packager: rpm and
-# alpm both reject a hyphen outright, and Debian's hyphen means "revision", which would sort
-# an alpha *after* the real release and make apt treat the release as a downgrade.
 base_version="$version"
 alpha=""
 if [[ "$version" =~ ^(.+)-a([0-9]+)$ ]]; then
@@ -63,16 +56,13 @@ if [[ "$version" =~ ^(.+)-a([0-9]+)$ ]]; then
   alpha="${BASH_REMATCH[2]}"
 fi
 
-# Debian: a tilde sorts before the plain version, which is the pre-release semantics we want.
 deb_version="$base_version"
 [[ -n "$alpha" ]] && deb_version="${base_version}~a${alpha}"
 
-# RPM: base version in Version, alpha marker in Release, so 1.0.1-1.a3 sorts before 1.0.1-1.
 rpm_version="$base_version"
 rpm_release="$epoch"
 [[ -n "$alpha" ]] && rpm_release="${epoch}.a${alpha}"
 
-# alpm: alphanumerics only, so fold the marker into the version itself.
 pac_version="$base_version"
 [[ -n "$alpha" ]] && pac_version="${base_version}a${alpha}"
 
@@ -84,9 +74,7 @@ mkdir -p "$out" \
   "$stage/usr/share/icons/hicolor/512x512/apps"
 
 install -m 644 "$jar" "$stage/usr/lib/lampcord/lampcord.jar"
-# The linked runtime keeps the same layout as every other install target, so lampcord-launcher
-# just sees $LIBDIR/runtime/bin/java. du/pacman sizes pick it up because it lands inside
-# /usr/lib/lampcord alongside the jar.
+
 if [[ -n "$runtime" ]]; then
   cp -a "$runtime" "$stage/usr/lib/lampcord/runtime"
 fi
@@ -95,7 +83,6 @@ install -m 644 "$repo_root/packaging/aur/lampcord.png" \
   "$stage/usr/share/icons/hicolor/512x512/apps/lampcord.png"
 install -m 755 "$repo_root/packaging/aur/lampcord-launcher" "$stage/usr/bin/lampcord"
 
-# Debian -----------------------------------------------------------------------
 deb_control="$stage/DEBIAN"
 mkdir -p "$deb_control"
 {
@@ -127,7 +114,6 @@ dpkg-deb --root-owner-group --build "$stage" "$deb_out" > /dev/null
 rm -rf "$deb_control"
 echo "built $deb_out"
 
-# RPM -------------------------------------------------------------------------
 rpm_version="$version"
 rpm_release="$epoch"
 if [[ "$version" =~ ^(.+)-a([0-9]+)$ ]]; then
@@ -171,9 +157,7 @@ mkdir -p "$work/rpmbuild"/{SPECS,SOURCES,BUILD,RPMS,SRPMS,BUILDROOT}
   echo "%postun"
   echo "%{_bindir}/update-desktop-database -q %{_datadir}/applications 2>/dev/null || :"
   echo ""
-  # rpm has no recursive glob, and the jlink runtime is thousands of files, so list every
-  # directory as %dir and every file straight from the staged tree. Sorted to keep the spec
-  # byte-identical between runs.
+
   echo "%files"
   find "$rpm_stage" -mindepth 1 -type d -printf "%%dir /%P\n" | LC_ALL=C sort
   find "$rpm_stage" -mindepth 1 ! -type d -printf "/%P\n" | LC_ALL=C sort
@@ -191,7 +175,6 @@ rpm_out="$out/lampcord-desktop-linux-x64-${version}.rpm"
 mv "$built_rpm" "$rpm_out"
 echo "built $rpm_out"
 
-# pacman ----------------------------------------------------------------------
 pac_root="$work/pac"
 mkdir -p "$pac_root"
 cp -a "$stage" "$pac_root/pkg"
@@ -210,7 +193,7 @@ cp -a "$stage" "$pac_root/pkg"
   for dep in "${pac_depends[@]}"; do echo "depend = $dep"; done
   for opt in "${pac_optdepends[@]}"; do echo "optdepend = $opt"; done
   echo "provides = lampcord"
-  # pacman has no 'conflicts' key; replaces is the equivalent for taking over the name.
+
   echo "replaces = lampcord"
   echo "backup = usr/share/applications/lampcord.desktop"
 } > "$pac_root/pkg/.PKGINFO"

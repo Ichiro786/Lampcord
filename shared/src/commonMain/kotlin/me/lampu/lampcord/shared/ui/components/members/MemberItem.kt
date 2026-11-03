@@ -107,7 +107,8 @@ fun MemberItem(
     val roleGradient = roleData?.second
 
     val relationshipType = remember(userId, env) { env.relationshipTypes.value[userId] }
-    val presence = remember(member.presence, userId, env) { member.presence ?: env.presences.value[userId] }
+    val presenceState = remember(userId, env) { env.presenceStore.presenceState(userId) }
+    val presence = member.presence ?: presenceState.value
 
     val errorColor = MaterialTheme.colorScheme.error
     val contextMenuItems = remember(displayUser, env.developerMode, relationshipType, env.currentUserId, errorColor) {

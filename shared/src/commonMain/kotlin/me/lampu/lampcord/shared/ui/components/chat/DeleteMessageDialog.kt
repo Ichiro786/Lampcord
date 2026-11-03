@@ -1,5 +1,10 @@
 package me.lampu.lampcord.shared.ui.components.chat
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.delete
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -75,13 +80,13 @@ fun DeleteMessageDialog(
                             colors = ButtonDefaults.filledTonalButtonColors(),
                             modifier = Modifier.weight(1f).fillMaxHeight()
                         ) {
-                            Text("Cancel")
+                            Text(stringResource(Res.string.cancel))
                         }
                     },
                     menuContent = { menuState ->
                         DropdownMenuItem(
                             modifier = Modifier.handCursor(),
-                            text = { Text("Cancel") },
+                            text = { Text(stringResource(Res.string.cancel)) },
                             onClick = { 
                                 onDismiss()
                                 menuState.dismiss() 
@@ -103,13 +108,13 @@ fun DeleteMessageDialog(
                             ),
                             modifier = Modifier.weight(1f).fillMaxHeight()
                         ) {
-                            Text("Delete")
+                            Text(stringResource(Res.string.delete))
                         }
                     },
                     menuContent = { menuState ->
                         DropdownMenuItem(
                             modifier = Modifier.handCursor(),
-                            text = { Text("Delete") },
+                            text = { Text(stringResource(Res.string.delete)) },
                             onClick = { 
                                 onConfirm()
                                 menuState.dismiss() 

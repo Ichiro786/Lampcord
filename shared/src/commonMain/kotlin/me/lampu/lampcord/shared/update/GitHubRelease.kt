@@ -26,10 +26,34 @@ data class GitHubRelease(
     val version: String get() = tagName.removePrefix("v")
 }
 
-/**
- * The nightly release reuses a single rolling `nightly` tag, so the tag itself carries no version
- * and the real one has to come out of the asset name.
- */
+internal fun List<GitHubRelease>.latestNightlyFor(target: UpdateTarget): GitHubRelease? =
+    asSequence()
+        .filter { !it.draft && it.prerelease }
+        .filter { release -> release.assets.any { target.matchesName(it) } }
+        .mapNotNull { release ->
+            SemanticVersion.parse(release.version)?.let { version -> release to version }
+        }
+        .maxByOrNull { (_, version) -> version }
+        ?.first
+
+fun GitHubRelease.bestAsset(target: UpdateTarget): GitHubAsset? {
+    val candidates = assets.filter { target.matchesName(it) }
+    if (candidates.isEmpty()) return null
+    val installers = target.installerExtension
+        ?.let { suffix -> candidates.filter { it.name.endsWith(suffix, ignoreCase = true) } }
+        .orEmpty()
+    return (installers.ifEmpty { candidates }).maxByOrNull { asset ->
+        assetVersion(asset, target)?.let(SemanticVersion::parse)
+            ?: SemanticVersion.parse(version)
+            ?: SemanticVersion(0, 0, 0, emptyList())
+    }
+}
+
+fun GitHubRelease.offeredVersion(asset: GitHubAsset, target: UpdateTarget): String =
+    version.takeIf { SemanticVersion.parse(it) != null }
+        ?: assetVersion(asset, target)
+        ?: version
+
 fun GitHubRelease.assetVersion(asset: GitHubAsset, target: UpdateTarget): String? {
     val name = asset.name
     val start = name.lastIndexOf("lampcord-")
@@ -97,9 +121,9 @@ enum class UpdateTarget(val assetInfix: String?, val extension: String, val inst
     }
 }
 
-enum class UpdateChannel(val id: String, val tag: String) {
-    STABLE("stable", "latest"),
-    NIGHTLY("nightly", "nightly");
+enum class UpdateChannel {
+    STABLE,
+    NIGHTLY;
 
     val isPrerelease: Boolean get() = this == NIGHTLY
 }

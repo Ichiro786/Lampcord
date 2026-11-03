@@ -26,7 +26,7 @@ class AudioDecoder(
                     ?.joinToString(separator = "\r\n", postfix = "\r\n") { "${it.key}: ${it.value}" }
                     ?.let { options["headers"] = it }
             }
-            videoStream = -2 // Disable video
+            videoStream = -2
             sampleFormat = AV_SAMPLE_FMT_S16
             start()
         }

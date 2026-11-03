@@ -28,7 +28,7 @@ fun SettingsLayout(
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val isCompact = maxWidth < 600.dp
-        
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -56,7 +56,7 @@ fun SettingsSection(
 ) {
     BoxWithConstraints {
         val isCompact = maxWidth < 600.dp
-        
+
         Column(verticalArrangement = Arrangement.spacedBy(if (isCompact) 16.dp else 24.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -85,7 +85,7 @@ fun SettingsSection(
                     }
                 }
             }
-            
+
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -115,7 +115,7 @@ fun <T> SettingsButtonGroup(
     BoxWithConstraints {
         val isCompact = maxWidth < 600.dp
 
-        if (maxWidth / options.size >= minimumItemWidth) { // Use a dropdown list if there isn't enough room per item
+        if (maxWidth / options.size >= minimumItemWidth) {
             ButtonGroup(
                 modifier = Modifier
                     .then(if (isCompact) Modifier.fillMaxWidth() else Modifier)
@@ -260,7 +260,7 @@ internal fun <T> SettingsButtonGroupCustomIcon(
 ) {
     BoxWithConstraints {
         val isCompact = maxWidth < 600.dp
-        
+
         ButtonGroup(
             modifier = Modifier
                 .then(if (isCompact) Modifier.fillMaxWidth() else Modifier)
@@ -355,7 +355,7 @@ fun <T> SettingsLargeButtonGroup(
 ) {
     BoxWithConstraints {
         val isCompact = maxWidth < 600.dp
-        
+
         ButtonGroup(
             modifier = Modifier
                 .height(110.dp)

@@ -1,5 +1,11 @@
 package me.lampu.lampcord.shared.ui.components.chat
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.copy_link
+import me.lampu.lampcord.shared.generated.resources.unmute_channel_generic
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -156,7 +162,7 @@ fun ChannelNotificationsSheet(
                     ) {
                         Icon(Icons.Filled.Notifications, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Unmute Channel")
+                        Text(stringResource(Res.string.unmute_channel_generic))
                     }
                 }
             } else {
@@ -274,12 +280,12 @@ fun InviteDialog(
                 },
                 enabled = inviteUrl != null
             ) {
-                Text("Copy Link")
+                Text(stringResource(Res.string.copy_link))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         },
         shape = MaterialTheme.shapes.extraLarge

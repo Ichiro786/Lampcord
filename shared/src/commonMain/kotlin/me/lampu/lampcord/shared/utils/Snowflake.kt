@@ -8,12 +8,12 @@ object Snowflake {
     fun nextId(): String {
         val timestamp = getCurrentTimeMillis()
         val sequence = Random.nextLong(0, 4096)
-        
+
         val id = ((timestamp - DISCORD_EPOCH) shl 22) or
-                 (1L shl 17) or // worker id 1
-                 (1L shl 12) or // process id 1
+                 (1L shl 17) or
+                 (1L shl 12) or
                  sequence
-        
+
         return id.toString()
     }
 }

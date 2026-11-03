@@ -128,8 +128,7 @@ actual fun VideoPlayer(
         duration = 0L
         isPlaying = false
         hasEnded = false
-        // The decode size follows the drawn size, so wait for the first layout pass. If none arrives (zero-size
-        // host) the decoder falls back to the 1080p cap.
+
         val drawnSize = withTimeoutOrNull(500) {
             snapshotFlow { viewport }.first { it.width > 0 && it.height > 0 }
         }
@@ -267,7 +266,7 @@ actual fun VideoPlayer(
                     compact = compact,
                     showSeekBar = !compact || videoFrame?.let { it.height > it.width } != true,
                     onTogglePlay = togglePlayback,
-                    onSeek = { 
+                    onSeek = {
                         isDraggingSlider = true
                         currentTime = (it * duration).toLong()
                     },
@@ -368,7 +367,7 @@ private fun BottomVideoControls(
                     listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f), Color.Black.copy(alpha = 0.9f))
                 )
             )
-            .padding(top = 48.dp) // Gradient starting area
+            .padding(top = 48.dp)
     ) {
         Column(
             modifier = Modifier
@@ -649,7 +648,7 @@ private class DesktopVideoPlayer(
 
     private var targetWidth = 0
     private var targetHeight = 0
-    
+
     @Volatile
     private var loadJobId = 0L
 
@@ -691,7 +690,7 @@ private class DesktopVideoPlayer(
 
         val sourceUrls = videoSourceCandidates(url)
         for (sourceUrl in sourceUrls) {
-            // Some mobile videos contain an audio stream that Java Sound cannot open on the current Windows device.
+
             for (videoOnly in listOf(false, true)) {
                 if (loadJobId != currentLoadJobId) return false
                 var g: FFmpegFrameGrabber? = null
@@ -716,7 +715,6 @@ private class DesktopVideoPlayer(
                                 ?.joinToString(separator = "\r\n", postfix = "\r\n") { "${it.key}: ${it.value}" }
                                 ?.let { options["headers"] = it }
 
-                            // MP4 files recorded by phones often put moov and stream metadata late in the file. Give FFmpeg a large enough probe window without forcing a full download before the first frame.
                             options["probesize"] = "50000000"
                             options["analyzeduration"] = "30000000"
                         }
@@ -739,7 +737,7 @@ private class DesktopVideoPlayer(
                                     AudioFormat(sampleRate.toFloat(), 16, channels, true, false)
                                 ).also { it.setVolume(volume) }
                             }.getOrElse { error ->
-                                // Audio output is optional. Keep decoding video when Windows rejects an unusual channel layout or the selected output device is unavailable.
+
                                 println("[VideoPlayer] Audio output unavailable: ${error.message}")
                                 null
                             }
@@ -747,8 +745,7 @@ private class DesktopVideoPlayer(
                     }
 
                     val renderer = audioRenderer
-                    // close() from the UI while this load was in flight already bumped loadJobId and found nothing to
-                    // release, so these would leak. Publishing under the lock means close() sees either the old state or this one.
+
                     val published = synchronized(lifecycleLock) {
                         if (loadJobId != currentLoadJobId || audioRenderer !== renderer) {
                             false
@@ -770,9 +767,7 @@ private class DesktopVideoPlayer(
                     val nativeWidth = candidateGrabber.imageWidth
                     val nativeHeight = candidateGrabber.imageHeight
                     if (nativeWidth > 0 && nativeHeight > 0) {
-                        // Every decoded frame is width*height*4 bytes of native memory and a few stay alive at
-                        // once, so decode no larger than the player is drawn (a 1080p clip in a 500dp inline
-                        // player needs a fraction of its pixels), and never above 1080p even fullscreen.
+
                         val fitScale = viewport
                             ?.takeIf { it.width > 0 && it.height > 0 }
                             ?.let { minOf(it.width.toFloat() / nativeWidth, it.height.toFloat() / nativeHeight) }
@@ -952,7 +947,7 @@ private class DesktopVideoPlayer(
         this.volume = volume.coerceIn(0.0f, 1.0f)
         audioRenderer?.setVolume(this.volume)
     }
-    
+
     fun getDuration(): Long {
         val g = grabber ?: return 0L
         val containerDurationMs = g.getLengthInTime().div(1000)
@@ -969,9 +964,9 @@ private class DesktopVideoPlayer(
             0L
         }
     }
-    
+
     fun getCurrentPosition(): Long {
-        // The audio device is not a reliable clock on Windows: a muted or unavailable line can report a position of zero forever.
+
         return lastVideoPositionMs
     }
 
@@ -1035,7 +1030,7 @@ private class DesktopVideoPlayer(
     }
 
     private fun renderVideo(frame: Frame, forceRender: Boolean = false, isInitialFrame: Boolean = false): Boolean {
-        // Keep video on its own monotonic clock. Java Sound's frame position can remain at zero on Windows, which previously made every frame after the first wait five seconds or get dropped.
+
         val frameMs = normalizedVideoTimestamp(frame)
         if (isInitialFrame && videoClockStartNanos != 0L) {
             videoClockStartMs = frameMs
@@ -1098,13 +1093,13 @@ private class DesktopVideoPlayer(
         val height = frame.imageHeight
         val stride = frame.imageStride
         if (width <= 0 || height <= 0 || stride <= 0) return null
-        
+
         val requiredPixelSize = width * height * 4
         if (pixelBuffer?.size != requiredPixelSize) {
             pixelBuffer = ByteArray(requiredPixelSize)
         }
         val pixels = pixelBuffer!!
-        
+
         buffer.clear()
         val requiredSrcSize = buffer.remaining()
         if (srcBuffer == null || srcBuffer!!.size < requiredSrcSize) {
@@ -1112,7 +1107,7 @@ private class DesktopVideoPlayer(
         }
         val srcBytes = srcBuffer!!
         buffer.get(srcBytes, 0, requiredSrcSize)
-        
+
         var dst = 0
         for (y in 0 until height) {
             var src = y * stride
@@ -1127,8 +1122,7 @@ private class DesktopVideoPlayer(
                 src += 3
             }
         }
-        // installPixels copies into memory the Bitmap owns, so the reused pixelBuffer can't change a displayed frame.
-        // Building the Bitmap directly avoids Image.toComposeImageBitmap(), which would make a second native copy.
+
         val bitmap = Bitmap()
         val installed = bitmap.installPixels(
             ImageInfo(width, height, ColorType.N32, ColorAlphaType.PREMUL, ColorSpace.sRGB),
@@ -1144,9 +1138,6 @@ private class DesktopVideoPlayer(
         return bitmap.asComposeImageBitmap()
     }
 
-    // Skia pixels are native memory that the GC can't see, and decoding produces only tiny Java garbage, so frames
-    // left to the Cleaner pile up at roughly width*height*4 bytes per frame while a video plays. Frames are closed
-    // a few frames after being replaced, on the EDT, so no composition or draw can still be using them.
     private val recentFrames = ArrayDeque<Bitmap>()
 
     private fun retireFrame(bitmap: Bitmap) {

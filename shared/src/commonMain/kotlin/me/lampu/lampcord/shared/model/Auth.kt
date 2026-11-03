@@ -22,7 +22,7 @@ data class LoginResponse(
     val mfa: Boolean? = null,
     val user_settings: ModelUserSettingsBootstrap? = null,
     val required_actions: List<JsonElement>? = null,
-    val code: Int? = null, // Error code (60003 for MFA required)
+    val code: Int? = null,
     val message: String? = null,
     val totp: Boolean? = null,
     val sms: Boolean? = null,

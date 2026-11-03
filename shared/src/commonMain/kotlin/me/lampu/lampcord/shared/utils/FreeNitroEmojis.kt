@@ -37,8 +37,7 @@ object FreeNitroEmojis {
             }
 
             val url = "${customEmojiCdnUrl(id, animated, size = 48)}&name=$name"
-            
-            // Supporting the Aliucord format types (defaulting to standard markdown)
+
             return "[$name]($url)"
         }
 
@@ -118,11 +117,11 @@ object FreeNitroEmojis {
             }
 
             embeds.removeAll { embed ->
-                val embedUrl = embed.url ?: embed.thumbnail?.url ?: embed.image?.url ?: 
+                val embedUrl = embed.url ?: embed.thumbnail?.url ?: embed.image?.url ?:
                               embed.thumbnail?.proxy_url ?: embed.image?.proxy_url
                 embedUrl?.startsWith("https://cdn.discordapp.com/emojis/$id.") == true
             }
-            
+
             changed = true
             "<$animated:$name:$id>"
         }
@@ -130,7 +129,7 @@ object FreeNitroEmojis {
         content = stickerRegex.replace(content) { match ->
             val id = match.groupValues[2]
             val ext = match.groupValues[3]
-            
+
             val formatType = when(ext) {
                 "gif" -> 4
                 "json" -> 3
@@ -147,13 +146,13 @@ object FreeNitroEmojis {
             }
 
             embeds.removeAll { embed ->
-                val embedUrl = embed.url ?: embed.thumbnail?.url ?: embed.image?.url ?: 
+                val embedUrl = embed.url ?: embed.thumbnail?.url ?: embed.image?.url ?:
                               embed.thumbnail?.proxy_url ?: embed.image?.proxy_url
                 embedUrl?.contains("/stickers/$id.") == true
             }
 
             changed = true
-            "" 
+            ""
         }
 
         return if (changed) message.copy(content = content.trim(), embeds = embeds, sticker_items = stickerItems.ifEmpty { null }) else message

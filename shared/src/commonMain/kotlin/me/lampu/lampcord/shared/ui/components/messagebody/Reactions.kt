@@ -1,5 +1,9 @@
 package me.lampu.lampcord.shared.ui.components.messagebody
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.add_reaction
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -142,7 +146,7 @@ fun ReactionsView(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Filled.AddReaction,
-                        contentDescription = "Add Reaction",
+                        contentDescription = stringResource(Res.string.add_reaction),
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )

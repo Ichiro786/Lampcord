@@ -29,7 +29,7 @@ actual fun VideoThumbnail(
                 val thumb = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     context.contentResolver.loadThumbnail(contentUri, Size(512, 512), null)
                 } else {
-                    null // Fallback if needed, but minSdk is 24, so loadThumbnail is Q (29)
+                    null
                 }
                 bitmap = thumb
             } catch (e: Exception) {

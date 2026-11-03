@@ -161,11 +161,11 @@ fun GuildFolderItem(
     var expanded by remember { mutableStateOf(false) }
     var showFolderSettings by remember { mutableStateOf(false) }
     val folderColor = folder.color?.let { Color(it.toLong() or 0xFF000000L) } ?: MaterialTheme.colorScheme.primary
-    
+
     val guildIds = remember(folder.guild_ids) { folder.guild_ids.mapNotNull { el -> el.jsonPrimitive.contentOrNull } }
     val isAnyChildSelected = guildIds.any { id -> id == navigationStore.selectedGuild?.id }
     val reduceMotion = Settings.shared.reduceMotion
-    
+
     val readStates by readStateStore.readStates.collectAsState()
     val userGuildSettings by userGuildSettingsStore.userGuildSettings.collectAsState()
 
@@ -221,7 +221,7 @@ fun GuildFolderItem(
                     modifier = Modifier
                         .align(Alignment.CenterStart)
                         .width(4.dp)
-                        .height(if (isAnyChildSelected) 38.dp else 8.dp) // Stylized indicator
+                        .height(if (isAnyChildSelected) 38.dp else 8.dp)
                         .clip(RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp))
                         .background(MaterialTheme.colorScheme.onSurface)
                 )
@@ -319,7 +319,7 @@ fun GuildFolderItem(
                     }
                 }
             )
-            
+
             if (mentionCount > 0 && !expanded) {
                 Box(modifier = Modifier.size(FolderIconSize).graphicsLayer(clip = false)) {
                     Surface(
@@ -359,7 +359,7 @@ fun GuildFolderItem(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Spacer(Modifier.height(4.dp)) // Small gap after folder icon
+                Spacer(Modifier.height(4.dp))
                 val guilds by guildStore.guilds.collectAsState()
                 folder.guild_ids.forEach { el ->
                     val guildId = el.jsonPrimitive.contentOrNull ?: return@forEach
@@ -367,7 +367,7 @@ fun GuildFolderItem(
                     if (guild != null) {
                         GuildIcon(
                             guild = guild,
-                            isSelected = navigationStore.selectedGuild?.id == guild.id,
+                            isSelected = !navigationStore.isFavoritesSelected && navigationStore.selectedGuild?.id == guild.id,
                             onClick = {
                                 navigationStore.selectGuild(guild) { gatewayManager.sendSubscription(it) }
                                 haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)

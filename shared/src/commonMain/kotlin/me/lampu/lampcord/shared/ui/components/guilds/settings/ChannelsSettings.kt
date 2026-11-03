@@ -1,5 +1,12 @@
 package me.lampu.lampcord.shared.ui.components.guilds.settings
 
+import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.cancel
+import me.lampu.lampcord.shared.generated.resources.delete_channel
+import me.lampu.lampcord.shared.generated.resources.nsfw_title
+import me.lampu.lampcord.shared.generated.resources.save_changes
+import org.jetbrains.compose.resources.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -155,7 +162,7 @@ fun ChannelEditor(channel: Channel, channelApi: ChannelApi, onDone: () -> Unit, 
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Age-Restricted Channel", style = MaterialTheme.typography.bodyLarge)
+                            Text(stringResource(Res.string.nsfw_title), style = MaterialTheme.typography.bodyLarge)
                             Text("Users will need to confirm they are of over legal age to view this channel.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         ExpressiveSwitch(checked = draftNsfw, onCheckedChange = { draftNsfw = it })
@@ -172,7 +179,7 @@ fun ChannelEditor(channel: Channel, channelApi: ChannelApi, onDone: () -> Unit, 
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End), modifier = Modifier.padding(12.dp)) {
                     TextButton(onClick = onDone) {
-                        Text("Cancel")
+                        Text(stringResource(Res.string.cancel))
                     }
                     Button(
                         onClick = {
@@ -184,7 +191,7 @@ fun ChannelEditor(channel: Channel, channelApi: ChannelApi, onDone: () -> Unit, 
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43B581))
                     ) {
-                        Text("Save Changes")
+                        Text(stringResource(Res.string.save_changes))
                     }
                 }
             }
@@ -211,7 +218,7 @@ fun ChannelEditor(channel: Channel, channelApi: ChannelApi, onDone: () -> Unit, 
             ) {
                 Icon(Icons.Default.Delete, null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Delete Channel")
+                Text(stringResource(Res.string.delete_channel))
             }
         }
         
