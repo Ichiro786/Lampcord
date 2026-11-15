@@ -157,7 +157,8 @@ class GatewayManager(
                 val gatewayUrl = cachedGatewayUrl
                     ?: authApi.getGatewayUrl()?.also { cachedGatewayUrl = it }
                     ?: "wss://gateway.discord.gg"
-                val url = (resumeGatewayUrl ?: gatewayUrl).removeSuffix("/") + "/?v=9&encoding=json"
+                val url = (resumeGatewayUrl ?: gatewayUrl).removeSuffix("/") + "/?v=9&encoding=json" +
+                    (if (zlibStreamSupported) "&compress=zlib-stream" else "")
                 Logging.d("Gateway", "Gateway URL: $url")
 
                 val userAgent = when (getPlatformName()) {
@@ -187,12 +188,18 @@ class GatewayManager(
                     authenticated = false
                     sendTimes.clear()
                     val sender = launch { drainQueue(this@webSocket) }
+                    val inflater = if (zlibStreamSupported) ZlibStreamDecoder() else null
 
                     while (isActive) {
                         try {
                             val frame = incoming.receive()
-                            if (frame is Frame.Text) {
-                                val payload = decodePayload(frame.readText())
+                            val text = when (frame) {
+                                is Frame.Text -> frame.readText()
+                                is Frame.Binary -> inflater?.feed(frame.data)
+                                else -> null
+                            }
+                            if (text != null) {
+                                val payload = decodePayload(text)
                                 lastSequence = payload.s ?: lastSequence
                                 handlePayload(payload, token)
                                 if (payload.op == 0) _events.emit(payload)
@@ -227,6 +234,7 @@ class GatewayManager(
                         }
                     }
                     sender.cancel()
+                    inflater?.close()
                     val reason = withContext(NonCancellable) {
                         withTimeoutOrNull(1.seconds) { closeReason.await() }
                     }
@@ -579,7 +587,7 @@ class GatewayManager(
         val identify = Identify(
             token = token,
             properties = properties,
-            capabilities = 351,
+            capabilities = 383, // + PRIORITIZED_READY_PAYLOAD (1 shl 5): members/presences move to READY_SUPPLEMENTAL
             large_threshold = 100,
             compress = false,
             client_state = IdentifyClientState(

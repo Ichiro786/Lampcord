@@ -12,4 +12,5 @@
     <exclude domain="database" path="lampcord.db" />
     <exclude domain="database" path="lampcord.db-wal" />
     <exclude domain="database" path="lampcord.db-shm" />
+    <exclude domain="file" path="startup-snapshot.json" />
 </full-backup-content>
