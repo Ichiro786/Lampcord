@@ -1,6 +1,7 @@
 package me.lampu.lampcord.shared.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
@@ -10,8 +11,6 @@ data class LoginRequest(
     val undelete: Boolean = false,
     val login_source: String? = null,
     val gift_code_sku_id: String? = null,
-    val captcha_key: String? = null,
-    val captcha_rqtoken: String? = null
 )
 
 @Serializable
@@ -26,7 +25,8 @@ data class LoginResponse(
     val message: String? = null,
     val totp: Boolean? = null,
     val sms: Boolean? = null,
-    val backup: Boolean? = null
+    val backup: Boolean? = null,
+    @Transient val captchaCancelled: Boolean = false
 )
 
 @Serializable

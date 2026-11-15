@@ -9,6 +9,7 @@ import me.lampu.lampcord.shared.api.ApplicationApi
 import me.lampu.lampcord.shared.api.AuthApi
 import me.lampu.lampcord.shared.api.ChannelApi
 import me.lampu.lampcord.shared.api.GuildApi
+import me.lampu.lampcord.shared.captcha.CaptchaCoordinator
 import me.lampu.lampcord.shared.api.MediaApi
 import me.lampu.lampcord.shared.api.MessageApi
 import me.lampu.lampcord.shared.api.ProfileBoardApi
@@ -40,7 +41,7 @@ val coreModule = module {
             explicitNulls = false
         }
     }
-    single { createHttpClient() }
+    single { createHttpClient(get()) }
     single { RestClient(get(), get()) }
     single {
         CoroutineScope(
@@ -55,6 +56,7 @@ val coreModule = module {
 }
 
 val apiModule = module {
+    single { CaptchaCoordinator() }
     single { AuthApi(get()) }
     single { ChannelApi(get()) }
     single { MessageApi(get()) }
@@ -95,7 +97,7 @@ val storeModule = module {
     single { UserStore() }
     single { EntityStore(get()) }
     single { SelectionStore() }
-    single { ReadStateStore(get()) }
+    single { ReadStateStore(get(), get(), get()) }
     single { UserGuildSettingsStore() }
     single { AppErrorStore() }
     single { PresenceStore(userApi = get()) }
@@ -127,14 +129,14 @@ val storeModule = module {
     }
     single {
         SearchStore(
-            messageApi = get(), memberListStore = get(), guildStore = get(), userStore = get(), json = get(), scope = get()
+            messageApi = get(), guildApi = get(), memberListStore = get(), guildStore = get(), userStore = get(), json = get(), scope = get()
         )
     }
     single { ProfileStore(userApi = get(), scope = get()) }
     single {
         AutocompleteStore(
             memberListStore = get(), relationshipStore = get(), guildStore = get(),
-            userStore = get(), commandStore = get(), guildApi = get()
+            userStore = get(), commandStore = get(), guildApi = get(), presenceStore = get()
         )
     }
     single { CommandStore(guildApi = get(), gatewayManager = get(), scope = get()) }

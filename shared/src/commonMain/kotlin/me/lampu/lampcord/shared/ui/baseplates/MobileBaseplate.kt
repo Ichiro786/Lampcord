@@ -4,24 +4,31 @@ import me.lampu.lampcord.shared.generated.resources.Res
 import me.lampu.lampcord.shared.generated.resources.back
 import me.lampu.lampcord.shared.generated.resources.channels
 import me.lampu.lampcord.shared.generated.resources.friends
+import me.lampu.lampcord.shared.generated.resources.messages
 import me.lampu.lampcord.shared.generated.resources.home
 import me.lampu.lampcord.shared.generated.resources.lampcord_settings_nav_you
 import me.lampu.lampcord.shared.generated.resources.mentions
 import me.lampu.lampcord.shared.generated.resources.password_manager_open_settings
 import me.lampu.lampcord.shared.generated.resources.pins
+import me.lampu.lampcord.shared.generated.resources.profile
 import me.lampu.lampcord.shared.generated.resources.search
+import me.lampu.lampcord.shared.generated.resources.settings
 import org.jetbrains.compose.resources.stringResource
 
 import me.lampu.lampcord.shared.api.CdnUrls
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +63,11 @@ import me.lampu.lampcord.shared.ui.components.chat.SearchScreen
 import me.lampu.lampcord.shared.ui.components.guilds.ServerBottomSheet
 import me.lampu.lampcord.shared.ui.components.guilds.ServerSettings
 import me.lampu.lampcord.shared.ui.components.members.MemberHeader
+import me.lampu.lampcord.shared.api.UserApi
+import me.lampu.lampcord.shared.model.UserProfile
+import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.HorizontalFloatingToolbar
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.foundation.shape.CircleShape
 import me.lampu.lampcord.shared.utils.PermissionHelper
 import me.lampu.lampcord.shared.ui.components.profiles.ProfileBanner
@@ -75,8 +87,15 @@ import me.lampu.lampcord.shared.ui.navigation.entry
 import me.lampu.lampcord.shared.ui.icons.Icons
 import org.koin.compose.koinInject
 import me.lampu.lampcord.shared.ui.kit.clickableCursor
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.text.style.TextAlign
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+private data class BottomNavItem(val key: String, val screen: Screen)
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun MobileBaseplate(
     navigationStore: NavigationStore = koinInject(),
@@ -86,7 +105,9 @@ fun MobileBaseplate(
 ) {
     val presenceStore: PresenceStore = koinInject()
     val settingsStore: SettingsStore = koinInject()
-    val tokenStore: TokenStore = koinInject()
+    val sessionManager: SessionManager = koinInject()
+    val guildStore: GuildStore = koinInject()
+    val readStateStore: ReadStateStore = koinInject()
     val allUsers by userStore.users.collectAsState()
     val currentUser by userStore.currentUser.collectAsState()
 
@@ -102,6 +123,7 @@ fun MobileBaseplate(
     val topLevelRoutes = remember {
         setOf(
             Screen.Chat,
+            Screen.You,
             Screen.Friends,
             Screen.Mentions,
             Screen.Search,
@@ -127,6 +149,7 @@ fun MobileBaseplate(
     val routeIndexMap = remember {
         mapOf<Any, Int>(
             Screen.Chat to 0,
+            Screen.You to 1,
             Screen.Friends to 1,
             Screen.GlobalSearch to 2,
             Screen.Mentions to 3,
@@ -250,6 +273,10 @@ fun MobileBaseplate(
         }
     }
 
+    LaunchedEffect(currentUser?.id) {
+        profileStore.preloadOwnProfile(currentUser?.id)
+    }
+
     val currentRoute = navigationState.topLevelRoute
     val isChat = currentRoute == Screen.Chat
     val isSettingsRoot = currentRoute == Screen.Settings &&
@@ -272,13 +299,12 @@ fun MobileBaseplate(
         currentRoute == Screen.AboutSettings ||
         currentRoute == Screen.UpdatesSettings
     val isTabRoute = currentRoute in setOf(
-        Screen.Chat, Screen.Friends, Screen.Mentions, Screen.GlobalSearch
+        Screen.Chat, Screen.Mentions, Screen.GlobalSearch
     )
-    val showSettingsTabBar = currentRoute == Screen.Settings && isSettingsRoot
 
-    val targetNavBarVisibleAmount = remember(panelState.progress, panelState.currentValue, currentRoute, isTabRoute, showSettingsTabBar) {
+    val targetNavBarVisibleAmount = remember(panelState.progress, panelState.currentValue, currentRoute, isTabRoute) {
         val progress = panelState.progress
-        if (isTabRoute || showSettingsTabBar) {
+        if (isTabRoute) {
             if (currentRoute == Screen.Chat) {
                 if (panelState.currentValue == DiscordPanelValue.Start) {
                     1f
@@ -321,6 +347,76 @@ fun MobileBaseplate(
                         panelState,
                         navigationStore.selectedThread ?: navigationStore.selectedChannel
                     )
+                }
+            }
+            entry<Screen.You> {
+                val me = currentUser
+                val profile = profileStore.ownProfile?.takeIf { it.user.id == me?.id }
+
+                LaunchedEffect(me?.id, profile) {
+                    if (me?.id != null && profile == null) {
+                        profileStore.preloadOwnProfile(me.id)
+                    }
+                }
+
+                Box(modifier = Modifier.fillMaxSize()) {
+                    val contentLayout = Modifier
+                        .fillMaxSize()
+
+                    if (profile != null) {
+                        ProfileCard(
+                            profile = profile,
+                            modifier = contentLayout,
+                            isExpanded = true,
+                            fillAvailableHeight = true,
+                            showBorder = false,
+                            showFrameArt = false,
+                            showMemberSince = true,
+                            contentBottomPadding = 112.dp,
+                            onOpenFriends = { navigator.navigate(Screen.Friends) }
+                        )
+                        val frameSku = remember(profile) {
+                            ProfileCollectibles.frameSku(profile.user_profile, profile.guild_member_profile)
+                        }
+                        val frameProduct = frameSku?.let { profileStore.getFrame(it) }
+                        frameProduct?.let { product ->
+                            Box(modifier = contentLayout) {
+                                ProfileFrameOverlay(
+                                    product = product,
+                                    modifier = Modifier.matchParentSize(),
+                                    railTop = profileBannerHeight(0.dp, true, null, 0f),
+                                    showBottom = false
+                                )
+                            }
+                        }
+                    } else if (me != null) {
+                        Box(contentLayout, contentAlignment = Alignment.Center) {
+                            ContainedLoadingIndicator(modifier = Modifier.size(40.dp))
+                        }
+                    }
+
+                    HorizontalFloatingToolbar(
+                        expanded = true,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 16.dp)
+                            .navigationBarsPadding(),
+                        colors = FloatingToolbarDefaults.standardFloatingToolbarColors(
+                            toolbarContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                        )
+                    ) {
+                        FilledTonalButton(onClick = { navigator.navigate(Screen.ProfilesSettings) }) {
+                            Icon(Icons.Rounded.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(Res.string.profile))
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        FilledTonalButton(onClick = { navigator.navigate(Screen.Settings) }) {
+                            Icon(Icons.Rounded.Settings, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(Res.string.settings))
+                        }
+                    }
                 }
             }
             entry<Screen.Friends> {
@@ -506,9 +602,9 @@ fun MobileBaseplate(
         }
     )
 
-    val lightPanelColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    val lightPanelColor = MaterialTheme.colorScheme.surfaceContainer
     val darkPanelColor = MaterialTheme.colorScheme.surfaceContainerLowest
-    val chatBackground = MaterialTheme.colorScheme.background
+    val chatBackground = MaterialTheme.colorScheme.surface
     val memberHeaderColor = MaterialTheme.colorScheme.surface
 
     val settingsContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
@@ -530,7 +626,7 @@ fun MobileBaseplate(
             } else {
                 chatBackground
             }
-        } else if (isSettingsRoute || showSettingsTabBar) {
+        } else if (isSettingsRoute) {
             settingsContainerColor
         } else {
             darkPanelColor
@@ -626,213 +722,460 @@ fun MobileBaseplate(
             }
         )
 
-        val navItems = remember(settingsStore.navTabsOrderJson, settingsStore.showNavHome, settingsStore.showNavFriends, settingsStore.showNavSearch, settingsStore.showNavMentions, settingsStore.showNavSettings) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+        )
+
+        val navItems = remember(
+            settingsStore.navTabsOrderJson,
+            settingsStore.showNavHome,
+            settingsStore.showNavDm,
+            settingsStore.showNavSearch,
+            settingsStore.showNavMentions,
+            settingsStore.showNavSettings
+        ) {
+            val defaultOrder = listOf("home", "dm", "search", "mentions", "you")
             val order = runCatching {
                 settingsStore.navTabsOrderJson.removeSurrounding("[", "]").split(",").map { it.trim().removeSurrounding("\"") }
-            }.getOrDefault(listOf("home", "friends", "search", "mentions", "settings"))
+            }.getOrDefault(defaultOrder)
 
-            val items = order.mapNotNull { key ->
+            val normalizedOrder = order
+                .map { if (it == "settings") "you" else it }
+                .filter { it != "friends" }
+                .let { list -> defaultOrder.filter { it in list } + defaultOrder.filter { it !in list } }
+
+            val items = normalizedOrder.mapNotNull { key ->
                 when (key) {
-                    "home" -> if (settingsStore.showNavHome) Screen.Chat else null
-                    "friends" -> if (settingsStore.showNavFriends) Screen.Friends else null
-                    "search" -> if (settingsStore.showNavSearch) Screen.GlobalSearch else null
-                    "mentions" -> if (settingsStore.showNavMentions) Screen.Mentions else null
-                    "settings" -> if (settingsStore.showNavSettings) Screen.Settings else null
+                    "home" -> if (settingsStore.showNavHome) BottomNavItem("home", Screen.Chat) else null
+                    "dm" -> if (settingsStore.showNavDm) BottomNavItem("dm", Screen.Chat) else null
+                    "search" -> if (settingsStore.showNavSearch) BottomNavItem("search", Screen.GlobalSearch) else null
+                    "mentions" -> if (settingsStore.showNavMentions) BottomNavItem("mentions", Screen.Mentions) else null
+                    "you" -> if (settingsStore.showNavSettings) BottomNavItem("you", Screen.You) else null
                     else -> null
                 }
             }
 
-            if (items.isEmpty()) listOf(Screen.EasterEgg) else items
+            if (items.isEmpty()) listOf(BottomNavItem("easter", Screen.EasterEgg)) else items
         }
 
-        if ((isTabRoute || showSettingsTabBar) && navBarVisibleAmount > 0.001f) {
-            NavigationBar(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .graphicsLayer {
-                        translationY = (1f - navBarVisibleAmount) * navBarHeight.toPx()
-                        alpha = navBarVisibleAmount
-                    },
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 0.dp,
-                windowInsets = WindowInsets.navigationBars
-            ) {
-                navItems.forEach { screen ->
-                    when (screen) {
-                        Screen.Chat -> {
-                            NavigationBarItem(
-                                selected = currentRoute == Screen.Chat,
-                                onClick = {
-                                    navigationStore.isFriendsSelected = false
-                                    navigationStore.isSettingsVisible = false
-                                    navigationStore.isSearchVisible = false
-                                    navigationStore.isMentionsSelected = false
-                                    if (currentRoute != Screen.Chat) {
-                                        if (lastPanelValue == DiscordPanelValue.Center) {
-                                            lastPanelValue = DiscordPanelValue.Start
-                                        }
-                                        panelState.currentValue = lastPanelValue
-                                    } else {
-                                        if (panelState.currentValue == DiscordPanelValue.Center) {
+        if (isTabRoute && navBarVisibleAmount > 0.001f) {
+            if (settingsStore.useYouBar) {
+                val privateChannels by guildStore.privateChannels.collectAsState()
+                val readStates by readStateStore.readStates.collectAsState()
+                val dmMentionCount = remember(privateChannels, readStates) {
+                    privateChannels.sumOf { readStates[it.id]?.mention_count ?: 0 }
+                }
+                var swipeTotal by remember { mutableFloatStateOf(0f) }
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)
+                        .windowInsetsPadding(WindowInsets.navigationBars)
+                        .graphicsLayer {
+                            translationY = (1f - navBarVisibleAmount) * navBarHeight.toPx()
+                            alpha = navBarVisibleAmount
+                        }
+                        .pointerInput(navigationStore.selectedGuild?.id) {
+                            detectHorizontalDragGestures(
+                                onDragStart = { swipeTotal = 0f },
+                                onDragCancel = { swipeTotal = 0f },
+                                onDragEnd = {
+                                    val threshold = 72f
+                                    if (swipeTotal > threshold) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        navigationStore.selectHome()
+                                        navigator.navigate(Screen.Chat)
+                                    } else if (swipeTotal < -threshold) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        navigator.navigate(Screen.Chat)
+                                        if (panelState.currentValue != DiscordPanelValue.Start) {
                                             panelState.openStart()
-                                        } else {
-                                            panelState.close()
                                         }
                                     }
-                                    navigator.navigate(Screen.Chat)
+                                    swipeTotal = 0f
                                 },
-                                icon = { Icon(if (currentRoute == Screen.Chat) Icons.Brand.DiscordRounded else Icons.Brand.DiscordRoundedOutline, "Home") },
-                                label = { Text(stringResource(Res.string.home)) },
-                                alwaysShowLabel = !settingsStore.hideNavLabels
+                                onHorizontalDrag = { change, dragAmount ->
+                                    change.consume()
+                                    swipeTotal += dragAmount
+                                }
+                            )
+                        },
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 3.dp,
+                    shadowElevation = 2.dp
+                ) {
+                    val nameplate = currentUser?.collectibles?.nameplate
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        if (nameplate != null) {
+                            val decoUrl = "https://cdn.discordapp.com/assets/collectibles/${nameplate.asset}img.png?passthrough=true"
+                            AsyncImage(
+                                model = decoUrl,
+                                contentDescription = null,
+                                modifier = Modifier.matchParentSize(),
+                                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                alpha = 0.4f
                             )
                         }
-                        Screen.Friends -> {
-                            NavigationBarItem(
-                                selected = currentRoute == Screen.Friends,
-                                onClick = {
-                                    navigationStore.isMentionsSelected = false
-                                    navigationStore.isFriendsSelected = true
-                                    navigator.navigate(Screen.Friends)
-                                },
-                                icon = { Icon(if (currentRoute == Screen.Friends) Icons.Filled.Person else Icons.Rounded.Person, "Friends") },
-                                label = { Text(stringResource(Res.string.friends)) },
-                                alwaysShowLabel = !settingsStore.hideNavLabels
-                            )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 72.dp)
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                        val user = currentUser
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(MaterialTheme.shapes.large)
+                                .combinedClickable(
+                                    onClick = { navigator.navigate(Screen.You) },
+                                    onLongClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        showUserStatusSheet = true
+                                    }
+                                )
+                                .padding(horizontal = 8.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(modifier = Modifier.size(40.dp)) {
+                                AvatarWithDecoration(
+                                    avatarUrl = user?.avatar?.let { CdnUrls.getUserAvatarUrl(user.id, it, 128) },
+                                    decorationData = user?.avatar_decoration_data,
+                                    size = 40.dp,
+                                    status = presenceStore.getUserStatus(
+                                        user?.id ?: "",
+                                        user?.id,
+                                        settingsStore.userSettings?.status
+                                    )
+                                )
+                            }
+                            Spacer(Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = user?.global_name ?: user?.username ?: stringResource(Res.string.lampcord_settings_nav_you),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = "@${user?.username ?: ""}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
-                        Screen.GlobalSearch -> {
-                            NavigationBarItem(
-                                selected = currentRoute == Screen.GlobalSearch,
-                                onClick = {
-                                    navigator.navigate(Screen.GlobalSearch)
-                                },
-                                icon = { Icon(Icons.Filled.Search, "Search") },
-                                label = { Text(stringResource(Res.string.search)) },
-                                alwaysShowLabel = !settingsStore.hideNavLabels
-                            )
-                        }
-                        Screen.Mentions -> {
-                            NavigationBarItem(
-                                selected = currentRoute == Screen.Mentions,
-                                onClick = {
-                                    navigationStore.isFriendsSelected = false
-                                    navigationStore.isMentionsSelected = true
-                                    navigator.navigate(Screen.Mentions)
-                                },
-                                icon = { Icon(Icons.Rounded.AlternateEmail, "Mentions") },
-                                label = { Text(stringResource(Res.string.mentions)) },
-                                alwaysShowLabel = !settingsStore.hideNavLabels
-                            )
-                        }
-                        Screen.Settings -> {
-                            NavigationBarItem(
-                                selected = currentRoute == Screen.Settings,
-                                onClick = {
-                                    navigationStore.isSettingsVisible = true
-                                    navigator.navigate(Screen.Settings)
-                                },
-                                modifier = Modifier.pointerInput(Unit) {
-                                    awaitPointerEventScope {
-                                        while (true) {
-                                            val down = awaitFirstDown(
-                                                pass = PointerEventPass.Initial,
-                                                requireUnconsumed = false
-                                            )
-                                            val timedOut = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
-                                                while (true) {
-                                                    val event = awaitPointerEvent(PointerEventPass.Initial)
-                                                    if (event.changes.none { it.pressed }) {
-                                                        return@withTimeoutOrNull false
-                                                    }
-                                                }
-                                                false
-                                            } ?: true
 
-                                            if (timedOut) {
-                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                showUserStatusSheet = true
-                                                down.consume()
-                                                while (true) {
-                                                    val event = awaitPointerEvent(PointerEventPass.Initial)
-                                                    event.changes.forEach { it.consume() }
-                                                    if (event.changes.all { !it.pressed }) break
+                        val favoritesVisible = Settings.shared.favoritesServerEnabled
+                        val dmSelected = currentRoute == Screen.Chat &&
+                            navigationStore.selectedGuild == null &&
+                            !(navigationStore.isFavoritesSelected && favoritesVisible)
+                        val profileActions = buildList {
+                            if (settingsStore.showNavDm) add("dm")
+                            if (settingsStore.showNavSearch) add("search")
+                            add("mentions")
+                        }
+
+                        ButtonGroup(
+                            modifier = Modifier
+                                .height(40.dp)
+                                .animateContentSize(
+                                    animationSpec = if (Settings.shared.reduceMotion) snap() else spring(dampingRatio = 0.8f, stiffness = 500f)
+                                ),
+                            overflowIndicator = { menuState -> ButtonGroupDefaults.OverflowIndicator(menuState) },
+                            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                        ) {
+                            profileActions.forEachIndexed { index, action ->
+                                val isFirst = index == 0
+                                val isLast = index == profileActions.lastIndex
+                                customItem(
+                                    buttonGroupContent = {
+                                        val shapes = when {
+                                            profileActions.size == 1 -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                            isFirst -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                            isLast -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                            else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                        }
+                                        when (action) {
+                                            "dm" -> ToggleButton(
+                                                checked = dmSelected,
+                                                onCheckedChange = {
+                                                    navigationStore.isSettingsVisible = false
+                                                    navigationStore.isSearchVisible = false
+                                                    navigationStore.selectHome()
+                                                    navigator.navigate(Screen.Chat)
+                                                },
+                                                shapes = shapes,
+                                                colors = ToggleButtonDefaults.tonalToggleButtonColors(),
+                                                contentPadding = PaddingValues(0.dp),
+                                                modifier = Modifier.fillMaxSize().widthIn(min = 40.dp)
+                                            ) {
+                                                BadgedBox(
+                                                    badge = {
+                                                        if (dmMentionCount > 0) {
+                                                            Badge { Text(if (dmMentionCount > 99) "99+" else dmMentionCount.toString()) }
+                                                        }
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        imageVector = if (dmSelected) Icons.Filled.ChatBubble else Icons.Rounded.ChatBubble,
+                                                        contentDescription = stringResource(Res.string.messages),
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                }
+                                            }
+                                            "search" -> ToggleButton(
+                                                checked = currentRoute == Screen.GlobalSearch,
+                                                onCheckedChange = { navigator.navigate(Screen.GlobalSearch) },
+                                                shapes = shapes,
+                                                colors = ToggleButtonDefaults.tonalToggleButtonColors(),
+                                                contentPadding = PaddingValues(0.dp),
+                                                modifier = Modifier.fillMaxSize().widthIn(min = 40.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.Search,
+                                                    contentDescription = stringResource(Res.string.search),
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                            }
+                                            else -> ToggleButton(
+                                                checked = currentRoute == Screen.Mentions,
+                                                onCheckedChange = {
+                                                    navigationStore.isFriendsSelected = false
+                                                    navigationStore.isMentionsSelected = true
+                                                    navigator.navigate(Screen.Mentions)
+                                                },
+                                                shapes = shapes,
+                                                colors = ToggleButtonDefaults.tonalToggleButtonColors(),
+                                                contentPadding = PaddingValues(0.dp),
+                                                modifier = Modifier.fillMaxSize().widthIn(min = 40.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Rounded.AlternateEmail,
+                                                    contentDescription = stringResource(Res.string.mentions),
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                            }
+                                        }
+                                    },
+                                    menuContent = {
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    when (action) {
+                                                        "dm" -> stringResource(Res.string.messages)
+                                                        "search" -> stringResource(Res.string.search)
+                                                        else -> stringResource(Res.string.mentions)
+                                                    }
+                                                )
+                                            },
+                                            onClick = {
+                                                when (action) {
+                                                    "dm" -> {
+                                                        navigationStore.selectHome()
+                                                        navigator.navigate(Screen.Chat)
+                                                    }
+                                                    "search" -> navigator.navigate(Screen.GlobalSearch)
+                                                    else -> navigator.navigate(Screen.Mentions)
+                                                }
+                                            },
+                                            leadingIcon = {
+                                                Icon(
+                                                    when (action) {
+                                                        "dm" -> Icons.Rounded.ChatBubble
+                                                        "search" -> Icons.Filled.Search
+                                                        else -> Icons.Rounded.AlternateEmail
+                                                    },
+                                                    null
+                                                )
+                                            }
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    }
+                }
+            } else {
+                NavigationBar(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            translationY = (1f - navBarVisibleAmount) * navBarHeight.toPx()
+                            alpha = navBarVisibleAmount
+                        },
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 0.dp,
+                    windowInsets = WindowInsets.navigationBars
+                ) {
+                    navItems.forEach { item ->
+                        when (item.key) {
+                            "home" -> {
+                                val favoritesVisible = Settings.shared.favoritesServerEnabled
+                                val dmSelected = currentRoute == Screen.Chat &&
+                                    navigationStore.selectedGuild == null &&
+                                    !(navigationStore.isFavoritesSelected && favoritesVisible)
+                                val homeSelected = currentRoute == Screen.Chat && (!settingsStore.showNavDm || !dmSelected)
+                                NavigationBarItem(
+                                    selected = homeSelected,
+                                    onClick = {
+                                        navigationStore.isFriendsSelected = false
+                                        navigationStore.isSettingsVisible = false
+                                        navigationStore.isSearchVisible = false
+                                        navigationStore.isMentionsSelected = false
+                                        if (currentRoute != Screen.Chat) {
+                                            if (lastPanelValue == DiscordPanelValue.Center) {
+                                                lastPanelValue = DiscordPanelValue.Start
+                                            }
+                                            panelState.currentValue = lastPanelValue
+                                        } else {
+                                            if (panelState.currentValue == DiscordPanelValue.Center) {
+                                                panelState.openStart()
+                                            } else {
+                                                panelState.close()
+                                            }
+                                        }
+                                        navigator.navigate(Screen.Chat)
+                                    },
+                                    icon = { Icon(if (homeSelected) Icons.Filled.Home else Icons.Rounded.Home, "Home") },
+                                    label = { Text(stringResource(Res.string.home)) },
+                                    alwaysShowLabel = !settingsStore.hideNavLabels
+                                )
+                            }
+                            "dm" -> {
+                                val favoritesVisible = Settings.shared.favoritesServerEnabled
+                                val dmSelected = currentRoute == Screen.Chat &&
+                                    navigationStore.selectedGuild == null &&
+                                    !(navigationStore.isFavoritesSelected && favoritesVisible)
+                                NavigationBarItem(
+                                    selected = dmSelected,
+                                    onClick = {
+                                        navigationStore.isSettingsVisible = false
+                                        navigationStore.isSearchVisible = false
+                                        navigationStore.selectHome()
+                                        if (currentRoute != Screen.Chat) {
+                                            if (lastPanelValue == DiscordPanelValue.Center) {
+                                                lastPanelValue = DiscordPanelValue.Start
+                                            }
+                                            panelState.currentValue = lastPanelValue
+                                        }
+                                        navigator.navigate(Screen.Chat)
+                                    },
+                                    icon = { Icon(if (dmSelected) Icons.Filled.ChatBubble else Icons.Rounded.ChatBubble, "Direct Messages") },
+                                    label = { Text(stringResource(Res.string.messages)) },
+                                    alwaysShowLabel = !settingsStore.hideNavLabels
+                                )
+                            }
+
+                            "search" -> {
+                                NavigationBarItem(
+                                    selected = currentRoute == Screen.GlobalSearch,
+                                    onClick = {
+                                        navigator.navigate(Screen.GlobalSearch)
+                                    },
+                                    icon = { Icon(Icons.Filled.Search, "Search") },
+                                    label = { Text(stringResource(Res.string.search)) },
+                                    alwaysShowLabel = !settingsStore.hideNavLabels
+                                )
+                            }
+                            "mentions" -> {
+                                NavigationBarItem(
+                                    selected = currentRoute == Screen.Mentions,
+                                    onClick = {
+                                        navigationStore.isFriendsSelected = false
+                                        navigationStore.isMentionsSelected = true
+                                        navigator.navigate(Screen.Mentions)
+                                    },
+                                    icon = { Icon(Icons.Rounded.AlternateEmail, "Mentions") },
+                                    label = { Text(stringResource(Res.string.mentions)) },
+                                    alwaysShowLabel = !settingsStore.hideNavLabels
+                                )
+                            }
+                            "you" -> {
+                                NavigationBarItem(
+                                    selected = currentRoute == Screen.You,
+                                    onClick = {
+                                        navigator.navigate(Screen.You)
+                                    },
+                                    modifier = Modifier.pointerInput(Unit) {
+                                        awaitPointerEventScope {
+                                            while (true) {
+                                                val down = awaitFirstDown(
+                                                    pass = PointerEventPass.Initial,
+                                                    requireUnconsumed = false
+                                                )
+                                                val timedOut = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+                                                    while (true) {
+                                                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                                                        if (event.changes.none { it.pressed }) {
+                                                            return@withTimeoutOrNull false
+                                                        }
+                                                    }
+                                                    false
+                                                } ?: true
+
+                                                if (timedOut) {
+                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                    showUserStatusSheet = true
+                                                    down.consume()
+                                                    while (true) {
+                                                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                                                        event.changes.forEach { it.consume() }
+                                                        if (event.changes.all { !it.pressed }) break
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                },
-                                icon = {
-                                    val user = currentUser
-                                    val avatarUrl = user?.avatar?.let { "https://cdn.discordapp.com/avatars/${user.id}/$it.png?size=64" }
-                                    if (avatarUrl != null) {
-                                        Box(modifier = Modifier.size(24.dp)) {
-                                            AvatarWithDecoration(
-                                                avatarUrl = avatarUrl,
-                                                decorationData = currentUser?.avatar_decoration_data,
-                                                size = 24.dp,
-                                                status = presenceStore.getUserStatus(
-                                                    currentUser?.id ?: "",
-                                                    currentUser?.id,
-                                                    settingsStore.userSettings?.status
+                                    },
+                                    icon = {
+                                        val user = currentUser
+                                        val avatarUrl = user?.avatar?.let { CdnUrls.getUserAvatarUrl(user.id, user.avatar, 64) }
+                                        if (avatarUrl != null) {
+                                            Box(modifier = Modifier.size(24.dp)) {
+                                                AvatarWithDecoration(
+                                                    avatarUrl = avatarUrl,
+                                                    decorationData = currentUser?.avatar_decoration_data,
+                                                    size = 24.dp,
+                                                    status = presenceStore.getUserStatus(
+                                                        currentUser?.id ?: "",
+                                                        currentUser?.id,
+                                                        settingsStore.userSettings?.status
+                                                    )
                                                 )
-                                            )
+                                            }
+                                        } else {
+                                            Icon(Icons.Rounded.AccountCircle, stringResource(Res.string.lampcord_settings_nav_you))
                                         }
-                                    } else {
-                                        Icon(Icons.Filled.Settings, "You")
-                                    }
-                                },
-                                label = { Text(stringResource(Res.string.lampcord_settings_nav_you)) },
-                                alwaysShowLabel = !settingsStore.hideNavLabels
-                            )
+                                    },
+                                    label = { Text(stringResource(Res.string.lampcord_settings_nav_you)) },
+                                    alwaysShowLabel = !settingsStore.hideNavLabels
+                                )
+                            }
+                            "easter" -> {
+                                NavigationBarItem(
+                                    selected = currentRoute == Screen.EasterEgg,
+                                    onClick = { navigator.navigate(Screen.EasterEgg) },
+                                    icon = { Icon(Icons.Filled.QuestionMark, null) },
+                                    label = { Text("?") },
+                                    alwaysShowLabel = !settingsStore.hideNavLabels
+                                )
+                            }
+                            else -> {}
                         }
-                        Screen.EasterEgg -> {
-                            NavigationBarItem(
-                                selected = currentRoute == Screen.EasterEgg,
-                                onClick = { navigator.navigate(Screen.EasterEgg) },
-                                icon = { Icon(Icons.Filled.QuestionMark, null) },
-                                label = { Text("?") },
-                                alwaysShowLabel = !settingsStore.hideNavLabels
-                            )
-                        }
-                        else -> {}
                     }
                 }
             }
-        }
-
-        PlatformBackHandler(enabled = navigationStore.isSettingsVisible) {
-            val currentStack = navigationState.backStacks[navigationState.topLevelRoute]
-            if (currentStack != null && currentStack.lastOrNull() != Screen.Settings) {
-                navigator.goBack()
-            } else {
-                navigationStore.isSettingsVisible = false
-            }
-        }
-
-        PlatformBackHandler(enabled = navigationStore.isServerSettingsVisible) {
-            val currentStack = navigationState.backStacks[navigationState.topLevelRoute]
-            if (currentStack != null && currentStack.lastOrNull() != Screen.ServerSettings) {
-                navigator.goBack()
-            } else {
-                navigationStore.isServerSettingsVisible = false
-            }
-        }
-
-        PlatformBackHandler(enabled = navigationStore.channelSettingsChannel != null) {
-            val currentStack = navigationState.backStacks[navigationState.topLevelRoute]
-            if (currentStack != null && currentStack.lastOrNull() != Screen.ChannelSettings) {
-                navigator.goBack()
-            } else {
-                navigationStore.closeChannelSettings()
-            }
-        }
-
-        PlatformBackHandler(enabled = navigationStore.isSearchVisible) {
-            navigationStore.isSearchVisible = false
-        }
-
-        PlatformBackHandler(enabled = navigationStore.isPinsVisible) {
-            navigationStore.isPinsVisible = false
         }
 
         PlatformBackHandler(enabled = navigationStore.isNotificationsSettingsVisible) {
@@ -955,8 +1298,7 @@ fun MobileBaseplate(
         UserStatusBottomSheet(
             onDismiss = { showUserStatusSheet = false },
             onSwitchAccount = { account ->
-                tokenStore.switchAccount(account.token)
-                me.lampu.lampcord.shared.utils.restartApp()
+                sessionManager.switchAccount(account.token)
             },
             onSetCustomStatus = { showCustomStatusDialog = true },
             onAddAccount = { showAddAccountDialog = true }
@@ -983,7 +1325,7 @@ fun MobileBaseplate(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
+                color = MaterialTheme.colorScheme.surface
             ) {
                 me.lampu.lampcord.shared.ui.LoginScreen(onLoginSuccess = { showAddAccountDialog = false })
             }
@@ -1030,7 +1372,7 @@ private fun MainBaseplateContent(
     key(navigationStore.selectedGuild?.id ?: "home") {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background,
+            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp
         ) {
             Scaffold(
@@ -1098,7 +1440,7 @@ private fun MainBaseplateContent(
                                             if (recipient != null) {
                                                 Box(modifier = Modifier.size(32.dp)) {
                                                     AvatarWithDecoration(
-                                                        avatarUrl = recipient.avatar?.let { "https://cdn.discordapp.com/avatars/${recipient.id}/$it.png?size=64" },
+                                                        avatarUrl = recipient.avatar?.let { CdnUrls.getUserAvatarUrl(recipient.id, recipient.avatar, 64) },
                                                         decorationData = recipient.avatar_decoration_data,
                                                         size = 32.dp,
                                                         status = presenceStore.getUserStatus(recipient.id, currentUser?.id, settingsStore.userSettings?.status)
@@ -1296,7 +1638,7 @@ private fun MainBaseplateContent(
                     modifier = Modifier
                         .padding(top = padding.calculateTopPadding(), bottom = 0.dp)
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background),
+                        .background(MaterialTheme.colorScheme.surface),
                     label = "MainContentTransition"
                 ) { target ->
                     Box(Modifier.fillMaxSize()) {
@@ -1309,6 +1651,7 @@ private fun MainBaseplateContent(
                                     modifier = Modifier
                                         .fillMaxSize()
                                 ) {
+                                    DmCallStage(activeChannel)
                                     Box(modifier = Modifier.weight(1f)) {
                                             if (activeChannel.type == 15 && navigationStore.selectedThread == null) {
                                                 ForumPostList()
@@ -1326,7 +1669,7 @@ private fun MainBaseplateContent(
                         } else {
                             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.Brand.Discord, null, modifier = Modifier.size(80.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+                                    Icon(Icons.Rounded.Home, null, modifier = Modifier.size(80.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
                                     Spacer(Modifier.height(24.dp))
                                     Text("Select a channel to start chatting", color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     Spacer(Modifier.height(24.dp))

@@ -3,6 +3,7 @@ package me.lampu.lampcord
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import me.lampu.lampcord.shared.state.AppVisibilityStore
 
 object AppLifecycleTracker : Application.ActivityLifecycleCallbacks {
     private var startedActivities = 0
@@ -13,6 +14,8 @@ object AppLifecycleTracker : Application.ActivityLifecycleCallbacks {
     var onForegroundChanged: ((Boolean) -> Unit)? = null
 
     fun register(application: Application) {
+        // The process can start from a push or service with no activity shown.
+        AppVisibilityStore.setVisible(isInForeground)
         application.registerActivityLifecycleCallbacks(this)
     }
 
@@ -20,6 +23,7 @@ object AppLifecycleTracker : Application.ActivityLifecycleCallbacks {
         startedActivities++
         if (startedActivities == 1 && !isInForeground) {
             isInForeground = true
+            AppVisibilityStore.setVisible(true)
             onForegroundChanged?.invoke(true)
         }
     }
@@ -29,6 +33,7 @@ object AppLifecycleTracker : Application.ActivityLifecycleCallbacks {
         if (startedActivities <= 0 && isInForeground) {
             startedActivities = 0
             isInForeground = false
+            AppVisibilityStore.setVisible(false)
             onForegroundChanged?.invoke(false)
         }
     }

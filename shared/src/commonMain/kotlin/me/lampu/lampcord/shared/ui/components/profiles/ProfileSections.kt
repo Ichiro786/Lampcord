@@ -1,6 +1,7 @@
 package me.lampu.lampcord.shared.ui.components.profiles
 
 import me.lampu.lampcord.shared.generated.resources.Res
+import me.lampu.lampcord.shared.generated.resources.friends
 import me.lampu.lampcord.shared.generated.resources.manage_user
 import me.lampu.lampcord.shared.generated.resources.mutual_friends
 import me.lampu.lampcord.shared.generated.resources.mutual_guilds
@@ -69,6 +70,7 @@ fun ProfileSections(
     isExpanded: Boolean,
     showMemberSince: Boolean = false,
     showMutualsInConnections: Boolean = true,
+    onOpenFriends: (() -> Unit)? = null,
     guildStore: GuildStore = koinInject(),
     presenceStore: PresenceStore = koinInject(),
     userStore: UserStore = koinInject()
@@ -279,6 +281,31 @@ fun ProfileSections(
                                 )
                             })
                         }
+                    )
+                }
+            }
+
+            onOpenFriends?.let { openFriends ->
+                Column {
+                    ProfileSectionHeader("Friends", profileTextColor)
+                    Material3SettingsGroup(
+                        horizontalPadding = 0.dp,
+                        items = listOf(
+                            Material3SettingsItem(
+                                icon = Icons.Rounded.Person,
+                                iconTint = profileTextColor,
+                                containerColor = theme.cardColor.copy(alpha = 0.3f),
+                                title = { Text(stringResource(Res.string.friends), color = profileTextColor) },
+                                onClick = openFriends,
+                                trailingContent = {
+                                    Icon(
+                                        Icons.Rounded.KeyboardArrowRight,
+                                        contentDescription = null,
+                                        tint = profileSecondaryTextColor
+                                    )
+                                }
+                            )
+                        )
                     )
                 }
             }

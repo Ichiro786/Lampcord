@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import me.lampu.lampcord.shared.state.SessionManager
 import me.lampu.lampcord.shared.api.RemoteAuthClient
 import me.lampu.lampcord.shared.api.RemoteAuthState
+import me.lampu.lampcord.shared.api.CdnUrls
 import me.lampu.lampcord.shared.ui.components.ContainedLoadingIndicator
 import kotlinx.coroutines.launch
 import me.lampu.lampcord.shared.ui.icons.Icons
@@ -34,6 +35,7 @@ import me.lampu.lampcord.shared.generated.resources.error
 import me.lampu.lampcord.shared.generated.resources.form_label_password
 import me.lampu.lampcord.shared.generated.resources.lampcord_login_backup_code_label
 import me.lampu.lampcord.shared.generated.resources.lampcord_login_backup_title
+import me.lampu.lampcord.shared.generated.resources.lampcord_login_error_captcha_cancelled
 import me.lampu.lampcord.shared.generated.resources.lampcord_login_error_enter_token
 import me.lampu.lampcord.shared.generated.resources.lampcord_login_error_failed
 import me.lampu.lampcord.shared.generated.resources.lampcord_login_error_invalid
@@ -88,6 +90,7 @@ fun LoginScreen(
     val loginFailedError = stringResource(Res.string.lampcord_login_error_failed)
     val invalidLoginError = stringResource(Res.string.lampcord_login_error_invalid)
     val invalidMfaError = stringResource(Res.string.lampcord_login_error_invalid_mfa)
+    val captchaCancelledError = stringResource(Res.string.lampcord_login_error_captcha_cancelled)
     val unexpectedError = stringResource(Res.string.lampcord_login_error_unexpected)
 
     LaunchedEffect(remoteAuthState) {
@@ -135,6 +138,8 @@ fun LoginScreen(
                             onLoginSuccess()
                         } else if (response.mfa == true && response.ticket != null) {
                             mfaTicket = response.ticket
+                        } else if (response.captchaCancelled) {
+                            errorMessage = captchaCancelledError
                         } else if (response.message != null) {
                             errorMessage = response.message
                         } else {
@@ -393,9 +398,7 @@ fun LoginScreen(
                                 }
                                 is RemoteAuthState.UserScanned -> {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        val avatarUrl = state.user.avatar?.let {
-                                            "https://cdn.discordapp.com/avatars/${state.user.id}/$it.png?size=128"
-                                        }
+                                        val avatarUrl = state.user.avatar?.let { CdnUrls.getUserAvatarUrl(state.user.id, it, 128) }
                                         if (avatarUrl != null) {
                                             me.lampu.lampcord.shared.ui.components.AsyncImage(
                                                 model = avatarUrl,

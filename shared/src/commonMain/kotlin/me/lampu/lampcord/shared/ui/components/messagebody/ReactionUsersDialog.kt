@@ -2,8 +2,10 @@ package me.lampu.lampcord.shared.ui.components.messagebody
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import me.lampu.lampcord.shared.api.CdnUrls
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -33,6 +35,8 @@ import me.lampu.lampcord.shared.utils.getPlatformName
 import org.koin.compose.koinInject
 import kotlinx.coroutines.launch
 import me.lampu.lampcord.shared.ui.components.ImageLoadState
+import me.lampu.lampcord.shared.state.NavigationStore
+import me.lampu.lampcord.shared.state.ProfileStore
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -42,7 +46,9 @@ fun ReactionUsersDialog(
     reactions: List<MessageReaction>,
     initialEmoji: MessageReaction,
     onDismiss: () -> Unit,
-    messageApi: MessageApi = koinInject()
+    messageApi: MessageApi = koinInject(),
+    navigationStore: NavigationStore = koinInject(),
+    profileStore: ProfileStore = koinInject()
 ) {
     val isMobile = getPlatformName() == "android" || getPlatformName() == "ios"
     val pagerState = rememberPagerState(initialPage = reactions.indexOf(initialEmoji).coerceAtLeast(0)) { reactions.size }
@@ -60,7 +66,10 @@ fun ReactionUsersDialog(
                 messageId = messageId,
                 reactions = reactions,
                 pagerState = pagerState,
-                messageApi = messageApi
+                messageApi = messageApi,
+                navigationStore = navigationStore,
+                profileStore = profileStore,
+                onDismiss = onDismiss
             )
         }
     } else {
@@ -77,7 +86,10 @@ fun ReactionUsersDialog(
                     messageId = messageId,
                     reactions = reactions,
                     pagerState = pagerState,
-                    messageApi = messageApi
+                    messageApi = messageApi,
+                    navigationStore = navigationStore,
+                    profileStore = profileStore,
+                    onDismiss = onDismiss
                 )
             }
         }
@@ -91,7 +103,10 @@ private fun ReactionUsersContent(
     messageId: String,
     reactions: List<MessageReaction>,
     pagerState: PagerState,
-    messageApi: MessageApi
+    messageApi: MessageApi,
+    navigationStore: NavigationStore,
+    profileStore: ProfileStore,
+    onDismiss: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -146,7 +161,10 @@ private fun ReactionUsersContent(
                 channelId = channelId,
                 messageId = messageId,
                 reaction = reactions[page],
-                messageApi = messageApi
+                messageApi = messageApi,
+                navigationStore = navigationStore,
+                profileStore = profileStore,
+                onDismiss = onDismiss
             )
         }
     }
@@ -157,7 +175,10 @@ private fun ReactionUserList(
     channelId: String,
     messageId: String,
     reaction: MessageReaction,
-    messageApi: MessageApi
+    messageApi: MessageApi,
+    navigationStore: NavigationStore,
+    profileStore: ProfileStore,
+    onDismiss: () -> Unit
 ) {
     var users by remember { mutableStateOf<List<User>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -182,8 +203,18 @@ private fun ReactionUserList(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(users) { user ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        val avatarUrl = user.avatar?.let { "https://cdn.discordapp.com/avatars/${user.id}/$it.png?size=64" }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                onDismiss()
+                                profileStore.showProfile(user.id, navigationStore.selectedGuild?.id)
+                            }
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val avatarUrl = user.avatar?.let { CdnUrls.getUserAvatarUrl(user.id, user.avatar, 64) }
                         AsyncImage(
                             model = avatarUrl,
                             contentDescription = null,

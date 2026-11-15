@@ -8,7 +8,11 @@ import me.lampu.lampcord.shared.api.ChannelApi
 import me.lampu.lampcord.shared.model.*
 import kotlinx.serialization.json.JsonPrimitive
 
-class ReadStateStore(private val channelApi: ChannelApi) {
+class ReadStateStore(
+    private val channelApi: ChannelApi,
+    private val userStore: UserStore,
+    private val userGuildSettingsStore: UserGuildSettingsStore,
+) {
     private val _readStates = MutableStateFlow<Map<String, ReadState>>(emptyMap())
     val readStates: StateFlow<Map<String, ReadState>> = _readStates.asStateFlow()
 
@@ -108,17 +112,19 @@ class ReadStateStore(private val channelApi: ChannelApi) {
         // so a message you sent elsewhere must not leave the channel unread here.
         if (currentUserId != null && message.author?.id == currentUserId) {
             if (message.type != 46) applyAcknowledgements(mapOf(message.channel_id to message.id))
+            mentionedMessageIds.remove(message.channel_id)
             return
         }
 
+        val guildSettings = userGuildSettingsStore.userGuildSettings.value[message.guild_id]
         // Every DM message counts toward the badge (except recipient-remove), like Discord.
-        val isDm = message.guild_id == null
-        val hasMention = message.author?.id != currentUserId && (
-            (isDm && !dmMuted && message.type != 2) ||
-            message.mention_everyone ||
-            message.mentions.any { it.id == currentUserId } ||
-            message.mention_roles.any { myRoles.contains(it) }
-        )
+        val hasMention = if (message.guild_id == null) {
+            !dmMuted && message.type != 2 && !userGuildSettingsStore.isChannelMuted(null, message.channel_id)
+        } else {
+            (message.mention_everyone && guildSettings?.suppress_everyone != true) ||
+                message.mentions.any { it.id == currentUserId } ||
+                (guildSettings?.suppress_roles != true && message.mention_roles.any { myRoles.contains(it) })
+        }
 
         if (hasMention) {
             val state = _readStates.value[message.channel_id]
@@ -149,15 +155,39 @@ class ReadStateStore(private val channelApi: ChannelApi) {
         }
     }
 
-    fun isUnread(channel: Channel): Boolean {
+    fun isUnread(channel: Channel): Boolean = isUnread(channel, _readStates.value, _recentIds.value)
+
+    internal fun isUnread(
+        channel: Channel,
+        readStates: Map<String, ReadState>,
+        recentIds: Map<String, String>
+    ): Boolean {
         val channelMsgId = channel.lastMessageId()?.toLongOrNull() ?: 0L
-        val recentMsgId = _recentIds.value[channel.id]?.toLongOrNull() ?: 0L
+        val recentMsgId = recentIds[channel.id]?.toLongOrNull() ?: 0L
         val lastMsgId = maxOf(channelMsgId, recentMsgId)
         if (lastMsgId <= 0L) return false
-        val ackedId = _readStates.value[channel.id]?.lastMessageId()?.toLongOrNull()
+        val ackedId = readStates[channel.id]?.lastMessageId()?.toLongOrNull()
             ?: localAcks[channel.id]?.toLongOrNull()
-            ?: 0L
+            ?: guildJoinAckId(channel.guild_id)
         return lastMsgId > ackedId
+    }
+
+    // No read state means read up to when we joined the guild.
+    private fun guildJoinAckId(guildId: String?): Long {
+        val joinedAt = userStore.getCurrentMember(guildId)?.joined_at?.takeIf { it.isNotBlank() } ?: return 0L
+        joinAckIds[joinedAt]?.let { return it }
+        val millis = try {
+            kotlin.time.Instant.parse(joinedAt).toEpochMilliseconds()
+        } catch (_: Exception) {
+            return 0L
+        }
+        return (((millis - DISCORD_EPOCH_MS).coerceAtLeast(0L)) shl 22).also { joinAckIds = joinAckIds + (joinedAt to it) }
+    }
+
+    private var joinAckIds: Map<String, Long> = emptyMap()
+
+    private companion object {
+        const val DISCORD_EPOCH_MS = 1420070400000L
     }
 
     fun getMentionCount(channelId: String): Int {

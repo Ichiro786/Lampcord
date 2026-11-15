@@ -2,6 +2,7 @@ package me.lampu.lampcord.shared.ui.components.guilds
 
 import me.lampu.lampcord.shared.generated.resources.Res
 import me.lampu.lampcord.shared.generated.resources.home
+import me.lampu.lampcord.shared.generated.resources.messages
 import org.jetbrains.compose.resources.stringResource
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -33,6 +34,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import me.lampu.lampcord.shared.gateway.GatewayManager
 import me.lampu.lampcord.shared.state.GuildStore
 import me.lampu.lampcord.shared.state.NavigationStore
+import me.lampu.lampcord.shared.state.ReadStateStore
+import me.lampu.lampcord.shared.state.RelationshipStore
 import me.lampu.lampcord.shared.state.SettingsStore
 import me.lampu.lampcord.shared.ui.baseplates.RegularGuildItem
 import me.lampu.lampcord.shared.ui.components.ExpressiveTooltip
@@ -49,7 +52,6 @@ import androidx.compose.material3.Text
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import me.lampu.lampcord.shared.state.ReadStateStore
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableFloatStateOf
@@ -85,16 +87,29 @@ private fun GuildFolder.guildIds(): List<String> = guild_ids.mapNotNull { it.jso
 fun GuildRail(
     guildStore: GuildStore = koinInject(),
     navigationStore: NavigationStore = koinInject(),
-    readStateStore: ReadStateStore = koinInject(),
     userStore: UserStore = koinInject(),
     settingsStore: SettingsStore = koinInject(),
     gatewayManager: GatewayManager = koinInject(),
+    readStateStore: ReadStateStore = koinInject(),
+    relationshipStore: RelationshipStore = koinInject(),
     modifier: Modifier = Modifier
 ) {
     val railScrollState = rememberLazyListState()
     val guilds by guildStore.guilds.collectAsState()
     val privateChannels by guildStore.privateChannels.collectAsState()
     val readStates by readStateStore.readStates.collectAsState()
+    val unreadDms = remember(privateChannels, readStates) {
+        privateChannels.mapNotNull { channel ->
+            if (channel.is_message_request == true) return@mapNotNull null
+            val count = readStates[channel.id]?.mention_count ?: 0
+            if (count > 0) channel to count else null
+        }
+    }
+    val relationships by relationshipStore.relationships.collectAsState()
+    val pendingRequestCount = remember(relationships, privateChannels) {
+        relationships.count { it.type == 3 } +
+            privateChannels.count { it.is_message_request == true && it.is_spam != true }
+    }
     val userSettings = settingsStore.userSettings
 
     val haptic = LocalHapticFeedback.current
@@ -178,69 +193,83 @@ fun GuildRail(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 8.dp)
     ) {
-        item {
-            val favoritesVisible = me.lampu.lampcord.shared.settings.Settings.shared.favoritesServerEnabled
-            val isHomeSelected = navigationStore.selectedGuild == null &&
-                !(navigationStore.isFavoritesSelected && favoritesVisible)
+        if (!settingsStore.showNavDm) {
+            item {
+                val favoritesVisible = me.lampu.lampcord.shared.settings.Settings.shared.favoritesServerEnabled
+                val isHomeSelected = navigationStore.selectedGuild == null &&
+                    !(navigationStore.isFavoritesSelected && favoritesVisible)
 
-            val totalDmMentions = remember(privateChannels, readStates) {
-                privateChannels.sumOf { readStateStore.getMentionCount(it.id) }
-            }
 
-            ExpressiveTooltip(
-                anchorPosition = TooltipAnchorPosition.End,
-                content = tooltipText("Direct Messages"),
-                anchor = {
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.graphicsLayer(clip = false)) {
-                        RegularGuildItem(
-                            isSelected = isHomeSelected,
-                            isMonogram = true,
-                            onClick = {
-                                navigationStore.selectHome()
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            },
-                            selectedColor = MaterialTheme.colorScheme.primary,
-                            unselectedColor = MaterialTheme.colorScheme.surfaceVariant,
-                            monogramSelectedColor = MaterialTheme.colorScheme.onPrimary,
-                            monogramUnselectedColor = MaterialTheme.colorScheme.primary
-                        ) {
-                            Icon(
-                                imageVector = Icons.Brand.DiscordRounded,
-                                contentDescription = stringResource(Res.string.home),
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
+                ExpressiveTooltip(
+                    anchorPosition = TooltipAnchorPosition.End,
+                    content = tooltipText("Direct Messages"),
+                    anchor = {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.graphicsLayer(clip = false)) {
+                            RegularGuildItem(
+                                isSelected = isHomeSelected,
+                                isMonogram = true,
+                                onClick = {
+                                    navigationStore.selectHome()
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                },
+                                selectedColor = MaterialTheme.colorScheme.primary,
+                                unselectedColor = MaterialTheme.colorScheme.surfaceVariant,
+                                monogramSelectedColor = MaterialTheme.colorScheme.onPrimary,
+                                monogramUnselectedColor = MaterialTheme.colorScheme.primary
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Brand.Discord,
+                                    contentDescription = stringResource(Res.string.messages),
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
 
-                        if (totalDmMentions > 0) {
-                            Box(modifier = Modifier.size(48.dp)) {
-                                Surface(
-                                    color = MaterialTheme.colorScheme.error,
-                                    shape = CircleShape,
-                                    modifier = Modifier
-                                        .align(Alignment.BottomEnd)
-                                        .offset(x = 3.dp, y = 3.dp)
-                                        .height(20.dp)
-                                        .widthIn(min = 20.dp),
-                                    shadowElevation = 2.dp,
-                                    border = if (isHomeSelected) null else androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.surface)
-                                ) {
-                                    Box(
-                                        contentAlignment = Alignment.Center,
-                                        modifier = Modifier.padding(horizontal = 5.dp)
+                            if (pendingRequestCount > 0) {
+                                Box(modifier = Modifier.size(48.dp)) {
+                                    Surface(
+                                        color = MaterialTheme.colorScheme.error,
+                                        shape = CircleShape,
+                                        modifier = Modifier
+                                            .align(Alignment.BottomEnd)
+                                            .offset(x = 3.dp, y = 3.dp)
+                                            .height(20.dp)
+                                            .widthIn(min = 20.dp),
+                                        shadowElevation = 2.dp,
+                                        border = if (isHomeSelected) null else androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.surface)
                                     ) {
-                                        Text(
-                                            text = if (totalDmMentions > 99) "99+" else totalDmMentions.toString(),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onError,
-                                            fontWeight = FontWeight.ExtraBold,
-                                            fontSize = 11.sp,
-                                            maxLines = 1
-                                        )
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier.padding(horizontal = 5.dp)
+                                        ) {
+                                            Text(
+                                                text = if (pendingRequestCount > 99) "99+" else pendingRequestCount.toString(),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onError,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                fontSize = 11.sp,
+                                                maxLines = 1
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                )
+            }
+        }
+
+        items(unreadDms, key = { "dm:${it.first.id}" }) { (channel, count) ->
+            UnreadDmRailItem(
+                channel = channel,
+                mentionCount = count,
+                isSelected = navigationStore.selectedChannel?.id == channel.id,
+                userStore = userStore,
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
+                    me.lampu.lampcord.shared.settings.Settings.shared.setLastChannel("home", channel.id)
+                    navigationStore.selectHome()
+                    navigationStore.selectChannel(channel, explicitlySelected = true)
                 }
             )
         }
@@ -378,3 +407,78 @@ private fun rearrangeGuildFolders(
 }
 
 private fun GuildFolder.railKey(index: Int): String = id?.let { "folder:$it" } ?: "folder:$index:${guildIds().joinToString(",")}"
+
+@Composable
+private fun UnreadDmRailItem(
+    channel: Channel,
+    mentionCount: Int,
+    isSelected: Boolean,
+    userStore: UserStore,
+    onClick: () -> Unit
+) {
+    val currentUserId = userStore.currentUser.collectAsState().value?.id
+    val recipient by remember(channel.recipients, channel.recipient_ids, currentUserId) {
+        derivedStateOf {
+            val ids = channel.recipients?.map { it.id }.orEmpty().ifEmpty { channel.recipient_ids.orEmpty() }
+            val fallback = channel.recipients?.associateBy { it.id }.orEmpty()
+            ids.firstOrNull { it != currentUserId }?.let { id -> userStore.userState(id).value ?: fallback[id] }
+        }
+    }
+    val isGroupDm = channel.type == 3
+    val avatarUrl = remember(channel.id, channel.icon, recipient?.id, recipient?.avatar) {
+        if (isGroupDm) channel.icon?.let { CdnUrls.getChannelIconUrl(channel.id, it, 96) }
+        else recipient?.let { CdnUrls.getUserAvatarUrl(it.id, it.avatar, 96) }
+    }
+    val name = if (isGroupDm) channel.name?.takeIf { it.isNotBlank() } ?: "Group DM"
+    else recipient?.let { it.global_name ?: it.username } ?: "Direct Message"
+
+    ExpressiveTooltip(
+        anchorPosition = TooltipAnchorPosition.End,
+        content = tooltipText(name),
+        anchor = {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.graphicsLayer(clip = false)) {
+                RegularGuildItem(
+                    isSelected = isSelected,
+                    isUnread = true,
+                    isMonogram = avatarUrl == null,
+                    onClick = onClick,
+                    selectedColor = if (avatarUrl == null) MaterialTheme.colorScheme.primary else Color.Transparent,
+                    unselectedColor = if (avatarUrl == null) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                    monogramSelectedColor = if (avatarUrl == null) MaterialTheme.colorScheme.onPrimary else Color.Transparent,
+                    monogramUnselectedColor = if (avatarUrl == null) MaterialTheme.colorScheme.primary else Color.Transparent
+                ) {
+                    if (avatarUrl != null) {
+                        AsyncImage(model = avatarUrl, contentDescription = name, modifier = Modifier.fillMaxSize())
+                    } else {
+                        Text(text = name.take(1).uppercase(), style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                    }
+                }
+
+                Box(modifier = Modifier.size(48.dp)) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.error,
+                        shape = CircleShape,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .offset(x = 3.dp, y = 3.dp)
+                            .height(20.dp)
+                            .widthIn(min = 20.dp),
+                        shadowElevation = 2.dp,
+                        border = if (isSelected) null else androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.surface)
+                    ) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = 5.dp)) {
+                            Text(
+                                text = if (mentionCount > 99) "99+" else mentionCount.toString(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onError,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 11.sp,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    )
+}

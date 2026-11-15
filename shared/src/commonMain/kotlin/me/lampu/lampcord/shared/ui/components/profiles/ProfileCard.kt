@@ -294,6 +294,7 @@ fun ProfileCard(
     fillAvailableHeight: Boolean = false,
     showMemberSince: Boolean = false,
     showMutualsInConnections: Boolean = true,
+    onOpenFriends: (() -> Unit)? = null,
     onExpand: (() -> Unit)? = null,
     onDismiss: (() -> Unit)? = null,
     onEditBanner: (() -> Unit)? = null,
@@ -310,6 +311,7 @@ fun ProfileCard(
     showFrameOverlay: Boolean = true,
     showFrameArt: Boolean = true,
     showBottomFrame: Boolean = true,
+    contentBottomPadding: Dp = 0.dp,
     userStore: UserStore = koinInject(),
     clientProfileStore: ClientProfileStore = koinInject(),
     settingsStore: me.lampu.lampcord.shared.state.SettingsStore = koinInject(),
@@ -415,7 +417,8 @@ fun ProfileCard(
                                 theme = theme,
                                 isExpanded = isExpanded,
                                 showMemberSince = showMemberSince,
-                                showMutualsInConnections = showMutualsInConnections
+                                showMutualsInConnections = showMutualsInConnections,
+                                onOpenFriends = onOpenFriends
                             )
                         } else {
                             ProfileBoardContent(
@@ -427,6 +430,9 @@ fun ProfileCard(
                                     if (loaded != null) boardResolved = true
                                 }
                             )
+                        }
+                        if (contentBottomPadding > 0.dp) {
+                            Spacer(Modifier.height(contentBottomPadding))
                         }
                     }
                 }

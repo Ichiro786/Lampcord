@@ -4,9 +4,13 @@ import me.lampu.lampcord.shared.utils.PermissionHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import me.lampu.lampcord.shared.api.GuildApi
 import me.lampu.lampcord.shared.model.*
 import me.lampu.lampcord.shared.utils.Logging
+import me.lampu.lampcord.shared.utils.PermissionHelper
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlin.time.Clock
@@ -30,7 +34,17 @@ class GuildStore(
         const val GUILD_OPT_IN_CHANNELS_ON = 1 shl 14
         // Discord rejects very large ack-bulk bodies; official clients send 100 at a time.
         const val ACK_BULK_CHUNK = 100
+        val NON_UNREAD_CHANNEL_TYPES = setOf(2, 4, 10, 11, 12, 13, 14)
     }
+
+    private data class GuildActivity(
+        val unreadGuildIds: Set<String> = emptySet(),
+        val mentionCounts: Map<String, Int> = emptyMap()
+    )
+
+    private val guildActivitySnapshot = mutableStateOf(GuildActivity())
+    private val guildUnreadStates = mutableMapOf<String, State<Boolean>>()
+    private val guildMentionStates = mutableMapOf<String, State<Int>>()
 
     private val _guildIds = MutableStateFlow<List<String>>(emptyList())
     val guilds: StateFlow<List<Guild>> = combine(_guildIds, entityStore.guilds) { ids, allGuilds ->
@@ -44,6 +58,36 @@ class GuildStore(
     }.stateIn(scope, SharingStarted.Eagerly, emptyList())
 
     val allGuildChannels = entityStore.channels
+
+    fun channelsForGuild(guildId: String): StateFlow<List<Channel>> = entityStore.channelsForGuild(guildId)
+
+    private val guildActivity = combine(
+        entityStore.channels,
+        readStateStore.readStates,
+        readStateStore.recentIds,
+        userGuildSettingsStore.userGuildSettings
+    ) { channels, readStates, recentIds, _ ->
+        val unread = mutableSetOf<String>()
+        val mentions = mutableMapOf<String, Int>()
+        val mutedGuilds = mutableMapOf<String, Boolean>()
+        channels.values.forEach { channel ->
+            val guildId = channel.guild_id ?: return@forEach
+            val count = readStates[channel.id]?.mention_count ?: 0
+            if (count > 0) mentions[guildId] = (mentions[guildId] ?: 0) + count
+            if (guildId in unread) return@forEach
+            if (mutedGuilds.getOrPut(guildId) { userGuildSettingsStore.isGuildMuted(guildId) }) return@forEach
+            if (countsTowardGuildUnread(channel, channels) { readStateStore.isUnread(channel, readStates, recentIds) }) {
+                unread.add(guildId)
+            }
+        }
+        GuildActivity(unread, mentions)
+    }.stateIn(scope, SharingStarted.Eagerly, GuildActivity())
+
+    init {
+        scope.launch {
+            guildActivity.collect { guildActivitySnapshot.value = it }
+        }
+    }
 
     fun setGuilds(newGuilds: List<Guild>, order: List<String>) {
         Logging.i("GuildStore", "Setting ${newGuilds.size} guilds")
@@ -122,6 +166,16 @@ class GuildStore(
     fun joinCompleted(guild: Guild) {
         entityStore.updateGuild(guild)
         _guildIds.update { if (guild.id in it) it else it + guild.id }
+        scope.launch { hydrateJoinedGuild(guild) }
+    }
+
+    private suspend fun hydrateJoinedGuild(joined: Guild) {
+        val full = guildApi.getGuild(joined.id)
+        val roles = full?.roles?.takeIf { it.isNotEmpty() }
+            ?: entityStore.guilds.value[joined.id]?.roles?.takeIf { it.isNotEmpty() }
+            ?: guildApi.getGuildRoles(joined.id)
+        if (roles.isEmpty() && full == null) return
+        entityStore.updateGuild((full ?: joined).copy(roles = roles))
     }
 
     fun handleGuildDelete(guildId: String) {
@@ -431,18 +485,39 @@ class GuildStore(
     fun isChannelMuted(guildId: String?, channelId: String): Boolean =
         userGuildSettingsStore.isChannelMuted(guildId, channelId)
 
-    fun isGuildUnread(guildId: String): Boolean {
-        if (userGuildSettingsStore.isGuildMuted(guildId)) return false
-        return allGuildChannels.value.values.any { 
-            // Threads arrive from THREAD_LIST_SYNC without read states; counting them kept servers unread forever.
-            it.guild_id == guildId && it.type != 4 && it.type !in 10..12 && !userGuildSettingsStore.isChannelMuted(it.guild_id, it.id) &&
-                readStateStore.isUnread(it) && canViewChannel(it)
-        }
+    fun isGuildUnread(guildId: String): Boolean = guildId in guildActivitySnapshot.value.unreadGuildIds
+
+    private inline fun countsTowardGuildUnread(
+        channel: Channel,
+        channels: Map<String, Channel>,
+        isUnread: () -> Boolean
+    ): Boolean {
+        val guildId = channel.guild_id ?: return false
+        if (channel.type in NON_UNREAD_CHANNEL_TYPES) return false
+        if (!isUnread()) return false
+        if (userGuildSettingsStore.isChannelMuted(guildId, channel.id)) return false
+        val parentId = channel.parent_id
+        if (parentId != null && channels[parentId]?.type == 4 &&
+            userGuildSettingsStore.isChannelMuted(guildId, parentId)
+        ) return false
+        val guild = entityStore.guilds.value[guildId] ?: return true
+        val member = userStore.getCurrentMember(guildId) ?: return true
+        return PermissionHelper.canViewChannel(member, guild, channel, userStore.currentUser.value?.id)
     }
 
     fun getGuildMentionCount(guildId: String): Int {
         return allGuildChannels.value.values.filter { it.guild_id == guildId }.sumOf { readStateStore.getMentionCount(it.id) }
     }
+
+    fun guildUnreadState(guildId: String): State<Boolean> =
+        guildUnreadStates.getOrPut(guildId) {
+            derivedStateOf { guildId in guildActivitySnapshot.value.unreadGuildIds }
+        }
+
+    fun guildMentionCountState(guildId: String): State<Int> =
+        guildMentionStates.getOrPut(guildId) {
+            derivedStateOf { guildActivitySnapshot.value.mentionCounts[guildId] ?: 0 }
+        }
 
     fun getForumThreads(channelId: String): List<Channel> {
         return allGuildChannels.value.values.filter { it.parent_id == channelId }

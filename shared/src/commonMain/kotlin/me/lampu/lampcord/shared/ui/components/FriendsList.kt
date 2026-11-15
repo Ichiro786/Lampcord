@@ -112,6 +112,7 @@ fun FriendsList(
                             Icon(Icons.Filled.PersonAdd, "Add Friend")
                         }
                     },
+                    windowInsets = TopAppBarDefaults.windowInsets,
                     scrollBehavior = scrollBehavior
                 )
                 PrimaryTabRow(
@@ -358,7 +359,7 @@ fun AddFriendUI(relationshipStore: RelationshipStore = koinInject()) {
                     onClick = {
                         val name = query.trim()
                         if (name.isBlank()) return@Button
-                        relationshipStore.sendFriendRequest(name, null) { success ->
+                        relationshipStore.sendFriendRequest(name) { success ->
                             statusText = if (success) "Friend request sent!" else "Couldn't find that user."
                         }
                     },

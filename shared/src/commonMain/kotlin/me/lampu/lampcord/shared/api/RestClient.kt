@@ -21,6 +21,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import me.lampu.lampcord.shared.captcha.CaptchaCoordinator
 import me.lampu.lampcord.shared.utils.getCurrentTimeMillis
 import me.lampu.lampcord.shared.utils.getDeviceName
 import me.lampu.lampcord.shared.utils.getOsVersion
@@ -127,20 +128,6 @@ data class DiscordApiError(val code: Int? = null, val message: String? = null)
 fun RestClient.discordError(body: String): DiscordApiError? =
     runCatching { json.decodeFromString<DiscordApiError>(body) }.getOrNull()
 
-fun discordErrorMessage(message: String?, status: HttpStatusCode): String {
-    message?.takeIf { it.isNotBlank() }?.let { return it }
-    return when {
-        status == HttpStatusCode.TooManyRequests ->
-            "Discord is rate limiting this action. Wait a moment and try again."
-        status.value in 500..599 ->
-            "Discord is having trouble right now (HTTP ${status.value}). Try again in a moment."
-        status == HttpStatusCode.Unauthorized -> "Discord rejected the request. Sign in again."
-        status == HttpStatusCode.Forbidden -> "Discord says you do not have permission to do that."
-        status == HttpStatusCode.NotFound -> "Discord could not find that."
-        else -> "Discord rejected the request (HTTP ${status.value})."
-    }
-}
-
 fun HttpRequestBuilder.standardHeaders(rest: RestClient) {
     val platform = getPlatformName()
     val isMobile = platform == "android" || platform == "ios"
@@ -179,7 +166,7 @@ fun HttpRequestBuilder.loginHeaders(rest: RestClient, fingerprint: String? = nul
     header("Referer", "https://discord.com/login")
 }
 
-fun createHttpClient() = HttpClient(httpClientEngine()) {
+fun createHttpClient(captcha: CaptchaCoordinator) = HttpClient(httpClientEngine()) {
     install(HttpCookies)
     // Discord rate limits: wait out Retry-After and try again instead of failing the call.
     // Only ever a 429 from Discord; nothing else is retried.
@@ -190,6 +177,9 @@ fun createHttpClient() = HttpClient(httpClientEngine()) {
         }
         retryOnExceptionIf { _, _ -> false }
         exponentialDelay(respectRetryAfterHeader = true)
+    }
+    install(LampcordCaptchaPlugin) {
+        coordinator = captcha
     }
     install(HttpTimeout) {
         requestTimeoutMillis = 15000

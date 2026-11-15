@@ -61,6 +61,7 @@ import me.lampu.lampcord.shared.utils.Permission
 import me.lampu.lampcord.shared.utils.PermissionHelper
 import me.lampu.lampcord.shared.utils.getPlatformName
 import me.lampu.lampcord.shared.utils.setClipboardText
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.compose.koinInject
 import me.lampu.lampcord.shared.ui.kit.handCursor
 
@@ -72,10 +73,11 @@ fun GuildChannelList(
     guildStore: GuildStore = koinInject(),
     profileStore: ProfileStore = koinInject()
 ) {
-    // selectedGuild is a snapshot taken when the server was opened; read the live copy so
-    // role and permission updates reach the channel list.
-    val liveGuilds by guildStore.guilds.collectAsState()
-    val guild = navigationStore.selectedGuild?.let { selected -> liveGuilds.find { it.id == selected.id } ?: selected }
+    val selectedGuild = navigationStore.selectedGuild
+    val storeGuilds by guildStore.guilds.collectAsState()
+    val guild = remember(selectedGuild, storeGuilds) {
+        selectedGuild?.let { selected -> storeGuilds.firstOrNull { it.id == selected.id } ?: selected }
+    }
     val currentUser = LocalCurrentUser.current
     val memberState = remember(guild?.id, currentUser?.id) {
         val guildId = guild?.id
@@ -132,13 +134,14 @@ fun GuildChannelList(
                 }
             }
     ) {
-        val allGuildChannels by guildStore.allGuildChannels.collectAsState()
-        val visibleChannels = remember(guild, member, showHidden, allGuildChannels) {
+        val guildChannels by remember(guild?.id) {
+            guild?.id?.let { guildStore.channelsForGuild(it) } ?: MutableStateFlow(emptyList())
+        }.collectAsState()
+        val visibleChannels = remember(guild, member, showHidden, guildChannels) {
             val g = guild
             val u = currentUser
             if (g == null) emptyList()
-            else allGuildChannels.values.filter { channel ->
-                if (channel.guild_id != g.id) return@filter false
+            else guildChannels.filter { channel ->
                 if (showHidden) return@filter true
 
                 val currentMember = member
@@ -147,11 +150,7 @@ fun GuildChannelList(
             }
         }
 
-        val allChannelsForThisGuild = remember(guild, allGuildChannels) {
-            val g = guild
-            if (g == null) emptyList()
-            else allGuildChannels.values.filter { it.guild_id == g.id }
-        }
+        val allChannelsForThisGuild = guildChannels
 
         // Like Discord, a category shows when you can see it or any channel inside it.
         val categories = remember(visibleChannels, allChannelsForThisGuild) {

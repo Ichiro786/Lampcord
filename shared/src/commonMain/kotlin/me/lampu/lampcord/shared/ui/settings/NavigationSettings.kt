@@ -19,14 +19,14 @@ import me.lampu.lampcord.shared.ui.components.settings.*
 import me.lampu.lampcord.shared.ui.icons.Icons
 import me.lampu.lampcord.shared.utils.getPlatformName
 import me.lampu.lampcord.shared.generated.resources.Res
-import me.lampu.lampcord.shared.generated.resources.friends
 import me.lampu.lampcord.shared.generated.resources.lampcord_settings_hide_nav_labels
-import me.lampu.lampcord.shared.generated.resources.lampcord_settings_hide_nav_labels_desc
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_nav_dm
 import me.lampu.lampcord.shared.generated.resources.lampcord_settings_nav_home
 import me.lampu.lampcord.shared.generated.resources.lampcord_settings_nav_you
 import me.lampu.lampcord.shared.generated.resources.lampcord_settings_navigation
 import me.lampu.lampcord.shared.generated.resources.lampcord_settings_tab_order
 import me.lampu.lampcord.shared.generated.resources.lampcord_settings_tabs_visibility
+import me.lampu.lampcord.shared.generated.resources.lampcord_settings_you_bar
 import me.lampu.lampcord.shared.generated.resources.mentions
 import me.lampu.lampcord.shared.generated.resources.search
 import org.jetbrains.compose.resources.stringResource
@@ -58,10 +58,15 @@ private fun NavigationSettingsContent(
     val json = Json { ignoreUnknownKeys = true }
     
     var items by remember(settingsStore.navTabsOrderJson) {
-        val order = runCatching { 
+        val default = listOf("home", "dm", "search", "mentions", "you")
+        val order = runCatching {
             json.decodeFromString<List<String>>(settingsStore.navTabsOrderJson)
-        }.getOrDefault(listOf("home", "friends", "search", "mentions", "settings"))
-        mutableStateOf(order)
+        }.getOrDefault(default)
+        val normalized = order
+            .map { if (it == "settings") "you" else it }
+            .filter { it != "friends" }
+            .let { list -> default.filter { it in list } + default.filter { it !in list } }
+        mutableStateOf(normalized)
     }
 
     fun updateOrder(newList: List<String>) {
@@ -70,7 +75,7 @@ private fun NavigationSettingsContent(
     }
 
     val labelHome = stringResource(Res.string.lampcord_settings_nav_home)
-    val labelFriends = stringResource(Res.string.friends)
+    val labelDm = stringResource(Res.string.lampcord_settings_nav_dm)
     val labelSearch = stringResource(Res.string.search)
     val labelMentions = stringResource(Res.string.mentions)
     val labelYou = stringResource(Res.string.lampcord_settings_nav_you)
@@ -85,9 +90,9 @@ private fun NavigationSettingsContent(
                     onCheckedChange = { settingsStore.showNavHome = it }
                 ),
                 switchSettingsItem(
-                    title = labelFriends,
-                    checked = settingsStore.showNavFriends,
-                    onCheckedChange = { settingsStore.showNavFriends = it }
+                    title = labelDm,
+                    checked = settingsStore.showNavDm,
+                    onCheckedChange = { settingsStore.showNavDm = it }
                 ),
                 switchSettingsItem(
                     title = labelSearch,
@@ -106,9 +111,21 @@ private fun NavigationSettingsContent(
                 ),
                 switchSettingsItem(
                     title = stringResource(Res.string.lampcord_settings_hide_nav_labels),
-                    description = stringResource(Res.string.lampcord_settings_hide_nav_labels_desc),
                     checked = settingsStore.hideNavLabels,
                     onCheckedChange = { settingsStore.hideNavLabels = it }
+                )
+            )
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        Material3SettingsGroup(
+            title = stringResource(Res.string.lampcord_settings_you_bar),
+            items = listOf(
+                switchSettingsItem(
+                    title = stringResource(Res.string.lampcord_settings_you_bar),
+                    checked = settingsStore.useYouBar,
+                    onCheckedChange = { settingsStore.useYouBar = it }
                 )
             )
         )
@@ -130,18 +147,18 @@ private fun NavigationSettingsContent(
             items.forEachIndexed { index, item ->
                 val label = when (item) {
                     "home" -> labelHome
-                    "friends" -> labelFriends
+                    "dm" -> labelDm
                     "search" -> labelSearch
                     "mentions" -> labelMentions
-                    "settings" -> labelYou
+                    "you", "settings" -> labelYou
                     else -> item
                 }
                 val icon = when (item) {
-                    "home" -> Icons.Brand.Discord
-                    "friends" -> Icons.Rounded.Person
+                    "home" -> Icons.Rounded.Home
+                    "dm" -> Icons.Rounded.ChatBubble
                     "search" -> Icons.Filled.Search
                     "mentions" -> Icons.Rounded.AlternateEmail
-                    "settings" -> Icons.Filled.Settings
+                    "you", "settings" -> Icons.Rounded.AccountCircle
                     else -> Icons.Filled.QuestionMark
                 }
 

@@ -161,6 +161,14 @@ class SettingsStore(
             me.lampu.lampcord.shared.settings.Settings.shared.showNavHome = value
         }
 
+    private var _showNavDm by mutableStateOf(me.lampu.lampcord.shared.settings.Settings.shared.showNavDm)
+    var showNavDm: Boolean
+        get() = _showNavDm
+        set(value) {
+            _showNavDm = value
+            me.lampu.lampcord.shared.settings.Settings.shared.showNavDm = value
+        }
+
     private var _showNavFriends by mutableStateOf(me.lampu.lampcord.shared.settings.Settings.shared.showNavFriends)
     var showNavFriends: Boolean
         get() = _showNavFriends
@@ -191,6 +199,14 @@ class SettingsStore(
         set(value) {
             _showNavSettings = value
             me.lampu.lampcord.shared.settings.Settings.shared.showNavSettings = value
+        }
+
+    private var _useYouBar by mutableStateOf(me.lampu.lampcord.shared.settings.Settings.shared.useYouBar)
+    var useYouBar: Boolean
+        get() = _useYouBar
+        set(value) {
+            _useYouBar = value
+            me.lampu.lampcord.shared.settings.Settings.shared.useYouBar = value
         }
 
     private var _navTabsOrderJson by mutableStateOf(me.lampu.lampcord.shared.settings.Settings.shared.navTabsOrderJson)
