@@ -1,6 +1,5 @@
 package me.lampu.lampcord.shared.state
 
-import me.lampu.lampcord.shared.utils.PermissionHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
