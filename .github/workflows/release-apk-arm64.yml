@@ -13,7 +13,7 @@ on:
       publish:
         description: Publish this build as a release (the app will offer it as an update)
         type: boolean
-        default: true
+        default: false
       notes:
         description: What's new (shown in the app's update sheet)
         type: string
@@ -59,14 +59,25 @@ jobs:
           key: release-native-arm64-${{ hashFiles('native/voice/**', 'androidApp/build.gradle.kts') }}
           restore-keys: release-native-arm64-
 
-      # One stable signing key for every run, so updates install without uninstalling.
+      - name: Prepare configured release signing
+        id: signing
+        uses: ./.github/actions/prepare-android-signing
+        env:
+          KEYSTORE_PATH: ${{ secrets.KEYSTORE_PATH }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      # Keep using the legacy cached key when release signing has not been configured.
       - name: Restore signing key
+        if: steps.signing.outputs.signing_available != 'true'
         uses: actions/cache@v4
         with:
           path: ~/.android/debug.keystore
           key: lampcord-test-signing-key-v1
 
       - name: Create signing key if missing
+        if: steps.signing.outputs.signing_available != 'true'
         shell: bash
         run: |
           mkdir -p ~/.android
@@ -78,24 +89,45 @@ jobs:
 
       # Only arm64-v8a: native voice code is compiled once instead of four times.
       - name: Build release APK
-        # AGP ignored ~/.android/debug.keystore on the runner and signed with a fresh random key
-        # every run, so updates refused to install. Sign explicitly with the cached key instead.
-        run: >
-          ./gradlew :androidApp:assembleRelease :androidApp:lintRelease :androidApp:testReleaseUnitTest
-          :shared:desktopTest --no-daemon -PvoiceAbis=arm64-v8a
-          -PforkBuild=${{ github.run_number }}
-          -Pandroid.injected.signing.store.file=$HOME/.android/debug.keystore
-          -Pandroid.injected.signing.store.password=android
-          -Pandroid.injected.signing.key.alias=androiddebugkey
-          -Pandroid.injected.signing.key.password=android
-
-      - name: Print signing certificate
         shell: bash
+        env:
+          KEYSTORE_FILE: ${{ steps.signing.outputs.keystore_path }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          apk="$(ls androidApp/build/outputs/apk/*/*arm64-v8a*.apk | head -n 1)"
           set -euo pipefail
+          if [ -z "$KEYSTORE_FILE" ]; then
+            KEYSTORE_FILE="$HOME/.android/debug.keystore"
+            KEYSTORE_PASSWORD=android
+            KEY_ALIAS=androiddebugkey
+            KEY_PASSWORD=android
+          fi
+          ./gradlew :androidApp:assembleRelease :androidApp:lintRelease :shared:desktopTest \
+            --no-daemon -PvoiceAbis=arm64-v8a -PforkBuild="$GITHUB_RUN_NUMBER" \
+            "-Pandroid.injected.signing.store.file=$KEYSTORE_FILE" \
+            "-Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD" \
+            "-Pandroid.injected.signing.key.alias=$KEY_ALIAS" \
+            "-Pandroid.injected.signing.key.password=$KEY_PASSWORD"
+
+      - name: Verify APK signing certificate
+        shell: bash
+        env:
+          PUBLISH: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+        run: |
+          set -euo pipefail
+          apks=(androidApp/build/outputs/apk/release/*arm64-v8a*.apk)
           apksigners=("$ANDROID_HOME"/build-tools/*/apksigner)
-          "${apksigners[-1]}" verify --print-certs "$apk"
+          certificate="$("${apksigners[-1]}" verify --print-certs "${apks[0]}")"
+          printf '%s\n' "$certificate"
+          expected=ca0bd97073d3082acfe2f470a30c918eb5f3c78419392a71eae74a5e8a740394
+          if ! grep -Fxq "Signer #1 certificate SHA-256 digest: $expected" <<< "$certificate"; then
+            if [ "$PUBLISH" = true ]; then
+              echo "::error::The signing certificate differs from the previous fork APK. Supply the original signing key before publishing."
+              exit 1
+            fi
+            echo "::warning::This artifact requires a fresh install because its signing certificate differs from the previous fork APK."
+          fi
 
       - name: Collect APK
         id: apk
