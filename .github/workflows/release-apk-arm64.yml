@@ -81,7 +81,8 @@ jobs:
         # AGP ignored ~/.android/debug.keystore on the runner and signed with a fresh random key
         # every run, so updates refused to install. Sign explicitly with the cached key instead.
         run: >
-          ./gradlew :androidApp:assembleRelease --no-daemon -PvoiceAbis=arm64-v8a
+          ./gradlew :androidApp:assembleRelease :androidApp:lintRelease :androidApp:testReleaseUnitTest
+          :shared:desktopTest --no-daemon -PvoiceAbis=arm64-v8a
           -PforkBuild=${{ github.run_number }}
           -Pandroid.injected.signing.store.file=$HOME/.android/debug.keystore
           -Pandroid.injected.signing.store.password=android
@@ -92,7 +93,9 @@ jobs:
         shell: bash
         run: |
           apk="$(ls androidApp/build/outputs/apk/*/*arm64-v8a*.apk | head -n 1)"
-          "$ANDROID_HOME"/build-tools/*/apksigner verify --print-certs "$apk" | grep -E "DN|SHA-256" || true
+          set -euo pipefail
+          apksigners=("$ANDROID_HOME"/build-tools/*/apksigner)
+          "${apksigners[-1]}" verify --print-certs "$apk"
 
       - name: Collect APK
         id: apk
