@@ -162,4 +162,3 @@ class UserStore {
  */
 private fun <T> JsonObject?.pick(key: String, incoming: T?, existing: T?): T? =
     if (this?.containsKey(key) == true) incoming else incoming ?: existing
-

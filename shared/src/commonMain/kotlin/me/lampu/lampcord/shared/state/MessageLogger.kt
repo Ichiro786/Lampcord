@@ -43,7 +43,7 @@ class MessageLogger(
         val settings = me.lampu.lampcord.shared.settings.Settings.shared
         if (settings.messageLoggerIgnoreBots && message.author?.bot == true) return
         if (settings.messageLoggerIgnoreSelf && message.author?.id == userStore.currentUser.value?.id) return
-        
+
         // Encoding the full message to JSON is real work; keep it off the main thread.
         scope.launch(Dispatchers.Default) {
             try {

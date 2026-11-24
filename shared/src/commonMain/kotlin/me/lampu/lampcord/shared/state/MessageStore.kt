@@ -367,7 +367,7 @@ class MessageStore(
         }
         val preprocessed = preprocess(message)
         val channelMessages = cached?.toMutableList() ?: mutableListOf()
-        
+
         val nonce = preprocessed.nonce
         var replaced = false
 

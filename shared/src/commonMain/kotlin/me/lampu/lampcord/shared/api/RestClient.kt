@@ -62,10 +62,6 @@ class RestClient(
         }
     }
 
-    private companion object {
-        val DISCORD_API_HOSTS = setOf("discord.com", "ptb.discord.com", "canary.discord.com", "discordapp.com")
-    }
-
     private val apiVersion = 9
     val apiBase = "https://discord.com/api/v$apiVersion"
 
@@ -166,14 +162,18 @@ fun HttpRequestBuilder.loginHeaders(rest: RestClient, fingerprint: String? = nul
     header("Referer", "https://discord.com/login")
 }
 
+private val DISCORD_API_HOSTS = setOf("discord.com", "ptb.discord.com", "canary.discord.com", "discordapp.com")
+
 fun createHttpClient(captcha: CaptchaCoordinator) = HttpClient(httpClientEngine()) {
     install(HttpCookies)
     // Discord rate limits: wait out Retry-After and try again instead of failing the call.
     // Only ever a 429 from Discord; nothing else is retried.
     install(HttpRequestRetry) {
         maxRetries = 3
-        retryIf { request, response ->
-            response.status.value == 429 && request.url.host.endsWith("discord.com")
+        retryIf { _, response ->
+            val url = response.call.request.url
+            response.status == HttpStatusCode.TooManyRequests && url.host in DISCORD_API_HOSTS &&
+                url.encodedPath.startsWith("/api/")
         }
         retryOnExceptionIf { _, _ -> false }
         exponentialDelay(respectRetryAfterHeader = true)
@@ -217,4 +217,3 @@ fun desktopUserAgent(): String {
     }
     return "Mozilla/5.0 ($os) AppleWebKit/537.36 (KHTML, like Gecko) discord/$DESKTOP_CLIENT_VERSION Chrome/138.0.7204.251 Electron/37.6.0 Safari/537.36"
 }
-
