@@ -190,51 +190,54 @@ class GatewayManager(
                     val sender = launch { drainQueue(this@webSocket) }
                     val inflater = if (zlibStreamSupported) ZlibStreamDecoder() else null
 
-                    while (isActive) {
-                        try {
-                            val frame = incoming.receive()
-                            val text = when (frame) {
-                                is Frame.Text -> frame.readText()
-                                is Frame.Binary -> inflater?.feed(frame.data)
-                                else -> null
-                            }
-                            if (text != null) {
-                                val payload = decodePayload(text)
-                                lastSequence = payload.s ?: lastSequence
-                                handlePayload(payload, token)
-                                if (payload.op == 0) _events.emit(payload)
-                            }
-                        } catch (e: CancellationException) {
-                            throw e
-                        } catch (e: ClosedReceiveChannelException) {
-                            Logging.w("Gateway", "WebSocket terminated unexpectedly", e)
-                            val reason = withTimeoutOrNull(2.seconds) { closeReason.await() }
-                            when (reason?.code?.toInt()) {
-                                4003, 4004 -> {
-                                    _events.emit(GatewayPayload(op = -1, t = "AUTH_FAILED"))
-                                    disconnect("auth failed ${reason.code}")
+                    try {
+                        while (isActive) {
+                            try {
+                                val frame = incoming.receive()
+                                val text = when (frame) {
+                                    is Frame.Text -> frame.readText()
+                                    is Frame.Binary -> inflater?.feed(frame.data)
+                                    else -> null
                                 }
-                                // Invalid seq / session timed out: a resume can only fail, so start fresh.
-                                4007, 4009 -> {
-                                    sessionId = null
-                                    lastSequence = null
-                                    resumeGatewayUrl = null
+                                if (text != null) {
+                                    val payload = decodePayload(text)
+                                    lastSequence = payload.s ?: lastSequence
+                                    handlePayload(payload, token)
+                                    if (payload.op == 0) _events.emit(payload)
                                 }
-                                // Invalid shard, sharding required, bad API version, invalid or
-                                // disallowed intents: reconnecting just loops on the same error.
-                                4010, 4011, 4012, 4013, 4014 -> {
-                                    Logging.e("Gateway", "Fatal gateway close ${reason.code}: ${reason.message}")
-                                    disconnect("fatal close ${reason.code}")
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: ClosedReceiveChannelException) {
+                                Logging.w("Gateway", "WebSocket terminated unexpectedly", e)
+                                val reason = withTimeoutOrNull(2.seconds) { closeReason.await() }
+                                when (reason?.code?.toInt()) {
+                                    4003, 4004 -> {
+                                        _events.emit(GatewayPayload(op = -1, t = "AUTH_FAILED"))
+                                        disconnect("auth failed ${reason.code}")
+                                    }
+                                    // Invalid seq / session timed out: a resume can only fail, so start fresh.
+                                    4007, 4009 -> {
+                                        sessionId = null
+                                        lastSequence = null
+                                        resumeGatewayUrl = null
+                                    }
+                                    // Invalid shard, sharding required, bad API version, invalid or
+                                    // disallowed intents: reconnecting just loops on the same error.
+                                    4010, 4011, 4012, 4013, 4014 -> {
+                                        Logging.e("Gateway", "Fatal gateway close ${reason.code}: ${reason.message}")
+                                        disconnect("fatal close ${reason.code}")
+                                    }
                                 }
+                                break
+                            } catch (e: Exception) {
+                                Logging.e("Gateway", "Error in WebSocket loop", e)
+                                break
                             }
-                            break
-                        } catch (e: Exception) {
-                            Logging.e("Gateway", "Error in WebSocket loop", e)
-                            break
                         }
+                    } finally {
+                        sender.cancel()
+                        inflater?.close()
                     }
-                    sender.cancel()
-                    inflater?.close()
                     val reason = withContext(NonCancellable) {
                         withTimeoutOrNull(1.seconds) { closeReason.await() }
                     }
