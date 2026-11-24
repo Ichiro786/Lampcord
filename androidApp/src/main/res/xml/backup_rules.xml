@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!--
+   Backup rules for Android 11 and lower.
+   The encrypted settings file is useless without its Android Keystore key, which is never
+   backed up: restoring it onto another device made EncryptedSharedPreferences throw on launch.
+   It also holds the Discord token. The message logger database holds other people's deleted
+   messages and must not leave the device.
+-->
 <full-backup-content>
-
+    <exclude domain="sharedpref" path="lampcord_encrypted_settings.xml" />
+    <exclude domain="sharedpref" path="__androidx_security_crypto_encrypted_prefs__.xml" />
+    <exclude domain="database" path="lampcord.db" />
+    <exclude domain="database" path="lampcord.db-wal" />
+    <exclude domain="database" path="lampcord.db-shm" />
+    <exclude domain="file" path="startup-snapshot.json" />
 </full-backup-content>

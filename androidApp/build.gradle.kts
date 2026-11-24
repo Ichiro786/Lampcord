@@ -31,12 +31,22 @@ android {
         val nightlyBuild = (project.findProperty("nightlyBuild") as String?)?.toIntOrNull() ?: 0
 
         applicationId = if (nightlyBuild > 0) "me.lampu.lampcord.nightly" else "me.lampu.lampcord"
-        versionName = if (nightlyBuild > 0) "$appVersion-nightly.$nightlyBuild" else appVersion
+        // Fork builds (Ichiro786/Lampcord CI) are stamped with the run number: version X.Y.Z-fork.N.
+        val forkBuild = (project.findProperty("forkBuild") as String?)?.toIntOrNull() ?: 0
+        versionName = when {
+            nightlyBuild > 0 -> "$appVersion-nightly.$nightlyBuild"
+            forkBuild > 0 -> "$appVersion-fork.$forkBuild"
+            else -> appVersion
+        }
 
         val (versionMajor, versionMinor, versionPatch) =
             appVersion.substringBefore('-').split('.').map { it.toIntOrNull() ?: 0 }
         versionCode = if (nightlyBuild > 0) {
             1_000_000 + (nightlyBuild % 1_000_000)
+        } else if (forkBuild > 0) {
+            // Always above upstream's stable codes and rising with every fork build, so each one
+            // installs over the last even when the upstream version stays the same.
+            1_100_000_000 + forkBuild
         } else {
             versionMajor * 1_000_000 + versionMinor * 1_000 + versionPatch
         }

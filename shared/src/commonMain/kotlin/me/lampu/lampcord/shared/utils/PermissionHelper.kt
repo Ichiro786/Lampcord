@@ -77,6 +77,11 @@ object PermissionHelper {
             }
         }
 
+        // guild.permissions is Discord's own computation for the current user (from
+        // /users/@me/guilds); every caller asks about the current user, so it is used as a
+        // floor that a stale or incomplete role cache can't drop below.
+        guild.permissions?.toULongOrNull()?.toLong()?.let { permissions = permissions or it }
+
         if ((permissions and Permission.ADMINISTRATOR.value) != 0L) return -1L
 
         return permissions

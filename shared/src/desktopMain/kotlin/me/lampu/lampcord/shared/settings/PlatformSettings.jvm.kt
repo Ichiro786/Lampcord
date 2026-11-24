@@ -36,7 +36,7 @@ actual fun createSettings(): Settings {
         }
     }
     
-    return SecureJvmSettings(fileSettings)
+    return SecureJvmSettings(fileSettings, File(appDir, ".secret_key"))
 }
 
 private class FileSettings(private val file: File) : Settings {
@@ -143,7 +143,10 @@ private class FileSettings(private val file: File) : Settings {
     }
 }
 
-private class SecureJvmSettings(private val delegate: Settings) : Settings by delegate {
+private class SecureJvmSettings(
+    private val delegate: Settings,
+    private val keyFile: File
+) : Settings by delegate {
     private val secureKeys = setOf("discord_token", "saved_accounts")
 
     override fun getString(key: String, defaultValue: String): String {
@@ -174,7 +177,9 @@ private class SecureJvmSettings(private val delegate: Settings) : Settings by de
                 encryptAes(value)
             }
         } catch (e: Exception) {
-            value
+            // Never fall back to writing the token in plaintext.
+            System.err.println("Lampcord: failed to encrypt $e")
+            ""
         }
     }
 
@@ -213,16 +218,50 @@ private class SecureJvmSettings(private val delegate: Settings) : Settings by de
         return SecretKeySpec(hash.copyOf(16), "AES")
     }
 
+    /**
+     * A random 256-bit key kept in a file only this user can read. The old key was derived from
+     * the username, OS name and /etc/machine-id, all world-readable, so any local process could
+     * recompute it; it also silently logged the user out whenever machine-id changed.
+     */
+    private val secretKey: SecretKeySpec by lazy {
+        val bytes = if (keyFile.exists() && keyFile.length() == 32L) {
+            keyFile.readBytes()
+        } else {
+            ByteArray(32).also { java.security.SecureRandom().nextBytes(it) }.also { key ->
+                keyFile.parentFile?.mkdirs()
+                keyFile.writeBytes(key)
+                runCatching {
+                    java.nio.file.Files.setPosixFilePermissions(
+                        keyFile.toPath(),
+                        java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")
+                    )
+                }
+            }
+        }
+        SecretKeySpec(bytes, "AES")
+    }
+
     private fun encryptAes(value: String): String {
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-        val key = getMachineKey()
-        cipher.init(Cipher.ENCRYPT_MODE, key)
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey)
         val iv = cipher.iv
         val encrypted = cipher.doFinal(value.toByteArray())
-        return Base64.getEncoder().encodeToString(iv + encrypted)
+        return GCM_PREFIX + Base64.getEncoder().encodeToString(iv + encrypted)
     }
 
     private fun decryptAes(value: String): String? {
+        if (value.startsWith(GCM_PREFIX)) {
+            val data = Base64.getDecoder().decode(value.removePrefix(GCM_PREFIX))
+            if (data.size < 12) return null
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, javax.crypto.spec.GCMParameterSpec(128, data, 0, 12))
+            return String(cipher.doFinal(data, 12, data.size - 12))
+        }
+        return decryptLegacyAes(value)
+    }
+
+    /** Reads values written by older versions; they are re-encrypted on the next write. */
+    private fun decryptLegacyAes(value: String): String? {
         val data = Base64.getDecoder().decode(value)
         if (data.size < 16) return null
         val iv = data.copyOfRange(0, 16)
@@ -230,5 +269,9 @@ private class SecureJvmSettings(private val delegate: Settings) : Settings by de
         val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
         cipher.init(Cipher.DECRYPT_MODE, getMachineKey(), IvParameterSpec(iv))
         return String(cipher.doFinal(encrypted))
+    }
+
+    private companion object {
+        const val GCM_PREFIX = "v2:"
     }
 }

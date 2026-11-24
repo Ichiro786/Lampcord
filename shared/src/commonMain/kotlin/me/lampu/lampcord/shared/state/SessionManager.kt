@@ -7,6 +7,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.json.Json
 import me.lampu.lampcord.shared.api.AuthApi
 import me.lampu.lampcord.shared.gateway.GatewayManager
 import me.lampu.lampcord.shared.gateway.VoiceGatewayManager
@@ -54,17 +57,22 @@ class SessionManager(
             }
     )
 
+    // READY and the startup snapshot both rebuild every store; never let them interleave.
+    private val readyLock = Mutex()
+    private val snapshotJson = Json { ignoreUnknownKeys = true; explicitNulls = false }
+
     init {
-        scope.launch {
+        // Collected on Default: events used to be received on Main and hopped off one by one.
+        scope.launch(Dispatchers.Default) {
 
             gatewayManager.events.collect { payload ->
                 try {
                     if (payload.op == -1 && payload.t == "AUTH_FAILED") {
-                        logout(Settings.shared.discordToken)
+                        withContext(Dispatchers.Main) { logout(Settings.shared.discordToken) }
+                    } else if (payload.t == "READY") {
+                        readyLock.withLock { gatewayHandler.handleGatewayEvent(payload) }
                     } else {
-                        withContext(Dispatchers.Default) {
-                            gatewayHandler.handleGatewayEvent(payload)
-                        }
+                        gatewayHandler.handleGatewayEvent(payload)
                     }
                 } catch (e: kotlin.coroutines.cancellation.CancellationException) {
                     throw e
@@ -92,7 +100,15 @@ class SessionManager(
         authApi.setToken(token)
         Settings.shared.discordToken = token
         navigationStore.isConnecting = true
+        gatewayHandler.liveReadyApplied = false
         gatewayManager.connect(token)
+        // Draw last session's servers and DMs while the gateway connects.
+        scope.launch(Dispatchers.Default) {
+            val data = StartupSnapshot.load(snapshotJson, token) ?: return@launch
+            readyLock.withLock {
+                if (Settings.shared.discordToken == token) gatewayHandler.applySnapshot(data)
+            }
+        }
         pushTokenRegistrar?.register()
     }
 
@@ -125,6 +141,7 @@ class SessionManager(
     fun logout(token: String) {
         val cleanToken = token.trim()
         tokenStore.removeAccount(cleanToken)
+        if (Settings.shared.discordToken.trim() == cleanToken) StartupSnapshot.clear()
         if (Settings.shared.discordToken.trim() == cleanToken) {
             disconnect()
         }

@@ -2,6 +2,7 @@ package me.lampu.lampcord.shared.api
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -45,8 +46,15 @@ class RestClient(
 
     init {
         httpClient.receivePipeline.intercept(HttpReceivePipeline.Before) { response ->
-            if (response.status == HttpStatusCode.Unauthorized) {
-                if (token != null) {
+            // Only a 401 from Discord's own API, on a request that actually carried our token,
+            // means the session is dead. Third-party hosts (usrbg, UserPFP, badges, Catbox) share
+            // this client and must never be able to log the user out.
+            if (response.status == HttpStatusCode.Unauthorized && token != null) {
+                val request = response.call.request
+                val isDiscordApi = request.url.host in DISCORD_API_HOSTS &&
+                    request.url.encodedPath.startsWith("/api/")
+                val sentToken = request.headers[HttpHeaders.Authorization]
+                if (isDiscordApi && sentToken != null && sentToken == token) {
                     unauthorizedEvents.emit(Unit)
                 }
             }
@@ -66,8 +74,13 @@ class RestClient(
         this.token = token
     }
 
+    /** Everything in it is fixed for the process, so build it once instead of on every request. */
+    private val cachedSuperProperties: String by lazy { buildSuperProperties() }
+
+    fun getSuperProperties(): String = cachedSuperProperties
+
     @OptIn(ExperimentalEncodingApi::class)
-    fun getSuperProperties(): String {
+    private fun buildSuperProperties(): String {
         val platform = getPlatformName()
         val isMobile = platform == "android" || platform == "ios"
 
@@ -77,8 +90,8 @@ class RestClient(
             put("device", getDeviceName())
             put("system_locale", "en-US")
             put("has_client_mods", false)
-            put("client_version", if (isMobile) "341.0 - rn" else "0.0.398")
-            put("release_channel", if (isMobile) "canaryRelease" else "stable")
+            put("client_version", if (isMobile) "341.0 - rn" else DESKTOP_CLIENT_VERSION)
+            put("release_channel", "stable")
             put("device_vendor_id", vendorId)
             put("design_id", 2)
             put("browser_user_agent", if (isMobile) {
@@ -86,7 +99,7 @@ class RestClient(
             } else "")
             put("browser_version", if (isMobile) "" else "37.6.0")
             put("os_version", getOsVersion())
-            put("client_build_number", if (isMobile) 6081 else 575562)
+            put("client_build_number", if (isMobile) 6081 else DESKTOP_CLIENT_BUILD)
             put("client_event_source", JsonNull)
             if (isMobile) {
                 put("client_launch_id", launchId)
@@ -122,7 +135,7 @@ fun HttpRequestBuilder.standardHeaders(rest: RestClient) {
             "Discord/105180 CFNetwork/1410.0.3 Darwin/22.4.0"
         }
     } else {
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) discord/0.0.398 Chrome/138.0.7204.251 Electron/37.6.0 Safari/537.36"
+        desktopUserAgent()
     }
 
     header("User-Agent", userAgent)
@@ -138,7 +151,7 @@ fun HttpRequestBuilder.loginHeaders(rest: RestClient, fingerprint: String? = nul
     val userAgent = if (isMobile) {
         if (platform == "android") "Discord-Android/341200;RNA" else "Discord/105180 CFNetwork/1410.0.3 Darwin/22.4.0"
     } else {
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) discord/0.0.398 Chrome/138.0.7204.251 Electron/37.6.0 Safari/537.36"
+        desktopUserAgent()
     }
 
     header("User-Agent", userAgent)
@@ -149,8 +162,22 @@ fun HttpRequestBuilder.loginHeaders(rest: RestClient, fingerprint: String? = nul
     header("Referer", "https://discord.com/login")
 }
 
+private val DISCORD_API_HOSTS = setOf("discord.com", "ptb.discord.com", "canary.discord.com", "discordapp.com")
+
 fun createHttpClient(captcha: CaptchaCoordinator) = HttpClient(httpClientEngine()) {
     install(HttpCookies)
+    // Discord rate limits: wait out Retry-After and try again instead of failing the call.
+    // Only ever a 429 from Discord; nothing else is retried.
+    install(HttpRequestRetry) {
+        maxRetries = 3
+        retryIf { _, response ->
+            val url = response.call.request.url
+            response.status == HttpStatusCode.TooManyRequests && url.host in DISCORD_API_HOSTS &&
+                url.encodedPath.startsWith("/api/")
+        }
+        retryOnExceptionIf { _, _ -> false }
+        exponentialDelay(respectRetryAfterHeader = true)
+    }
     install(LampcordCaptchaPlugin) {
         coordinator = captcha
     }
@@ -172,4 +199,21 @@ fun createHttpClient(captcha: CaptchaCoordinator) = HttpClient(httpClientEngine(
     install(WebSockets)
 
     expectSuccess = false
+}
+
+/** Desktop client constants shared by REST and the gateway so both report the same client. */
+const val DESKTOP_CLIENT_VERSION = "0.0.398"
+const val DESKTOP_CLIENT_BUILD = 575562
+
+/**
+ * The desktop user agent for the OS we actually run on. REST always claimed Linux while the
+ * gateway reported the real OS, an inconsistent fingerprint for anti-abuse to notice.
+ */
+fun desktopUserAgent(): String {
+    val os = when (getPlatformName()) {
+        "windows" -> "Windows NT 10.0; Win64; x64"
+        "macos" -> "Macintosh; Intel Mac OS X 10_15_7"
+        else -> "X11; Linux x86_64"
+    }
+    return "Mozilla/5.0 ($os) AppleWebKit/537.36 (KHTML, like Gecko) discord/$DESKTOP_CLIENT_VERSION Chrome/138.0.7204.251 Electron/37.6.0 Safari/537.36"
 }

@@ -15,7 +15,8 @@ import kotlinx.serialization.json.Json
 import me.lampu.lampcord.shared.api.httpClientEngine
 import me.lampu.lampcord.shared.utils.getCurrentTimeMillis
 
-private const val API_BASE = "https://api.github.com/repos/l6t9/Lampcord"
+// This fork checks its own releases, so the app only offers builds published from Ichiro786/Lampcord.
+private const val API_BASE = "https://api.github.com/repos/Ichiro786/Lampcord"
 private const val MAX_ASSET_BYTES = 512L * 1024 * 1024
 private const val CHECK_INTERVAL_MILLIS = 60L * 60 * 1000
 

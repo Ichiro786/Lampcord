@@ -25,9 +25,30 @@ class GatewayHandler(
     private val memberListStore: MemberListStore,
     private val voiceStore: VoiceStore
 ) {
+    /** True once this connection's real READY has been applied; a snapshot must not overwrite it. */
+    @kotlin.concurrent.Volatile
+    var liveReadyApplied = false
+
+    /** Draws the cached READY while the gateway connects. Returns true if it was applied. */
+    fun applySnapshot(data: JsonElement): Boolean {
+        if (liveReadyApplied) return false
+        me.lampu.lampcord.shared.utils.Logging.i("GatewayHandler", "Applying startup snapshot")
+        handleReady(GatewayPayload(op = 0, d = data, t = "READY"))
+        return true
+    }
+
     fun handleGatewayEvent(payload: GatewayPayload) {
         when (payload.t) {
-            "READY" -> handleReady(payload)
+            "READY" -> {
+                handleReady(payload)
+                liveReadyApplied = true
+                val token = Settings.shared.discordToken
+                payload.d?.let { data -> scope.launch(Dispatchers.Default) { StartupSnapshot.save(json, token, data) } }
+            }
+            "READY_SUPPLEMENTAL" -> {
+                handleReadySupplemental(payload)
+                dispatcher.dispatch(payload)
+            }
             "RESUMED" -> {
                 navigationStore.isConnected = true
                 navigationStore.isConnecting = false
@@ -35,6 +56,41 @@ class GatewayHandler(
                 memberListStore.resubscribe()
             }
             else -> dispatcher.dispatch(payload)
+        }
+    }
+
+    /**
+     * With PRIORITIZED_READY_PAYLOAD, READY carries only your own member per guild; everyone
+     * else's member objects and all presences arrive here, indexed like READY's guild list.
+     */
+    private fun handleReadySupplemental(payload: GatewayPayload) {
+        val data = payload.d?.jsonObject ?: return
+        runCatching {
+            val guildIds = data["guilds"]?.jsonArray?.map { it.jsonObject["id"]?.jsonPrimitive?.contentOrNull }
+                ?: return
+            data["merged_members"]?.jsonArray?.forEachIndexed { index, list ->
+                val guildId = guildIds.getOrNull(index) ?: return@forEachIndexed
+                val raws = list.jsonArray
+                val pairs = ArrayList<Pair<String, Member>>(raws.size)
+                val rawObjs = ArrayList<JsonObject?>(raws.size)
+                raws.forEach { raw ->
+                    val member = runCatching { json.decodeFromJsonElement<Member>(raw) }.getOrNull() ?: return@forEach
+                    val userId = member.userId() ?: return@forEach
+                    pairs.add(userId to member)
+                    rawObjs.add(raw.jsonObject)
+                }
+                if (pairs.isNotEmpty()) userStore.cacheMembers(guildId, pairs, rawObjs)
+            }
+            val presences = data["merged_presences"]?.let { json.decodeFromJsonElement<MergedPresences>(it) }
+            val updates = ArrayList<PresenceUpdate>()
+            presences?.friends?.let { updates.addAll(it) }
+            presences?.guilds?.forEachIndexed { index, list ->
+                val guildId = guildIds.getOrNull(index) ?: return@forEachIndexed
+                list.forEach { updates.add(if (it.guild_id == null) it.copy(guild_id = guildId) else it) }
+            }
+            presenceStore.applyPresences(updates)
+        }.onFailure {
+            me.lampu.lampcord.shared.utils.Logging.e("GatewayHandler", "Failed to process READY_SUPPLEMENTAL", it)
         }
     }
 
@@ -112,7 +168,15 @@ class GatewayHandler(
                 }
 
                 memberListStore.resubscribe()
-            } catch (e: Exception) { }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A schema change in READY used to be swallowed here, leaving the app stuck on
+                // "Connecting" forever with nothing in the logs.
+                me.lampu.lampcord.shared.utils.Logging.e("GatewayHandler", "Failed to process READY", e)
+                navigationStore.isConnected = true
+                navigationStore.isConnecting = false
+            }
         }
     }
 }

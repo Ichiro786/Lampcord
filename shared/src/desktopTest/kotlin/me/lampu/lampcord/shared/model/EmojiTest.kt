@@ -3,6 +3,7 @@ package me.lampu.lampcord.shared.model
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import me.lampu.lampcord.shared.settings.Settings
 import me.lampu.lampcord.shared.utils.ResourceLoader
 
 class EmojiTest {
@@ -38,14 +39,22 @@ class EmojiTest {
 
     @Test
     fun displayUrlPrefersGifOnlyWhenAnimated() {
-        assertEquals(
-            "https://cdn.discordapp.com/emojis/123.gif?size=64&quality=lossless",
-            Emoji(id = "123", name = "party").getDisplayUrl()
-        )
-        assertEquals(
-            "https://cdn.discordapp.com/emojis/123.webp?size=64&quality=lossless",
-            Emoji(id = "123", name = "smile").getDisplayUrl()
-        )
+        val settings = Settings.shared
+        val originalReduceMotion = settings.reduceMotion
+        val animatedEmoji = Emoji(id = "123", name = "party", animated = true)
+        val staticUrl = "https://cdn.discordapp.com/emojis/123.webp?size=64&quality=lossless"
+        try {
+            settings.reduceMotion = false
+            assertEquals(
+                "https://cdn.discordapp.com/emojis/123.gif?size=64&quality=lossless",
+                animatedEmoji.getDisplayUrl()
+            )
+            assertEquals(staticUrl, Emoji(id = "123", name = "smile").getDisplayUrl())
+            settings.reduceMotion = true
+            assertEquals(staticUrl, animatedEmoji.getDisplayUrl())
+        } finally {
+            settings.reduceMotion = originalReduceMotion
+        }
     }
 
     @Test

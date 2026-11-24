@@ -111,6 +111,8 @@ import me.lampu.lampcord.shared.ui.kit.UserAvatar
 import me.lampu.lampcord.shared.utils.*
 import kotlin.time.Instant
 import org.koin.compose.koinInject
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes

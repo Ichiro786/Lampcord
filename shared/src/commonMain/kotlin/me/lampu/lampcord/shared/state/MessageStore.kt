@@ -41,6 +41,7 @@ import me.lampu.lampcord.shared.utils.ResourceLoader
 import me.lampu.lampcord.shared.utils.getCurrentTimeMillis
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
@@ -94,6 +95,16 @@ class MessageStore(
     private var historyLoadingJobs = mutableMapOf<String, Job>()
 
     private val messageNonceIds = mutableMapOf<String, String>()
+
+    /** Real message id -> the temporary id it was shown under while pending. */
+    private val sentMessageKeys = mutableMapOf<String, String>()
+
+    /**
+     * A list key that survives the pending -> sent transition. Keying by id alone changed the key
+     * when the nonce was swapped for the real snowflake, so the row was torn down and re-added
+     * (flash and scroll jump) every time you sent a message.
+     */
+    fun stableKey(message: Message): String = sentMessageKeys[message.id] ?: message.id
 
     private class CompiledReplaceRules(
         val source: List<TextReplaceRule>,
@@ -217,6 +228,7 @@ class MessageStore(
         channelAccessOrder.clear()
         _activeMessages.value = emptyList()
         messageNonceIds.clear()
+        sentMessageKeys.clear()
         _hasMoreHistory.value = emptyMap()
         _loadingHistoryChannels.value = emptySet()
         historyLoadingJobs.values.forEach { it.cancel() }
@@ -245,11 +257,14 @@ class MessageStore(
     private fun recordAccess(channelId: String) {
         channelAccessOrder.remove(channelId)
         channelAccessOrder.add(channelId)
-        if (channelAccessOrder.size > CACHE_MAX_CHANNELS) {
-            val oldest = channelAccessOrder.removeAt(0)
-            messageCache.remove(oldest)
-            publishMessages(oldest)
-            _hasMoreHistory.update { it + (oldest to true) }
+        val active = selectionStore.activeChannelIdFlow.value
+        while (channelAccessOrder.size > CACHE_MAX_CHANNELS) {
+            // Never evict the channel the user is looking at, however busy other channels are.
+            val victim = channelAccessOrder.firstOrNull { it != active } ?: break
+            channelAccessOrder.remove(victim)
+            messageCache.remove(victim)
+            publishMessages(victim)
+            _hasMoreHistory.update { it + (victim to true) }
         }
         trimChannelMessages(channelId)
     }
@@ -342,9 +357,16 @@ class MessageStore(
 
     fun handleMessageCreate(message: Message) {
         Logging.d("MessageStore", "Handling MESSAGE_CREATE: ${message.id}")
-        val preprocessed = preprocess(message)
         val channelId = message.channel_id
-        val channelMessages = messageCache[channelId]?.toMutableList() ?: mutableListOf()
+        val cached = messageCache[channelId]
+        if (cached == null && !message.isPending && channelId != selectionStore.activeChannelIdFlow.value) {
+            // Not loaded yet: caching this lone message would make hasMessages() true, so opening
+            // the channel would skip its history fetch and show just this one message. It also
+            // churned the LRU for every busy channel the user isn't looking at.
+            return
+        }
+        val preprocessed = preprocess(message)
+        val channelMessages = cached?.toMutableList() ?: mutableListOf()
 
         val nonce = preprocessed.nonce
         var replaced = false
@@ -359,6 +381,7 @@ class MessageStore(
                     if (idx != -1) {
                         channelMessages[idx] = preprocessed
                         replaced = true
+                        sentMessageKeys[preprocessed.id] = localId
                     }
                 }
             }
@@ -396,33 +419,27 @@ class MessageStore(
 
     fun handleMessageDelete(id: String, channelId: String? = null) {
         Logging.d("MessageStore", "Handling MESSAGE_DELETE: $id")
+        handleMessagesDelete(setOf(id), channelId)
+    }
+
+    /**
+     * Removes (or, with the logger on, marks deleted) [ids]. With a [channelId] only that channel
+     * is touched; MESSAGE_DELETE always carries one, so scanning every cached channel is only the
+     * fallback.
+     */
+    fun handleMessagesDelete(ids: Set<String>, channelId: String? = null) {
+        if (ids.isEmpty()) return
         val keepInLog = me.lampu.lampcord.shared.settings.Settings.shared.messageLoggerEnabled
-        val entries = if (channelId != null) {
-            messageCache[channelId]?.let { listOf(channelId to it) }.orEmpty()
-        } else {
-            messageCache.toList()
-        }
-        entries.forEach { (chanId, channelMessages) ->
-            var channelChanged = false
-            val newList = if (keepInLog) {
-                channelMessages.map { msg ->
-                    if (msg.id == id) {
-                        channelChanged = true
-                        msg.copy(isDeleted = true)
-                    } else msg
-                }
+        val targets = if (channelId != null) listOfNotNull(messageCache[channelId]?.let { channelId to it })
+        else messageCache.entries.map { it.key to it.value }
+        for ((chanId, channelMessages) in targets) {
+            if (channelMessages.none { it.id in ids }) continue
+            messageCache[chanId] = if (keepInLog) {
+                channelMessages.map { if (it.id in ids) it.copy(isDeleted = true) else it }
             } else {
-                channelMessages.filter { msg ->
-                    if (msg.id == id) {
-                        channelChanged = true
-                        false
-                    } else true
-                }
+                channelMessages.filterNot { it.id in ids }
             }
-            if (channelChanged) {
-                messageCache[chanId] = newList
-                publishMessages(chanId)
-            }
+            publishMessages(chanId)
         }
     }
 
@@ -715,7 +732,7 @@ class MessageStore(
                                     val contentToSend = transformOutgoingContent(task.content)
                                     Logging.d("MessageStore", "Sending message: nonce=${task.nonce} channel=${task.channelId}")
 
-                            val message = withTimeoutOrNull(60000.milliseconds) {
+                            val message = withTimeoutOrNull(if (task.files.isEmpty()) 60_000.milliseconds else 15.minutes) {
                                 messageApi.sendMessage(
                                     channelId = task.channelId,
                                     content = contentToSend,
@@ -798,6 +815,7 @@ class MessageStore(
     fun deletePendingMessage(message: Message) {
         val channelId = message.channel_id
         val nonce = message.nonce ?: return
+        messageNonceIds.remove(nonce)
         val channelMessages = messageCache[channelId] ?: return
         val newList = channelMessages.filter { msg -> msg.nonce != nonce }
         messageCache[channelId] = newList

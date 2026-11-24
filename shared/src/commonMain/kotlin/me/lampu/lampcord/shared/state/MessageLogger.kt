@@ -22,12 +22,20 @@ class MessageLogger(
 ) {
     init {
         scope.launch {
-            runCatching {
+            try {
+                val cutoff = kotlin.time.Clock.System.now() - RETENTION
+                messageDao.pruneUnremarkable(cutoff.toString())
                 messageDao.deleteOlderThan(
                     Instant.fromEpochMilliseconds(getCurrentTimeMillis() - LOG_RETENTION_MILLIS).toString()
                 )
+            } catch (e: Exception) {
+                me.lampu.lampcord.shared.utils.Logging.e("MessageLogger", "Pruning logged messages failed", e)
             }
         }
+    }
+
+    private companion object {
+        val RETENTION = with(kotlin.time.Duration) { 7.days }
     }
 
     fun logMessage(message: Message) {
@@ -36,7 +44,8 @@ class MessageLogger(
         if (settings.messageLoggerIgnoreBots && message.author?.bot == true) return
         if (settings.messageLoggerIgnoreSelf && message.author?.id == userStore.currentUser.value?.id) return
 
-        scope.launch {
+        // Encoding the full message to JSON is real work; keep it off the main thread.
+        scope.launch(Dispatchers.Default) {
             try {
                 val entity = MessageEntity(
                     id = message.id,
@@ -62,7 +71,7 @@ class MessageLogger(
         if (settings.messageLoggerIgnoreBots && message.author?.bot == true) return
         if (settings.messageLoggerIgnoreSelf && message.author?.id == userStore.currentUser.value?.id) return
 
-        scope.launch {
+        scope.launch(Dispatchers.Default) {
             try {
                 messageDao.applyEdit(message.id, message.content, json.encodeToString(message))
             } catch (e: Exception) {

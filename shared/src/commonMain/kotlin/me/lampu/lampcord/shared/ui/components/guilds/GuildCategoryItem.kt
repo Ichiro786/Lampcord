@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,7 +54,8 @@ fun GuildCategoryItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
 
-    val guild = navigationStore.selectedGuild
+    val liveGuilds by guildStore.guilds.collectAsState()
+    val guild = navigationStore.selectedGuild?.let { selected -> liveGuilds.find { it.id == selected.id } ?: selected }
     val currentUser = LocalCurrentUser.current
     val currentUserId = currentUser?.id
     val memberState = remember(guild?.id, currentUserId) {

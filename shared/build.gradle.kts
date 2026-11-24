@@ -42,7 +42,13 @@ val generatedUpdateDir = layout.buildDirectory.dir("generated/update")
 val generateAppVersion = tasks.register("generateAppVersion") {
     val appVersion = providers.gradleProperty("appVersion").get()
     val nightlyBuild = providers.gradleProperty("nightlyBuild").orNull?.toIntOrNull() ?: 0
-    val version = if (nightlyBuild > 0) "$appVersion-nightly.$nightlyBuild" else appVersion
+    // Fork releases (Ichiro786/Lampcord) carry their CI run number so every build is newer than the last.
+    val forkBuild = providers.gradleProperty("forkBuild").orNull?.toIntOrNull() ?: 0
+    val version = when {
+        nightlyBuild > 0 -> "$appVersion-nightly.$nightlyBuild"
+        forkBuild > 0 -> "$appVersion-fork.$forkBuild"
+        else -> appVersion
+    }
     val output = generatedUpdateDir.map { it.file("me/lampu/lampcord/shared/update/AppVersion.kt") }
     inputs.property("version", version)
     inputs.property("nightlyBuild", nightlyBuild.toString())
@@ -199,7 +205,6 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(libs.tianscar.imageio.apng)
-                implementation(libs.vlcj)
                 implementation("dev.nucleusframework:nucleus.system-color:${libs.versions.nucleus.get()}")
 
                 implementation("io.ktor:ktor-server-core:${libs.versions.ktor.get()}")

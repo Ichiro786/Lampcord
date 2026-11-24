@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!--
+   Backup rules for Android 12+. See backup_rules.xml for why these are excluded.
+-->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <exclude domain="sharedpref" path="lampcord_encrypted_settings.xml" />
+        <exclude domain="sharedpref" path="__androidx_security_crypto_encrypted_prefs__.xml" />
+        <exclude domain="database" path="lampcord.db" />
+        <exclude domain="database" path="lampcord.db-wal" />
+        <exclude domain="database" path="lampcord.db-shm" />
+        <exclude domain="file" path="startup-snapshot.json" />
     </cloud-backup>
-
+    <device-transfer>
+        <exclude domain="sharedpref" path="lampcord_encrypted_settings.xml" />
+        <exclude domain="sharedpref" path="__androidx_security_crypto_encrypted_prefs__.xml" />
+        <exclude domain="database" path="lampcord.db" />
+        <exclude domain="database" path="lampcord.db-wal" />
+        <exclude domain="database" path="lampcord.db-shm" />
+        <exclude domain="file" path="startup-snapshot.json" />
+    </device-transfer>
 </data-extraction-rules>
